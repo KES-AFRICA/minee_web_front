@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import axios from "axios";
+import axios, { type InternalAxiosRequestConfig } from "axios";
 
 const api = axios.create({
   baseURL: process.env.REACT_APP_API_URL || "https://api.eneo-actifs.cm",
@@ -7,7 +7,7 @@ const api = axios.create({
 });
 
 // Intercepteur pour injecter le token
-api.interceptors.request.use((config: { headers: { Authorization: string; }; }) => {
+api.interceptors.request.use((config: InternalAxiosRequestConfig) => {
   const token = localStorage.getItem("eneo_token");
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
