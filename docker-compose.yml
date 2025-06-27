@@ -1,0 +1,26 @@
+services:
+  react-app:
+    # Use the Dockerfile in the current directory to build the image
+    build:
+      context: .
+      dockerfile: Dockerfile
+    # Map port 5173 on your host machine to port 5173 in the container
+    ports:
+      - "5173:5173"
+    # Mount the current directory into /app inside the container
+    # This allows you to make changes to your code locally and see them reflected in the container
+    # - /app/node_modules: This creates a named volume (or an anonymous volume if not explicitly named)
+    #   for node_modules inside the container, preventing your host's node_modules from conflicting
+    #   and avoiding extremely slow performance due to node_modules being mounted from host.
+    volumes:
+      - ./:/app
+      - /app/node_modules
+    # Set environment variables for the container
+    environment:
+      - NODE_ENV=development
+      # CHOKIDAR_USEPOLLING=true is often necessary for file watching to work
+      # reliably in Docker containers, especially on macOS or Windows (WSL).
+      - CHOKIDAR_USEPOLLING=true
+    # Override the CMD instruction from the Dockerfile
+    # Ensure this command matches how you start your development server (e.g., yarn dev or npm start)
+    command: yarn dev # Changed from yarn start to yarn dev for consistency with EXPOSE 5173 and typical Vite/Next.js setup

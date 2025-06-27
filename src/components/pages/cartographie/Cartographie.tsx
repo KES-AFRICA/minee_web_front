@@ -1,3 +1,3 @@
 export default function Cartographie() {
-  return <div>Cartographie</div>;
+  return <div>Cartographie test</div>;
 }
