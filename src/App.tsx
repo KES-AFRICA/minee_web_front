@@ -1,6 +1,5 @@
 import { Route, BrowserRouter as Router, Routes } from "react-router-dom";
 import LoginForm from "./components/auth/LoginForm";
-import { ThemeProvider } from "./context/ThemeContext";
 import AppProviders from "./context/AppProviders";
 import { Layout } from "./components/layout/Layout";
 import Utilisateur from "./components/pages/utilisateur/Utilisateur";
@@ -9,6 +8,8 @@ import Cartographie from "./components/pages/cartographie/Cartographie";
 import Parametres from "./components/pages/parametres/Parametres";
 import Rapport from "./components/pages/rapports/Rapport";
 import DashboardPage from "./components/pages/dashboard/DashboardPage";
+import { ThemeProvider } from "./context/ThemeProvider";
+
 const PrivateRoute: React.FC<{ element: React.ReactNode }> = ({ element }) => {
   // const isAuthenticated = AuthService.getToken() !== null;
   // return isAuthenticated ? element : <Navigate to="/login" replace />;
@@ -21,6 +22,9 @@ const PublicRoute: React.FC<{ element: React.ReactNode }> = ({ element }) => {
   return <>{element}</>;
 };
 export default function App() {
+
+
+
   return (
     <ThemeProvider>
       <AppProviders>

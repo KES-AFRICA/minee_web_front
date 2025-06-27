@@ -12,15 +12,16 @@ import {
   User,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { useTheme } from "../../context/ThemeContext";
+import { useTheme } from "../../hooks/useTheme";
 
 interface HeaderProps {
   mobileMenuTrigger?: React.ReactNode;
 }
 
 const Header = ({ mobileMenuTrigger }: HeaderProps) => {
+
+  const { theme, setTheme, } = useTheme();
   const navigate = useNavigate();
-  const { theme, setTheme } = useTheme();
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [isNotificationOpen, setIsNotificationOpen] = useState(false);
   const [isThemeOpen, setIsThemeOpen] = useState(false);
