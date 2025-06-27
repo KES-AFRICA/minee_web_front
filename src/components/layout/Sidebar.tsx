@@ -162,6 +162,7 @@ import {
   Boxes,
   Map,
   LogOut,
+  ChartBar,
 } from "lucide-react";
 import { cn } from "../../lib/utils";
 
@@ -174,6 +175,7 @@ const iconMapping: Record<string, JSX.Element> = {
   utilisateur: <Users2 className="w-5 h-5" />,
   actifs: <Boxes className="w-5 h-5" />,
   carte: <Map className="w-5 h-5" />,
+  rapport: <ChartBar className="w-5 h-5" />,
   parametres: <Settings className="w-5 h-5" />,
 };
 
@@ -197,10 +199,6 @@ const Sidebar = ({ onItemClick }: SidebarProps) => {
     <div className="fixed w-72 h-full bg-gradient-to-br from-slate-50 to-cyan-50 dark:from-gray-900 dark:to-slate-800 shadow-2xl">
       {/* Header Section */}
       <div className="relative p-6 pb-4">
-        {/* Decorative background elements */}
-        <div className="absolute top-0 right-0 w-20 h-20 bg-white/5 rounded-full -translate-y-4 translate-x-4" />
-        <div className="absolute bottom-0 left-0 w-16 h-16 bg-white/5 rounded-full translate-y-4 -translate-x-4" />
-
         {/* Logo Container */}
         <div className="relative z-10 flex flex-row gap-2 items-center">
           <div className="w-16 h-16 bg-white rounded-full flex items-center justify-center shadow-lg ring-4 ring-white/20 transition-transform hover:scale-105">

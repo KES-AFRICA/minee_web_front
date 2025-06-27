@@ -41,9 +41,9 @@ export const Layout = () => {
                       className="lg:hidden transition-all duration-300 hover:bg-teal-50 dark:hover:bg-teal-900/20 hover:text-teal-600 dark:hover:text-teal-400"
                     >
                       {isSidebarOpen ? (
-                        <X className="h-7 w-7 text-black" />
+                        <X className="h-8 w-8 text-black" />
                       ) : (
-                        <Menu className="h-7 w-7 text-black" />
+                        <Menu className="h-8 w-8 text-black dark:text-white" />
                       )}
                       <span className="sr-only">
                         {isSidebarOpen ? "Fermer le menu" : "Ouvrir le menu"}
@@ -65,9 +65,7 @@ export const Layout = () => {
               >
                 {/* Content Container */}
                 <div className="max-w-7xl mx-auto">
-                  <div className="bg-white/70 dark:bg-gray-800/70 backdrop-blur-sm rounded-2xl shadow-lg border border-teal-100/50 dark:border-teal-700/50 min-h-[calc(100vh-12rem)] p-6 lg:p-8">
-                    <Outlet />
-                  </div>
+                  <Outlet />
                 </div>
               </div>
             </div>

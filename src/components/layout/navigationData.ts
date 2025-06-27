@@ -39,9 +39,18 @@ export const navigationLinks: NavigationGroup[] = [
   {
     items: [
       {
-        name: "Catographie",
+        name: "Cartographie",
         href: "/carte",
         iconName: "carte",
+      },
+    ],
+  },
+  {
+    items: [
+      {
+        name: "Rapports",
+        href: "/rapport",
+        iconName: "rapport",
       },
     ],
   },
