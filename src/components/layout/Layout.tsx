@@ -64,7 +64,7 @@ export const Layout = () => {
                 )}
               >
                 {/* Content Container */}
-                <div className="max-w-7xl mx-auto">
+                <div className="flex-1 overflow-hidden mx-auto">
                   <Outlet />
                 </div>
               </div>
