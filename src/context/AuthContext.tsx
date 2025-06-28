@@ -1,7 +1,25 @@
 /* eslint-disable react-refresh/only-export-components */
 import { createContext, useContext, useState, type ReactNode } from "react";
-import type { User } from "../services/AuthService";
-import AuthService from "../services/AuthService";
+
+// Define User type
+interface User {
+  id: string;
+  email: string;
+  // Add other user properties as needed
+}
+
+// Create AuthService
+const AuthService = {
+  login: async ({ email, password }: { email: string; password: string }): Promise<User> => {
+    // Replace with actual API call logic
+    console.log("Logging in with", email, password);
+    return { id: "1", email };
+  },
+  logout: () => {
+    // Replace with actual logout logic
+    console.log("Logging out");
+  }
+};
 
 interface AuthProviderProps {
   children: ReactNode;
