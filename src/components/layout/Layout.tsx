@@ -77,7 +77,7 @@ export const Layout = () => {
                 )}
               >
                 {/* Content Container */}
-                <div className="mx-auto">
+                <div className="flex-1 overflow-hidden mx-auto">
                   <Outlet />
                 </div>
               </div>
