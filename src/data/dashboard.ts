@@ -13,74 +13,174 @@ export const actifsByRegion = [
     postes: 67,
     valeur: 9800000,
   },
-  {
-    region: "Ouest",
-    transformateurs: 320,
-    lignes: 800,
-    postes: 54,
-    valeur: 8200000,
-  },
-  {
-    region: "Nord-Ouest",
-    transformateurs: 280,
-    lignes: 720,
-    postes: 45,
-    valeur: 7100000,
-  },
-  {
-    region: "Sud",
-    transformateurs: 250,
-    lignes: 650,
-    postes: 38,
-    valeur: 6500000,
-  },
-  {
-    region: "Est",
-    transformateurs: 200,
-    lignes: 520,
-    postes: 32,
-    valeur: 5200000,
-  },
-  {
-    region: "Nord",
-    transformateurs: 180,
-    lignes: 480,
-    postes: 28,
-    valeur: 4800000,
-  },
-  {
-    region: "Adamaoua",
-    transformateurs: 150,
-    lignes: 390,
-    postes: 24,
-    valeur: 3900000,
-  },
-  {
-    region: "Sud-Ouest",
-    transformateurs: 220,
-    lignes: 580,
-    postes: 35,
-    valeur: 5800000,
-  },
-  {
-    region: "Extrême-Nord",
-    transformateurs: 160,
-    lignes: 420,
-    postes: 26,
-    valeur: 4200000,
-  },
 ];
 
 export const typeActifs = [
   { name: "Transformateurs", value: 2590, color: "#0D9488" },
   { name: "Lignes HT/MT", value: 6710, color: "#06B6D4" },
   { name: "Postes", value: 438, color: "#14B8A6" },
-  { name: "Équipements", value: 1580, color: "#22D3EE" },
   { name: "Cables aerien", value: 610, color: "#06B6D477" },
   { name: "Cable souterain", value: 418, color: "#14B" },
-  { name: "Support", value: 1580, color: "#220" },
-  { name: "Point de livraison", value: 180, color: "#2EE" },
+  { name: "Poteaux", value: 1580, color: "#220" },
+  { name: "Point de livraison", value: 1820, color: "#2EE" },
 ];
+
+export const regionsData = {
+  Littoral: {
+    communes: [
+      {
+        name: "Douala 1",
+        actifs: {
+          transformateurs: 450,
+          lignes: 1200,
+          postes: 85,
+          cablesAerien: 120,
+          cableSouterrain: 89,
+          poteaux: 320,
+          pointLivraison: 380,
+        },
+      },
+      {
+        name: "Douala 2",
+        actifs: {
+          transformateurs: 380,
+          lignes: 980,
+          postes: 65,
+          cablesAerien: 95,
+          cableSouterrain: 67,
+          poteaux: 280,
+          pointLivraison: 320,
+        },
+      },
+      {
+        name: "Douala 3",
+        actifs: {
+          transformateurs: 420,
+          lignes: 1100,
+          postes: 78,
+          cablesAerien: 110,
+          cableSouterrain: 82,
+          poteaux: 300,
+          pointLivraison: 350,
+        },
+      },
+      {
+        name: "Douala 4",
+        actifs: {
+          transformateurs: 290,
+          lignes: 850,
+          postes: 55,
+          cablesAerien: 80,
+          cableSouterrain: 58,
+          poteaux: 220,
+          pointLivraison: 280,
+        },
+      },
+      {
+        name: "Douala 5",
+        actifs: {
+          transformateurs: 350,
+          lignes: 950,
+          postes: 68,
+          cablesAerien: 90,
+          cableSouterrain: 72,
+          poteaux: 260,
+          pointLivraison: 310,
+        },
+      },
+      {
+        name: "Edea",
+        actifs: {
+          transformateurs: 180,
+          lignes: 520,
+          postes: 35,
+          cablesAerien: 45,
+          cableSouterrain: 28,
+          poteaux: 140,
+          pointLivraison: 180,
+        },
+      },
+    ],
+    totalValeur: 2850000000,
+  },
+  Centre: {
+    communes: [
+      {
+        name: "Yaoundé 1",
+        actifs: {
+          transformateurs: 320,
+          lignes: 890,
+          postes: 62,
+          cablesAerien: 85,
+          cableSouterrain: 65,
+          poteaux: 250,
+          pointLivraison: 290,
+        },
+      },
+      {
+        name: "Yaoundé 2",
+        actifs: {
+          transformateurs: 280,
+          lignes: 750,
+          postes: 48,
+          cablesAerien: 70,
+          cableSouterrain: 52,
+          poteaux: 210,
+          pointLivraison: 250,
+        },
+      },
+      {
+        name: "Yaoundé 3",
+        actifs: {
+          transformateurs: 260,
+          lignes: 680,
+          postes: 45,
+          cablesAerien: 65,
+          cableSouterrain: 48,
+          poteaux: 190,
+          pointLivraison: 230,
+        },
+      },
+      {
+        name: "Yaoundé 4",
+        actifs: {
+          transformateurs: 240,
+          lignes: 620,
+          postes: 42,
+          cablesAerien: 60,
+          cableSouterrain: 45,
+          poteaux: 180,
+          pointLivraison: 210,
+        },
+      },
+      {
+        name: "Mbalmayo",
+        actifs: {
+          transformateurs: 150,
+          lignes: 420,
+          postes: 28,
+          cablesAerien: 35,
+          cableSouterrain: 25,
+          poteaux: 120,
+          pointLivraison: 140,
+        },
+      },
+      {
+        name: "Obala",
+        actifs: {
+          transformateurs: 120,
+          lignes: 350,
+          postes: 22,
+          cablesAerien: 28,
+          cableSouterrain: 20,
+          poteaux: 95,
+          pointLivraison: 110,
+        },
+      },
+    ],
+    totalValeur: 1950000000,
+  },
+};
 
 export const evolutionValeur = [
   { mois: "Jan", valeur: 65000000, maintenance: 2100000 },

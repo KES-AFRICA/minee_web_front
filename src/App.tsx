@@ -9,22 +9,15 @@ import Parametres from "./components/pages/parametres/Parametres";
 import Rapport from "./components/pages/rapports/Rapport";
 import DashboardPage from "./components/pages/dashboard/DashboardPage";
 import { ThemeProvider } from "./context/ThemeProvider";
+import CollectorPerformancePage from "./components/pages/collecteurs/CollectorPerformancePage";
 
 const PrivateRoute: React.FC<{ element: React.ReactNode }> = ({ element }) => {
-  // const isAuthenticated = AuthService.getToken() !== null;
-  // return isAuthenticated ? element : <Navigate to="/login" replace />;
   return <>{element}</>;
 };
 const PublicRoute: React.FC<{ element: React.ReactNode }> = ({ element }) => {
-  // const { isAuthenticated } = useAuth();
-
-  // return isAuthenticated ? <Navigate to="/" /> : <>{element}</>;
   return <>{element}</>;
 };
 export default function App() {
-
-
-
   return (
     <ThemeProvider>
       <AppProviders>
@@ -41,6 +34,10 @@ export default function App() {
               <Route path="/carte" element={<Cartographie />} />
               <Route path="/rapport" element={<Rapport />} />
               <Route path="/parametres" element={<Parametres />} />
+              <Route
+                path="/collecteurs"
+                element={<CollectorPerformancePage />}
+              />
             </Route>
           </Routes>
         </Router>

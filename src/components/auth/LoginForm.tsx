@@ -31,7 +31,7 @@ export default function ArcticElecLogin() {
               Bienvenue
             </h2>
             <p className="text-gray-600 text-sm px-4 sm:px-0">
-              Connectez-vous à votre compte ARCTIC-ELEC Admin
+              Connectez-vous à votre compte GEO-FIN Admin
             </p>
           </div>
 
@@ -128,16 +128,13 @@ export default function ArcticElecLogin() {
 
       {/* Section droite avec informations */}
       <div className="flex items-center  lg:flex-1 bg-gradient-to-br bg-cyan-600 relative overflow-hidden order-1 lg:order-2 min-h-[300px] lg:min-h-screen">
-        {/* Éléments décoratifs */}
-        <div className="absolute top-10 right-10 lg:top-20 lg:right-20 w-16 h-16 lg:w-32 lg:h-32 bg-white/10 rounded-full"></div>
-        <div className="absolute bottom-10 left-10 lg:bottom-20 lg:left-20 w-12 h-12 lg:w-24 lg:h-24 bg-green-500/20 rounded-full"></div>
-        <div className="absolute top-1/2 right-1/3 w-8 h-8 lg:w-16 lg:h-16 bg-orange-400/20 rounded-full"></div>
+       
 
         <div className="flex flex-col items-center justify-center px-6 sm:px-8 lg:px-12 py-8 lg:py-16 text-white relative z-10 w-full">
           {/* Logo principal */}
           <div className="mb-6 lg:mb-8 text-center  lg:text-left">
             <h1 className="text-2xl text-center sm:text-3xl lg:text-4xl font-bold mb-2 lg:mb-4">
-              ARCTIC-ELEC
+              GEO-FIN
             </h1>
             <p className="text-blue-100 text-base lg:text-lg leading-relaxed px-4 lg:px-0">
               Inventaire et valorisation intelligente des actifs électriques

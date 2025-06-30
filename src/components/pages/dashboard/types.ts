@@ -13,5 +13,6 @@ export type KPICardProps = {
   icon: React.ElementType;
   trend?: "up" | "down";
   trendValue?: string;
-  color?: "teal" | "cyan" | "emerald";
+  color?: "teal" | "cyan" | "emerald" | "amber";
+  delay?: number;
 };

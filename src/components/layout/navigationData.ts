@@ -39,6 +39,15 @@ export const navigationLinks: NavigationGroup[] = [
   {
     items: [
       {
+        name: "Collecteurs",
+        href: "/collecteurs",
+        iconName: "collecteurs",
+      },
+    ],
+  },
+  {
+    items: [
+      {
         name: "Cartographie",
         href: "/carte",
         iconName: "carte",
