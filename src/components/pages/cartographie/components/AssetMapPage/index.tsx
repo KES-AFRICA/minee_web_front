@@ -9,7 +9,6 @@ import {
   Eye,
   EyeOff,
   Layers,
-  BarChart3,
   Download,
   Maximize2,
   Settings,
@@ -21,7 +20,6 @@ import {
 
 import { useAssetFiltering } from "./hooks/useAssetFiltering";
 import { FilterPanel } from "./components/FilterPanel";
-import { StatisticsPanel } from "./components/StatisticsPanel";
 import { AssetMarkers } from "./components/AssetMarkers";
 import type { Asset, MapViewState } from "./types";
 

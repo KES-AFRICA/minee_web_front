@@ -9,6 +9,8 @@ import Rapport from "./components/pages/rapports/Rapport";
 import DashboardPage from "./components/pages/dashboard/DashboardPage";
 import { ThemeProvider } from "./context/ThemeProvider";
 import AssetMapPage from "./components/pages/cartographie/components/AssetMapPage";
+import {useThemeStore} from "@/store/themeStore.ts";
+import {useEffect} from "react";
 
 const PrivateRoute: React.FC<{ element: React.ReactNode }> = ({ element }) => {
   // const isAuthenticated = AuthService.getToken() !== null;
@@ -22,8 +24,11 @@ const PublicRoute: React.FC<{ element: React.ReactNode }> = ({ element }) => {
   return <>{element}</>;
 };
 export default function App() {
+  const initializeTheme = useThemeStore(state => state.initializeTheme);
 
-
+  useEffect(() => {
+    initializeTheme();
+  }, [initializeTheme]);
 
   return (
     <ThemeProvider>
