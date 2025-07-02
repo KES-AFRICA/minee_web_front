@@ -491,7 +491,7 @@ export default function Sig({
                 Details des Départs
               </h3>
               {/* remove scrollbar */}
-              <div className="overflow-x-hidden">
+              <div className="overflow-x-auto">
                 <table className="min-w-full divide-y divide-gray-200">
                   <thead className="bg-gray-50 dark:bg-gray-700">
                     <tr>
