@@ -12,6 +12,7 @@ import {useThemeStore} from "@/store/themeStore.ts";
 import {useEffect} from "react";
 import Maps from "@/components/pages/cartographie/Maps.tsx";
 import { ToastContainer } from "react-toastify";
+import Utilisateur from "./components/pages/utilisateur/Utilisateur";
 
 const PrivateRoute: React.FC<{ element: React.ReactNode }> = ({ element }) => {
   return <>{element}</>;
@@ -38,8 +39,8 @@ export default function App() {
             <Route element={<PrivateRoute element={<Layout />} />}>
               <Route path="/" element={<DashboardPage />} />
               <Route path="/utilisateur" element={<Utilisateur />} />
-              <Route path="/actifs" element={<Actifs />} />
-              <Route path="/carte" element={<AssetMapPage />} />
+              <Route path="/immobilisations" element={<Actifs />} />
+              <Route path="/systeme_information_graphique" element={<Maps />} />
               <Route path="/rapport" element={<Rapport />} />
               <Route path="/parametres" element={<Parametres />} />
               <Route path="/parametres/:tab" element={<Parametres />} />
