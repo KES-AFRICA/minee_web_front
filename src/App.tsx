@@ -8,9 +8,9 @@ import Parametres from "./components/pages/parametres/Parametres";
 import Rapport from "./components/pages/rapports/Rapport";
 import DashboardPage from "./components/pages/dashboard/DashboardPage";
 import { ThemeProvider } from "./context/ThemeProvider";
-import AssetMapPage from "./components/pages/cartographie/components/AssetMapPage";
 import {useThemeStore} from "@/store/themeStore.ts";
 import {useEffect} from "react";
+import Maps from "@/components/pages/cartographie/Maps.tsx";
 
 const PrivateRoute: React.FC<{ element: React.ReactNode }> = ({ element }) => {
   // const isAuthenticated = AuthService.getToken() !== null;
@@ -43,7 +43,7 @@ export default function App() {
               <Route path="/" element={<DashboardPage />} />
               <Route path="/utilisateur" element={<Utilisateur />} />
               <Route path="/actifs" element={<Actifs />} />
-              <Route path="/carte" element={<AssetMapPage />} />
+              <Route path="/carte" element={<Maps />} />
               <Route path="/rapport" element={<Rapport />} />
               <Route path="/parametres" element={<Parametres />} />
             </Route>
