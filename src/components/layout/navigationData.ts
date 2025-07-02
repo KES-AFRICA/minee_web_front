@@ -30,7 +30,7 @@ export const navigationLinks: NavigationGroup[] = [
   {
     items: [
       {
-        name: "Actifs",
+        name: "Immobilisations",
         href: "/actifs",
         iconName: "actifs",
       },
@@ -39,7 +39,7 @@ export const navigationLinks: NavigationGroup[] = [
   {
     items: [
       {
-        name: "Collecteurs",
+        name: "Suivi de l'inventaire",
         href: "/collecteurs",
         iconName: "collecteurs",
       },
@@ -48,7 +48,7 @@ export const navigationLinks: NavigationGroup[] = [
   {
     items: [
       {
-        name: "Cartographie",
+        name: "SIG",
         href: "/carte",
         iconName: "carte",
       },
