@@ -3,15 +3,13 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import { navigationLinks } from "./navigationData";
 import { type JSX } from "react";
 import {
-  Settings,
-  ChevronRight,
-  LayoutDashboard,
   Boxes,
-  Map,
   LogOut,
-  ChartBar,
   UserCheck,
-  Zap,
+  AlignEndVertical,
+  MapPinned,
+  ChartSpline,
+  Settings2,
 } from "lucide-react";
 import { cn } from "../../lib/utils";
 import { useSidebar } from "./Layout";
@@ -21,11 +19,11 @@ interface SidebarProps {
 }
 
 const iconMapping: Record<string, JSX.Element> = {
-  dashboard: <LayoutDashboard className="w-5 h-5" />,
+  dashboard: <AlignEndVertical className="w-5 h-5" />,
   immobilisations: <Boxes className="w-5 h-5" />,
-  carte: <Map className="w-5 h-5" />,
-  rapport: <ChartBar className="w-5 h-5" />,
-  parametres: <Settings className="w-5 h-5" />,
+  carte: <MapPinned className="w-5 h-5" />,
+  rapport: <ChartSpline className="w-5 h-5" />,
+  parametres: <Settings2 className="w-5 h-5" />,
   suivi_inventaire: <UserCheck className="w-5 h-5" />,
 };
 
@@ -49,7 +47,7 @@ const Sidebar = ({ onItemClick }: SidebarProps) => {
   return (
     <div
       className={cn(
-        "h-full bg-gradient-to-br bg-white dark:bg-gray-900 shadow-lg  transition-all duration-300 ease-in-out border-r border-teal-200/50 dark:border-teal-700/50",
+        "h-full bg-gradient-to-br px-2 bg-white dark:bg-gray-900 shadow-lg transition-all duration-300 ease-in-out border-r border-teal-200/50 dark:border-teal-700/50 relative",
         isCollapsed ? "w-20" : "w-72"
       )}
     >
@@ -57,16 +55,23 @@ const Sidebar = ({ onItemClick }: SidebarProps) => {
       <div className="relative p-6 pb-4 border-b border-teal-200/30 dark:border-teal-700/30">
         {/* Logo Container */}
         <div className="relative z-10 flex flex-row gap-2 items-center">
-          <div className="w-12 h-12 bg-gradient-to-br from-emerald-500 to-emeral-600 rounded-lg flex items-center justify-center  ring-2 ring-white/20 transition-transform hover:scale-105">
-            <Zap className="w-6 h-6 text-white" />
+          <div className="w-12 h-12 border border-emerald-400 bg-white rounded-lg flex items-center justify-center ring-2 ring-white/20 transition-transform hover:scale-105">
+            <img
+              src="/Eneo-logo-slider.png"
+              alt="Logo"
+              className="w-10 h-10 object-contain"
+            />
           </div>
 
           {/* Title - Hidden when collapsed */}
           {!isCollapsed && (
             <div className="ml-2 transition-opacity duration-300">
-              <h2 className="text-xl font-bold text-teal-700 dark:text-teal-200 uppercase tracking-wider leading-tight">
-                GEO-FIN
+              <h2 className="text-2xl font-bold text-teal-700 dark:text-teal-200  tracking-wider leading-tight">
+                Geofin
               </h2>
+              <span className="text-sm font-normal  dark:text-gray-400">
+                Gestion d'immobilisation
+              </span>
             </div>
           )}
         </div>
@@ -94,23 +99,17 @@ const Sidebar = ({ onItemClick }: SidebarProps) => {
                           : "px-4 py-3 hover:translate-x-1"
                       )}
                     >
-                      {/* Background gradient for active state */}
-                      {isActive && (
-                        <div className="absolute inset-0 bg-gradient-to-r bg-teal-100 dark:from-teal-800 dark:to-cyan-900 rounded-xl opacity-100" />
-                      )}
-
                       {/* Icon Container */}
                       <div
                         className={cn(
                           "relative z-10 flex items-center justify-center w-8 h-8 rounded-lg transition-all duration-300",
                           isActive
-                            ? "bg-teal-200 dark:bg-teal-900 text-teal-700 dark:text-teal-200"
+                            ? "text-teal-600 dark:text-teal-400"
                             : "text-black dark:text-white group-hover:text-teal-600 dark:group-hover:text-teal-300"
                         )}
                       >
                         {link.iconName && iconMapping[link.iconName]}
                       </div>
-
                       {/* Text - Hidden when collapsed */}
                       {!isCollapsed && (
                         <>
@@ -118,25 +117,25 @@ const Sidebar = ({ onItemClick }: SidebarProps) => {
                             className={cn(
                               "relative z-10 ml-3 text-sm font-medium transition-colors duration-300",
                               isActive
-                                ? "text-teal-900 dark:text-teal-100"
+                                ? "text-teal-600 dark:text-teal-400"
                                 : "text-black dark:text-gray-100 group-hover:text-teal-700 dark:group-hover:text-teal-200"
                             )}
                           >
                             {link.name}
                           </span>
-
-                          {/* Active indicator */}
-                          {isActive && (
-                            <div className="relative z-10 ml-auto">
-                              <ChevronRight className="w-4 h-4 text-teal-600 dark:text-teal-300" />
-                            </div>
-                          )}
                         </>
                       )}
-
                       {/* Hover effect background */}
                       <div className="absolute inset-0 bg-white/5 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                      {isActive && (
+                        <div className="absolute inset-0 bg-gradient-to-r bg-teal-100 dark:from-teal-800 dark:to-cyan-900 rounded-r-lg opacity-100" />
+                      )}{" "}
                     </Link>
+
+                    {/* Barre verticale active à droite */}
+                    {isActive && (
+                      <div className="absolute left-0 top-0 bottom-0 w-1 bg-teal-600 dark:bg-teal-400 rounded-l-full transition-all duration-300" />
+                    )}
 
                     {/* Tooltip for collapsed state */}
                     {isCollapsed && (
@@ -154,7 +153,7 @@ const Sidebar = ({ onItemClick }: SidebarProps) => {
       </div>
 
       {/* Logout Section */}
-      <div className="absolute bottom-0 left-0 w-full p-4 border-t border-white/10 ">
+      <div className="absolute bottom-0 left-0 w-full p-4 border-t border-white/10">
         <div className="relative group">
           <button
             onClick={handleLogout}

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Eye, EyeOff, Zap, CheckCircle, Shield, BarChart3 } from "lucide-react";
+import { Eye, EyeOff, CheckCircle, Shield, BarChart3 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 
@@ -24,14 +24,18 @@ export default function ArcticElecLogin() {
         <div className="max-w-md w-full space-y-6 lg:space-y-8 py-8 lg:py-0">
           {/* Logo et titre */}
           <div className="text-center">
-            <div className="mx-auto h-20 w-20 sm:h-16 sm:w-16 bg-gradient-to-br from-emerald-500 to-emeral-600 rounded-xl sm:rounded-2xl flex items-center justify-center mb-4 sm:mb-6 shadow-lg">
-              <Zap className="h-6 w-6 sm:h-8 sm:w-8 text-white" />
+            <div className="mx-auto h-20 w-20 sm:h-16 sm:w-16 border border-emerald-400 bg-white rounded-xl sm:rounded-2xl flex items-center justify-center mb-4 sm:mb-6 shadow-lg">
+              <img
+                src="/Eneo-logo-slider.png"
+                alt="Logo"
+                className="w-10 h-10 sm:w-12 sm:h-12 object-contain"
+              />
             </div>
             <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">
               Bienvenue
             </h2>
             <p className="text-gray-600 text-sm px-4 sm:px-0">
-              Connectez-vous à votre compte GEO-FIN Admin
+              Connectez-vous à votre compte Geofin Admin
             </p>
           </div>
 
@@ -128,13 +132,11 @@ export default function ArcticElecLogin() {
 
       {/* Section droite avec informations */}
       <div className="flex items-center  lg:flex-1 bg-gradient-to-br bg-cyan-600 relative overflow-hidden order-1 lg:order-2 min-h-[300px] lg:min-h-screen">
-       
-
         <div className="flex flex-col items-center justify-center px-6 sm:px-8 lg:px-12 py-8 lg:py-16 text-white relative z-10 w-full">
           {/* Logo principal */}
           <div className="mb-6 lg:mb-8 text-center  lg:text-left">
             <h1 className="text-2xl text-center sm:text-3xl lg:text-4xl font-bold mb-2 lg:mb-4">
-              GEO-FIN
+              Geofin
             </h1>
             <p className="text-blue-100 text-base lg:text-lg leading-relaxed px-4 lg:px-0">
               Inventaire et valorisation intelligente des actifs électriques
