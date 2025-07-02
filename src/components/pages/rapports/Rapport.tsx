@@ -237,89 +237,6 @@ export default function Rapport() {
             </button>
           </div>
         </div>
-        {/* Options de rapport */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-          <div
-            className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6 hover:shadow-lg transition-shadow cursor-pointer"
-            onClick={() => exportToExcel()}
-          >
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-white flex items-center gap-2 mb-4">
-              <FileText size={20} className="text-blue-500" />
-              Rapport Actifs
-            </h3>
-            <p className="text-sm text-gray-600 dark:text-gray-300">
-              Liste complète des actifs avec détails techniques et localisation
-            </p>
-
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                exportToExcel();
-              }}
-              className="mt-4 px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition-colors"
-              disabled={isGenerating}
-            >
-              {isGenerating ? "Génération..." : "Exporter Excel"}
-            </button>
-          </div>
-
-          <div
-            className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6 hover:shadow-lg transition-shadow cursor-pointer"
-            onClick={() => generateReport("Liste des Départs")}
-          >
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-white flex items-center gap-2 mb-4">
-              <BarChart2 size={20} className="text-green-500" />
-              Rapport Départs
-            </h3>
-            <p className="text-sm text-gray-600 dark:text-gray-300">
-              Synthèse des départs avec actifs associés et zones couvertes
-            </p>
-            <button
-              onClick={() => generateReport("Liste des Départs")}
-              className="mt-4 px-4 py-2 bg-green-500 text-white rounded-md hover:bg-green-600 transition-colors"
-            >
-              Exporter
-            </button>
-          </div>
-
-          <div
-            className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6 hover:shadow-lg transition-shadow cursor-pointer"
-            onClick={() => generateReport("Rapport de Valorisation")}
-          >
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-white flex items-center gap-2 mb-4">
-              <Filter size={20} className="text-cyan-500" />
-              Rapport Valorisation
-            </h3>
-            <p className="text-sm text-gray-600 dark:text-gray-300">
-              Analyse des valorisations par région, type et état technique
-            </p>
-            <button
-              onClick={() => generateReport("Rapport de Valorisation")}
-              className="mt-4 px-4 py-2 bg-cyan-500 text-white rounded-md hover:bg-cyan-600 transition-colors"
-            >
-              Exporter
-            </button>
-          </div>
-
-          <div
-            className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6 hover:shadow-lg transition-shadow cursor-pointer"
-            onClick={() => generateReport("Synthèse Globale")}
-          >
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-white flex items-center gap-2 mb-4">
-              <Download size={20} className="text-orange-500" />
-              Synthèse Globale
-            </h3>
-            <p className="text-sm text-gray-600 dark:text-gray-300">
-              Rapport complet avec statistiques et indicateurs clés
-            </p>
-            <button
-              onClick={() => generateReport("Synthèse Globale")}
-              className="mt-4 px-4 py-2 bg-orange-500 text-white rounded-md hover:bg-orange-600 transition-colors"
-            >
-              Exporter
-            </button>
-          </div>
-        </div>
 
         {/* Graphique d'inflation des valeurs */}
         <div className="w-full flex items-center bg-white  dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6">
@@ -523,6 +440,89 @@ export default function Rapport() {
               </p>
             </div>
           )}
+        </div>
+        {/* Options de rapport */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div
+            className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6 hover:shadow-lg transition-shadow cursor-pointer"
+            onClick={() => exportToExcel()}
+          >
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-white flex items-center gap-2 mb-4">
+              <FileText size={20} className="text-blue-500" />
+              Rapport Actifs
+            </h3>
+            <p className="text-sm text-gray-600 dark:text-gray-300">
+              Liste complète des actifs avec détails techniques et localisation
+            </p>
+
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                exportToExcel();
+              }}
+              className="mt-4 px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition-colors"
+              disabled={isGenerating}
+            >
+              {isGenerating ? "Génération..." : "Exporter Excel"}
+            </button>
+          </div>
+
+          <div
+            className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6 hover:shadow-lg transition-shadow cursor-pointer"
+            onClick={() => generateReport("Liste des Départs")}
+          >
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-white flex items-center gap-2 mb-4">
+              <BarChart2 size={20} className="text-green-500" />
+              Rapport Départs
+            </h3>
+            <p className="text-sm text-gray-600 dark:text-gray-300">
+              Synthèse des départs avec actifs associés et zones couvertes
+            </p>
+            <button
+              onClick={() => generateReport("Liste des Départs")}
+              className="mt-4 px-4 py-2 bg-green-500 text-white rounded-md hover:bg-green-600 transition-colors"
+            >
+              Exporter
+            </button>
+          </div>
+
+          <div
+            className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6 hover:shadow-lg transition-shadow cursor-pointer"
+            onClick={() => generateReport("Rapport de Valorisation")}
+          >
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-white flex items-center gap-2 mb-4">
+              <Filter size={20} className="text-cyan-500" />
+              Rapport Valorisation
+            </h3>
+            <p className="text-sm text-gray-600 dark:text-gray-300">
+              Analyse des valorisations par région, type et état technique
+            </p>
+            <button
+              onClick={() => generateReport("Rapport de Valorisation")}
+              className="mt-4 px-4 py-2 bg-cyan-500 text-white rounded-md hover:bg-cyan-600 transition-colors"
+            >
+              Exporter
+            </button>
+          </div>
+
+          <div
+            className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6 hover:shadow-lg transition-shadow cursor-pointer"
+            onClick={() => generateReport("Synthèse Globale")}
+          >
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-white flex items-center gap-2 mb-4">
+              <Download size={20} className="text-orange-500" />
+              Synthèse Globale
+            </h3>
+            <p className="text-sm text-gray-600 dark:text-gray-300">
+              Rapport complet avec statistiques et indicateurs clés
+            </p>
+            <button
+              onClick={() => generateReport("Synthèse Globale")}
+              className="mt-4 px-4 py-2 bg-orange-500 text-white rounded-md hover:bg-orange-600 transition-colors"
+            >
+              Exporter
+            </button>
+          </div>
         </div>
       </div>
     </div>

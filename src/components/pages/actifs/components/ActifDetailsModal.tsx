@@ -6,6 +6,7 @@ import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import L from "leaflet";
 import { Accordion } from "@/components/Accordion";
+import AssetMap from "./AssetMap";
 
 interface ActifDetailsModalProps {
   actif: Actif | null;
@@ -307,68 +308,7 @@ export function ActifDetailsModal({
             <div>
               <SectionTitle title="Géolocalisation" />
               <div className="bg-gray-100 dark:bg-gray-700 rounded-lg h-64">
-                <div className="mt-4 border-1 bg-gray-200 dark:bg-gray-600 rounded flex items-center justify-center h-full">
-                  {actif.geolocalisation?.latitude &&
-                  actif.geolocalisation?.longitude ? (
-                    <div className="w-full h-60 rounded overflow-hidden">
-                      <MapContainer
-                        center={[
-                          actif.geolocalisation.latitude,
-                          actif.geolocalisation.longitude,
-                        ]}
-                        zoom={15} // Changé de 1 à 15 pour un zoom approprié
-                        style={{ width: "100%", height: "100%" }}
-                        scrollWheelZoom={false}
-                      >
-                        <TileLayer
-                          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-                          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-                        />
-                        <Marker
-                          position={[
-                            actif.geolocalisation.latitude,
-                            actif.geolocalisation.longitude,
-                          ]}
-                          icon={
-                            new L.Icon({
-                              iconUrl: "/images/point.png",
-                              iconSize: [38, 38],
-                              iconAnchor: [19, 19], // Centré : [width/2, height/2]
-                              popupAnchor: [0, -19], // Popup au-dessus de l'icône
-                              className: "custom-marker-icon",
-                            })
-                          }
-                        >
-                          <Popup>
-                            <div className="flex justify-center items-center w-full">
-                              <div>
-                                <strong>{actif.designationGenerale}</strong>
-                                <br />
-                                Lat: {actif.geolocalisation.latitude}
-                                <br />
-                                Lng: {actif.geolocalisation.longitude}
-                              </div>
-                            </div>
-                          </Popup>
-                        </Marker>
-                      </MapContainer>
-                      <style>
-                        {`
-              .custom-marker-icon {
-                border: 1px solid #fff;
-                border-radius: 50%;
-                box-sizing: border-box;
-                background: #fff;
-              }
-            `}
-                      </style>
-                    </div>
-                  ) : (
-                    <span className="text-gray-500 dark:text-gray-400">
-                      Localisation non disponible
-                    </span>
-                  )}
-                </div>
+                <AssetMap actif={actif} zoom={16} showFullscreen={true} />
               </div>
             </div>
 
@@ -464,7 +404,7 @@ export function ActifDetailsModal({
             <SectionTitle title="Informations générales" />
             {renderBaseDetails()}
           </div>
-                <SectionTitle title="Informations spécifique" />
+          <SectionTitle title="Informations spécifique" />
           <div className="mb-8">{renderSpecificDetails()}</div>
         </div>
       </Modal>
