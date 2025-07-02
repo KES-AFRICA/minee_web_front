@@ -2,7 +2,7 @@
 
 import { useState, useMemo } from "react";
 import { MapPin, Filter, Building2 } from "lucide-react";
-import { regionsData, typeActifs } from "../../../data/dashboard";
+import { regionsData } from "../../../data/dashboard";
 
 function RegionalClass({
   formatCurrency,
@@ -147,28 +147,34 @@ function RegionalClass({
               </h3>
             </div>
             <div className="space-y-2 max-h-48 overflow-y-auto">
-              {typeActifs.map((actif) => {
-                return (
-                  <label
-                    key={actif.name}
-                    className="flex items-center cursor-pointer group"
-                  >
-                    <input
-                      type="checkbox"
-                      checked={selectedActifTypes.includes(actif.name)}
-                      onChange={() => handleActifTypeToggle(actif.name)}
-                      className="w-4 h-4 focus:ring-2 rounded"
-                      style={{ accentColor: actif.color }}
-                    />
-                    <span className="text-gray-900 font-medium group-hover:opacity-80 transition-opacity text-sm">
-                      {actif.name}
-                    </span>
-                    <span className="ml-auto text-xs text-gray-500">
-                      {formatNumber(actif.value)}
-                    </span>
-                  </label>
-                );
-              })}
+              {typeActifs.map(
+                (actif: {
+                  name: boolean;
+                  color: any;
+                  value: number | bigint;
+                }) => {
+                  return (
+                    <label
+                      key={actif.name}
+                      className="flex items-center cursor-pointer group"
+                    >
+                      <input
+                        type="checkbox"
+                        checked={selectedActifTypes.includes(actif.name)}
+                        onChange={() => handleActifTypeToggle(actif.name)}
+                        className="w-4 h-4 focus:ring-2 rounded"
+                        style={{ accentColor: actif.color }}
+                      />
+                      <span className="text-gray-900 font-medium group-hover:opacity-80 transition-opacity text-sm">
+                        {actif.name}
+                      </span>
+                      <span className="ml-auto text-xs text-gray-500">
+                        {formatNumber(actif.value)}
+                      </span>
+                    </label>
+                  );
+                }
+              )}
             </div>
           </div>
         </div>

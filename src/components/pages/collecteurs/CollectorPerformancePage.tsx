@@ -2,8 +2,6 @@ import { useState, useMemo } from "react";
 import {
   MapPin,
   Download,
-  TrendingUp,
-  Eye,
   Calendar,
   Users,
   Gauge,
@@ -29,48 +27,28 @@ export default function CollectorPerformance() {
   const [regionFilter, setRegionFilter] = useState("all");
   const [communeFilter, setCommuneFilter] = useState("all");
   const [performanceFilter, setPerformanceFilter] = useState("all");
-  const [sortBy, setSortBy] = useState("performance");
-  const [viewMode, setViewMode] = useState("overview");
+
   const [searchTerm, setSearchTerm] = useState("");
 
   // Filtrage des données
   const filteredCollectors = useMemo(() => {
-    return fieldCollectors
-      .filter((collector) => {
-        const regionMatch =
-          regionFilter === "all" || collector.region === regionFilter;
-        const communeMatch =
-          communeFilter === "all" || collector.commune === communeFilter;
-        const performanceMatch =
-          performanceFilter === "all" ||
-          collector.performance === performanceFilter;
-        const searchMatch =
-          searchTerm === "" ||
-          collector.nom.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          collector.matricule
-            .toLowerCase()
-            .includes(searchTerm.toLowerCase()) ||
-          collector.commune.toLowerCase().includes(searchTerm.toLowerCase());
+    return fieldCollectors.filter((collector) => {
+      const regionMatch =
+        regionFilter === "all" || collector.region === regionFilter;
+      const communeMatch =
+        communeFilter === "all" || collector.commune === communeFilter;
+      const performanceMatch =
+        performanceFilter === "all" ||
+        collector.performance === performanceFilter;
+      const searchMatch =
+        searchTerm === "" ||
+        collector.nom.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        collector.matricule.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        collector.commune.toLowerCase().includes(searchTerm.toLowerCase());
 
-        return regionMatch && communeMatch && performanceMatch && searchMatch;
-      })
-      .sort((a, b) => {
-        switch (sortBy) {
-          case "performance":
-            return b.completionRate - a.completionRate;
-          case "collected":
-            return b.equipementsCollectes - a.equipementsCollectes;
-          case "accuracy":
-            return b.accuracy - a.accuracy;
-          case "efficiency":
-            return b.rendementQuotidien - a.rendementQuotidien;
-          case "cost":
-            return a.cout - b.cout;
-          default:
-            return 0;
-        }
-      });
-  }, [regionFilter, communeFilter, performanceFilter, sortBy, searchTerm]);
+      return regionMatch && communeMatch && performanceMatch && searchMatch;
+    });
+  }, [regionFilter, communeFilter, performanceFilter, searchTerm]);
 
   // Pagination
   const paginatedCollectors = useMemo(() => {
@@ -157,7 +135,6 @@ export default function CollectorPerformance() {
       avgConnexion,
       tauxCompletion: (total.equipements / total.equipementsAssignes) * 100,
       photoValidationRate: (total.photosValidees / total.photos) * 100,
-      coutParEquipement: total.coutTotal / total.equipements,
       kmParEquipement: total.kmTotal / total.equipements,
     };
   }, [filteredCollectors]);
@@ -292,11 +269,11 @@ export default function CollectorPerformance() {
               value={timeRange}
               onChange={(e) => setTimeRange(e.target.value)}
             >
-              <option value="day">Aujourd'hui</option>
-              <option value="week">Cette semaine</option>
-              <option value="month">Ce mois</option>
-              <option value="quarter">Ce trimestre</option>
-              <option value="year">Cette année</option>
+              <option value="day">Journaliere</option>
+              <option value="week">Hebdomadaire</option>
+              <option value="month">Mensuelle</option>
+              <option value="quarter">Trismestielle</option>
+              <option value="year">Annee</option>
             </select>
           </div>
 
@@ -355,41 +332,6 @@ export default function CollectorPerformance() {
               <option value="bon">Bon (80-89%)</option>
               <option value="acceptable">Acceptable (70-79%)</option>
               <option value="amélioration">À améliorer (&lt;70%)</option>
-            </select>
-          </div>
-
-          <div className="flex flex-col">
-            <label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1 flex items-center gap-1">
-              <TrendingUp className="h-4 w-4" />
-              Trier par
-            </label>
-            <select
-              className="bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:text-white text-sm"
-              value={sortBy}
-              onChange={(e) => setSortBy(e.target.value)}
-            >
-              <option value="performance">Performance globale</option>
-              <option value="collected">Équipements collectés</option>
-              <option value="accuracy">Précision données</option>
-              <option value="efficiency">Rendement quotidien</option>
-              <option value="cost">Coût-efficacité</option>
-            </select>
-          </div>
-
-          <div className="flex flex-col">
-            <label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1 flex items-center gap-1">
-              <Eye className="h-4 w-4" />
-              Vue
-            </label>
-            <select
-              className="bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:text-white text-sm"
-              value={viewMode}
-              onChange={(e) => setViewMode(e.target.value)}
-            >
-              <option value="overview">Vue d'ensemble</option>
-              <option value="detailed">Vue détaillée</option>
-              <option value="analytics">Analytics avancées</option>
-              <option value="geographic">Vue géographique</option>
             </select>
           </div>
         </div>

@@ -306,13 +306,6 @@ export default function ENEOAssetManagement() {
               )}
               <span>{currentView === "table" ? "Dashboard" : "Listes"}</span>
             </button>
-            {/* <button
-              onClick={() => {}}
-              className="flex items-center gap-2 bg-gradient-to-r from-teal-500 to-cyan-600 hover:from-teal-600 hover:to-cyan-700 text-white px-4 py-2 rounded-lg shadow-md transition-all"
-            >
-              <PlusCircle className="w-5 h-5" />
-              <span>Ajouter un actif</span>
-            </button> */}
           </div>
         </div>
         {/* Filters and Search */}

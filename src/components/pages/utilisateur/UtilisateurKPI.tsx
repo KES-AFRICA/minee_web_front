@@ -38,7 +38,7 @@ export default function UtilisateurKPI() {
   ];
 
   return (
-    <div className="h-auto bg-gray-50 dark:bg-gray-900 p-6">
+    <div className="h-auto bg-gray-50 dark:bg-gray-900 mb-6">
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         {stats.map((stat, index) => {
           const IconComponent = stat.icon;

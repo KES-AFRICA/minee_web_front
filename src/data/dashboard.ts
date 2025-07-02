@@ -15,15 +15,7 @@ export const actifsByRegion = [
   },
 ];
 
-export const typeActifs = [
-  { name: "Transformateurs", value: 2590, color: "#0D9488" },
-  { name: "Lignes HT/MT", value: 6710, color: "#06B6D4" },
-  { name: "Postes", value: 438, color: "#14B8A6" },
-  { name: "Cables aerien", value: 610, color: "#06B6D477" },
-  { name: "Cable souterain", value: 418, color: "#14B" },
-  { name: "Poteaux", value: 1580, color: "#220" },
-  { name: "Point de livraison", value: 1820, color: "#2EE" },
-];
+
 
 export const regionsData = {
   Littoral: {

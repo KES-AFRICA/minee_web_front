@@ -79,8 +79,8 @@ export const Users: User[] = [
     structure: {
       id: "1",
       name: "Eneo",
-    }
-  }
+    },
+  },
 ];
 
 export const UserStructures = [
@@ -120,3 +120,21 @@ export const UserRoles = [
     name: "Collecteur",
   },
 ];
+
+export const currentUser = {
+  id: "1",
+  fullName: "Admin",
+  email: "admin@eneo.cm",
+  position: "Administrateur système",
+  phone: "+237 6 XX XX XX XX",
+  role: {
+    id: "1",
+    name: "Administrateur systeme",
+  },
+  status: "Actif",
+  createdAt: "15/03/2024",
+  structure: {
+    id: "1",
+    name: "Eneo",
+  },
+};

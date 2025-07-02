@@ -106,12 +106,16 @@ const KPICard = ({
 
 export default function Statistics({
   totalActifs,
-  valeurTotale,
   formatCurrency,
+  totalValorisation,
+  totalActifsParType,
+  totalDeparts,
 }: {
   totalActifs: number;
-  valeurTotale: number;
+  totalDeparts: number;
   formatCurrency: (value: number | bigint) => string;
+  totalValorisation: number;
+  totalActifsParType: number | Record<string, number>;
 }) {
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
@@ -125,9 +129,13 @@ export default function Statistics({
         color="teal"
       />
       <KPICard
-        title="Actifs Critiques"
-        value="1,000"
-        subtitle="Nécessitent une maintenance"
+        title="Actifs critiques"
+        value={
+          typeof totalActifsParType === "number"
+            ? totalActifsParType
+            : Object.keys(totalActifsParType).length
+        }
+        subtitle="Necessitant une maintenance "
         icon={AlertTriangle}
         trend="down"
         trendValue="-2.1%"
@@ -135,7 +143,7 @@ export default function Statistics({
       />
       <KPICard
         title="Valeur Net Comptable"
-        value={formatCurrency(valeurTotale)}
+        value={formatCurrency(totalValorisation * 1000000)}
         subtitle="Patrimoine électrique"
         icon={DollarSign}
         trend="up"
@@ -143,9 +151,9 @@ export default function Statistics({
         color="cyan"
       />
       <KPICard
-        title="Zones Couvertes"
-        value="02"
-        subtitle="Régions du Cameroun"
+        title="Total des Départs"
+        value={totalDeparts}
+        subtitle="Departs repertoriés"
         icon={MapPin}
         color="emerald"
       />

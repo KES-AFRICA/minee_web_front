@@ -100,13 +100,12 @@ export default function Reports() {
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 p-4 md:p-6">
-      <div className="max-w-7xl mx-auto space-y-6">
+      <div className="mx-auto space-y-6">
         {/* Header */}
-        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6 border border-gray-100 dark:border-gray-700">
-          <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
             <div>
               <h1 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white flex items-center gap-3">
-                <FileText className="text-teal-600 dark:text-teal-400" />
+            
                 Rapports d'Inventaire
               </h1>
               <p className="text-gray-600 dark:text-gray-300 mt-1">
@@ -124,7 +123,7 @@ export default function Reports() {
               </button>
             </div>
           </div>
-        </div>
+       
 
         {/* Filtres */}
         <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md p-4 md:p-6 border border-gray-100 dark:border-gray-700">

@@ -343,3 +343,9 @@ export const ZONES_COMMUNES = {
     "Njombé-Penja",
   ],
 };
+
+
+
+
+
+// les fakes data assez originales pour les actifs

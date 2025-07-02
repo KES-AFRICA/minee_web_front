@@ -1,17 +1,17 @@
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import eneologo from "../../assets/logo1.webp";
+
 import { navigationLinks } from "./navigationData";
 import { type JSX } from "react";
 import {
   Settings,
   ChevronRight,
   LayoutDashboard,
-  Users2,
   Boxes,
   Map,
   LogOut,
   ChartBar,
   UserCheck,
+  Zap,
 } from "lucide-react";
 import { cn } from "../../lib/utils";
 import { useSidebar } from "./Layout";
@@ -22,12 +22,11 @@ interface SidebarProps {
 
 const iconMapping: Record<string, JSX.Element> = {
   dashboard: <LayoutDashboard className="w-5 h-5" />,
-  utilisateur: <Users2 className="w-5 h-5" />,
-  actifs: <Boxes className="w-5 h-5" />,
+  immobilisations: <Boxes className="w-5 h-5" />,
   carte: <Map className="w-5 h-5" />,
   rapport: <ChartBar className="w-5 h-5" />,
   parametres: <Settings className="w-5 h-5" />,
-  collecteurs: <UserCheck className="w-5 h-5" />,
+  suivi_inventaire: <UserCheck className="w-5 h-5" />,
 };
 
 const Sidebar = ({ onItemClick }: SidebarProps) => {
@@ -50,7 +49,7 @@ const Sidebar = ({ onItemClick }: SidebarProps) => {
   return (
     <div
       className={cn(
-        "h-full bg-gradient-to-br from-slate-50 to-cyan-50 dark:from-gray-900 dark:to-slate-800 transition-all duration-300 ease-in-out border-r border-teal-200/50 dark:border-teal-700/50",
+        "h-full bg-gradient-to-br bg-white dark:bg-gray-900 shadow-lg  transition-all duration-300 ease-in-out border-r border-teal-200/50 dark:border-teal-700/50",
         isCollapsed ? "w-20" : "w-72"
       )}
     >
@@ -58,12 +57,8 @@ const Sidebar = ({ onItemClick }: SidebarProps) => {
       <div className="relative p-6 pb-4 border-b border-teal-200/30 dark:border-teal-700/30">
         {/* Logo Container */}
         <div className="relative z-10 flex flex-row gap-2 items-center">
-          <div className="w-12 h-12 bg-white rounded-full flex items-center justify-center shadow-lg ring-2 ring-white/20 transition-transform hover:scale-105">
-            <img
-              src={eneologo}
-              alt="ENEO Logo"
-              className="w-10 h-10 object-cover rounded-full"
-            />
+          <div className="w-12 h-12 bg-gradient-to-br from-emerald-500 to-emeral-600 rounded-lg flex items-center justify-center  ring-2 ring-white/20 transition-transform hover:scale-105">
+            <Zap className="w-6 h-6 text-white" />
           </div>
 
           {/* Title - Hidden when collapsed */}
@@ -72,9 +67,6 @@ const Sidebar = ({ onItemClick }: SidebarProps) => {
               <h2 className="text-xl font-bold text-teal-700 dark:text-teal-200 uppercase tracking-wider leading-tight">
                 GEO-FIN
               </h2>
-              <p className="text-xs text-teal-600 dark:text-teal-400 mt-1">
-                Gestion des Actifs
-              </p>
             </div>
           )}
         </div>
@@ -99,16 +91,12 @@ const Sidebar = ({ onItemClick }: SidebarProps) => {
                         "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/50 focus-visible:ring-offset-2 focus-visible:ring-offset-teal-800",
                         isCollapsed
                           ? "px-3 py-3 justify-center"
-                          : "px-4 py-3 hover:translate-x-1",
-                        isActive
-                          ? "bg-white text-teal-900 shadow-lg font-semibold" +
-                              (isCollapsed ? "" : " transform translate-x-1")
-                          : "text-black dark:text-white"
+                          : "px-4 py-3 hover:translate-x-1"
                       )}
                     >
                       {/* Background gradient for active state */}
                       {isActive && (
-                        <div className="absolute inset-0 bg-gradient-to-r from-cyan-200 to-teal-0 dark:from-teal-800 dark:to-cyan-900 rounded-xl opacity-100" />
+                        <div className="absolute inset-0 bg-gradient-to-r bg-teal-100 dark:from-teal-800 dark:to-cyan-900 rounded-xl opacity-100" />
                       )}
 
                       {/* Icon Container */}
@@ -116,7 +104,7 @@ const Sidebar = ({ onItemClick }: SidebarProps) => {
                         className={cn(
                           "relative z-10 flex items-center justify-center w-8 h-8 rounded-lg transition-all duration-300",
                           isActive
-                            ? "bg-teal-100 dark:bg-teal-800 text-teal-700 dark:text-teal-200"
+                            ? "bg-teal-200 dark:bg-teal-900 text-teal-700 dark:text-teal-200"
                             : "text-black dark:text-white group-hover:text-teal-600 dark:group-hover:text-teal-300"
                         )}
                       >

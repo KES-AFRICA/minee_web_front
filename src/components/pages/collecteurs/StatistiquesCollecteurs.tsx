@@ -4,12 +4,8 @@ import {
   Zap,
   TrendingUp,
   Shield,
-  CheckCircle,
-  Target,
-  Gauge,
   AlertTriangle,
   TrendingDown,
-  DollarSign,
 } from "lucide-react";
 
 export default function StatistiquesCollecteurs({
@@ -24,12 +20,12 @@ export default function StatistiquesCollecteurs({
   return (
     <div>
       {/* KPIs principaux  */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
         {/* Collecteurs Actifs */}
         <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6 border border-gray-100 dark:border-gray-700 hover:shadow-lg transition-shadow">
           <div className="flex items-center justify-between mb-3">
             <h3 className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-              Collecteurs Actifs
+              Equipes Actifs
             </h3>
             <div className="bg-blue-100 dark:bg-blue-900/30 p-2 rounded-lg">
               <Users className="h-4 w-4 text-blue-600 dark:text-blue-400" />
@@ -47,7 +43,7 @@ export default function StatistiquesCollecteurs({
             </p>
             <div className="flex items-center gap-1 text-xs">
               <div className="h-2 w-2 bg-green-500 rounded-full"></div>
-              <span className="text-green-600">100% connectés</span>
+              <span className="text-green-600"> {filteredCollectors.length} connectés</span>
             </div>
           </div>
         </div>
@@ -82,7 +78,7 @@ export default function StatistiquesCollecteurs({
         <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6 border border-gray-100 dark:border-gray-700 hover:shadow-lg transition-shadow">
           <div className="flex items-center justify-between mb-3">
             <h3 className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-              Qualité des Données
+              Precision de la collecte
             </h3>
             <div className="bg-teal-100 dark:bg-teal-900/30 p-2 rounded-lg">
               <Shield className="h-4 w-4 text-teal-600 dark:text-teal-400" />
@@ -100,39 +96,6 @@ export default function StatistiquesCollecteurs({
             <p className="text-xs text-gray-500 dark:text-gray-400">
               Conformité: {globalKPIs.avgCompliance.toFixed(1)}%
             </p>
-            <div className="flex items-center gap-1 text-xs">
-              <CheckCircle className="h-3 w-3 text-teal-500" />
-              <span className="text-teal-600">Norme ENEO respectée</span>
-            </div>
-          </div>
-        </div>
-
-        {/* Rendement Moyen */}
-        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6 border border-gray-100 dark:border-gray-700 hover:shadow-lg transition-shadow">
-          <div className="flex items-center justify-between mb-3">
-            <h3 className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-              Rendement Quotidien
-            </h3>
-            <div className="bg-purple-100 dark:bg-purple-900/30 p-2 rounded-lg">
-              <Target className="h-4 w-4 text-purple-600 dark:text-purple-400" />
-            </div>
-          </div>
-          <div className="space-y-1">
-            <p
-              className={`text-2xl font-bold ${getPerformanceColor(
-                globalKPIs.avgEfficiency,
-                "efficiency"
-              )}`}
-            >
-              {globalKPIs.avgEfficiency.toFixed(1)}
-            </p>
-            <p className="text-xs text-gray-500 dark:text-gray-400">
-              équipements/jour
-            </p>
-            <div className="flex items-center gap-1 text-xs">
-              <Gauge className="h-3 w-3 text-purple-500" />
-              <span className="text-purple-600">Cible: 30 équip./jour</span>
-            </div>
           </div>
         </div>
 
@@ -156,30 +119,6 @@ export default function StatistiquesCollecteurs({
             <div className="flex items-center gap-1 text-xs">
               <TrendingDown className="h-3 w-3 text-green-500" />
               <span className="text-green-600">-15% vs période précédente</span>
-            </div>
-          </div>
-        </div>
-
-        {/* Coût-Efficacité */}
-        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6 border border-gray-100 dark:border-gray-700 hover:shadow-lg transition-shadow">
-          <div className="flex items-center justify-between mb-3">
-            <h3 className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-              Coût par Équipement
-            </h3>
-            <div className="bg-amber-100 dark:bg-amber-900/30 p-2 rounded-lg">
-              <DollarSign className="h-4 w-4 text-amber-600 dark:text-amber-400" />
-            </div>
-          </div>
-          <div className="space-y-1">
-            <p className="text-2xl font-bold text-gray-900 dark:text-white">
-              {Math.round(globalKPIs.coutParEquipement).toLocaleString()}
-            </p>
-            <p className="text-xs text-gray-500 dark:text-gray-400">
-              FCFA par équipement
-            </p>
-            <div className="flex items-center gap-1 text-xs">
-              <TrendingDown className="h-3 w-3 text-green-500" />
-              <span className="text-green-600">Optimisation +8%</span>
             </div>
           </div>
         </div>

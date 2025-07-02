@@ -18,6 +18,8 @@
     "antd": "^5.26.2",
     "axios": "^1.10.0",
     "class-variance-authority": "^0.7.1",
+    "echarts": "^5.6.0",
+    "echarts-for-react": "^3.0.2",
     "framer-motion": "^12.20.1",
     "leaflet": "^1.9.4",
     "lucide-react": "^0.523.0",
