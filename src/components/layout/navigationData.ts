@@ -32,7 +32,7 @@ export const navigationLinks: NavigationGroup[] = [
     items: [
       {
         name: "Suivi de l'inventaire",
-        href: "/suivi-inventaire",
+        href: "/suivi_inventaire",
         iconName: "suivi_inventaire",
       },
     ],
