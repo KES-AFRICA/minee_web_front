@@ -42,10 +42,11 @@ export const inventaireActifs: Actif[] = [
     numeroImmo: "IMM-LA-001",
     numeroCompte: "CPT-6001",
     libelleCompte: "Ligne MT Akwa Principal",
-    modeDacquisition: 'directe' ,
-    TypeDeBien: 'bien privée',
-    natureDuBien: 'privée (ENEO)',
-  
+    modeDacquisition: "directe",
+    TypeDeBien: "bien privée",
+    natureDuBien: "privée (ENEO)",
+    valorisation: 75000,
+
     designationGenerale: "Ligne aérienne MT 15kV Akwa-Centre",
     anneeMiseEnService: 2018,
     numeroLigne: "LN-AKW-001",
@@ -73,7 +74,7 @@ export const inventaireActifs: Actif[] = [
         personnelENEO: "Antoinette MANDENG",
         personnelMINEE: "Serge NANA",
         personnelARSEL: "Martine ABEGA",
-        etatVisuel:'Moyen',
+        etatVisuel: "Moyen",
         region: "Littoral",
         departement: "Wouri",
         arrondissement: "Douala 1er",
@@ -82,17 +83,22 @@ export const inventaireActifs: Actif[] = [
         rue: "Avenue de la Liberté",
         precisionLieu: "Face à la Poste Centrale",
         codificationDecoupageENEO: "LT-WR-DLA1-AKW-001",
-        photo: ["/images/support1.jpg","/images/support2.jpg","images/support3.jpg"],
+        photo: [
+          "/images/support1.jpg",
+          "/images/support2.jpg",
+          "images/support3.jpg",
+        ],
         geolocalisation: { latitude: 4.0511, longitude: 9.7679 },
         positionMateriel: "Terrain",
         numeroImmo: "IMM-SUP-001",
         nouveauNumeroImmo: undefined,
         numeroCompte: "CPT-12001",
         libelleCompte: "Support béton Akwa-01",
-        modeDacquisition: 'par projet',
-        TypeDeBien: 'bien privée',
-        natureDuBien: 'privée (ENEO)' ,
-  
+        modeDacquisition: "par projet",
+        TypeDeBien: "bien privée",
+        natureDuBien: "privée (ENEO)",
+        valorisation: 5000,
+
         designationGenerale: "Support béton centrifugé MT",
         anneeMiseEnService: 2018,
 
@@ -171,16 +177,16 @@ export const inventaireActifs: Actif[] = [
     quartier: "Bonapriso",
     rue: "Rue Joss",
     codificationDecoupageENEO: "LT-WR-DLA2-BNP-002",
-    photo: ["/images/ligneS1.jpg","/images/ligneS2.jpg"],
+    photo: ["/images/ligneS1.jpg", "/images/ligneS2.jpg"],
     geolocalisation: { latitude: 4.0483, longitude: 9.6961 },
     positionMateriel: "Terrain",
     numeroImmo: "IMM-LS-001",
     numeroCompte: "CPT-6002",
     libelleCompte: "Ligne souterraine Bonapriso",
-    modeDacquisition: 'directe',
-  TypeDeBien:'bien cdi',
-  natureDuBien: 'Tier MUNICIPALITE' ,
-  
+    modeDacquisition: "directe",
+    TypeDeBien: "bien cdi",
+    natureDuBien: "Tier MUNICIPALITE",
+    valorisation: 60000,
     designationGenerale: "Câble souterrain MT 10kV Bonapriso",
     anneeMiseEnService: 2020,
     numeroLigne: "LN-BNP-002",
@@ -219,16 +225,16 @@ export const inventaireActifs: Actif[] = [
     quartier: "Makepe",
     rue: "Carrefour Makepe",
     codificationDecoupageENEO: "LT-WR-DLA3-MKP-003",
-    photo: ["/images/posteD1.jpg","/images/posteD2.jpg"],
+    photo: ["/images/posteD1.jpg", "/images/posteD2.jpg"],
     geolocalisation: { latitude: 4.0792, longitude: 9.7326 },
     positionMateriel: "Terrain",
     numeroImmo: "IMM-PD-001",
     numeroCompte: "CPT-7001",
     libelleCompte: "Poste Makepe Centre",
-    modeDacquisition: 'directe' ,
-  TypeDeBien: 'bien privée',
-  natureDuBien: 'Tier privée' ,
-  
+    modeDacquisition: "directe",
+    TypeDeBien: "bien privée",
+    natureDuBien: "Tier privée",
+    valorisation: 60000,
     designationGenerale: "Poste de distribution MT/BT Makepe",
     anneeMiseEnService: 2015,
     nomPoste: "Poste Makepe Centre",
@@ -266,16 +272,16 @@ export const inventaireActifs: Actif[] = [
     quartier: "Ndokoti",
     rue: "Marché Ndokoti",
     codificationDecoupageENEO: "LT-WR-DLA4-NDK-004",
-    photo: ["/images/tabBT1.jpg","/images/tabBT2.jpg"],
+    photo: ["/images/tabBT1.jpg", "/images/tabBT2.jpg"],
     geolocalisation: { latitude: 4.0626, longitude: 9.7578 },
     positionMateriel: "Terrain",
     numeroImmo: "IMM-TBT-001",
     numeroCompte: "CPT-8001",
     libelleCompte: "Tableau BT Ndokoti Marché",
-    modeDacquisition: 'par projet',
-  TypeDeBien: 'bien cdi',
-  natureDuBien: 'privée (ENEO)',
-  
+    modeDacquisition: "par projet",
+    TypeDeBien: "bien cdi",
+    natureDuBien: "privée (ENEO)",
+    valorisation: 60000,
     designationGenerale: "Tableau général basse tension Ndokoti",
     anneeMiseEnService: 2017,
     nomPoste: "Poste Ndokoti Marché",
@@ -311,16 +317,16 @@ export const inventaireActifs: Actif[] = [
     quartier: "Kotto",
     rue: "Carrefour Kotto",
     codificationDecoupageENEO: "LT-WR-DLA5-KTT-005",
-    photo: ["/images/transformateur1.jpg","/images/transformateur2.jpg"],
+    photo: ["/images/transformateur1.jpg", "/images/transformateur2.jpg"],
     geolocalisation: { latitude: 4.0341, longitude: 9.7018 },
     positionMateriel: "Terrain",
     numeroImmo: "IMM-TR-001",
     numeroCompte: "CPT-9001",
     libelleCompte: "Transformateur Kotto Principal",
-    modeDacquisition: 'par immobilisation en cours',
-  TypeDeBien: 'bien de reprise',
-  natureDuBien: 'Concédé Etat',
-  
+    modeDacquisition: "par immobilisation en cours",
+    TypeDeBien: "bien de reprise",
+    natureDuBien: "Concédé Etat",
+    valorisation: 60000,
     designationGenerale: "Transformateur de distribution MT/BT Kotto",
     anneeMiseEnService: 2016,
     nomPoste: "Poste Kotto Principal",
@@ -369,16 +375,16 @@ export const inventaireActifs: Actif[] = [
     quartier: "Bepanda",
     rue: "Carrefour Bepanda",
     codificationDecoupageENEO: "LT-WR-DLA6-BPD-006",
-    photo: ["/images/celluleS1.jpg","/images/celluleS2.jpg"],
+    photo: ["/images/celluleS1.jpg", "/images/celluleS2.jpg"],
     geolocalisation: { latitude: 4.0973, longitude: 9.7445 },
     positionMateriel: "Terrain",
     numeroImmo: "IMM-CDS-001",
     numeroCompte: "CPT-10001",
     libelleCompte: "Cellule BT Bepanda",
-    modeDacquisition:'par projet',
-  TypeDeBien: 'bien privée',
-  natureDuBien: 'Tier Riverains',
-  
+    modeDacquisition: "par projet",
+    TypeDeBien: "bien privée",
+    natureDuBien: "Tier Riverains",
+    valorisation: 60000,
     designationGenerale: "Cellule de distribution secondaire Bepanda",
     anneeMiseEnService: 2019,
     nomPoste: "Poste Bepanda Distribution",
@@ -419,16 +425,16 @@ export const inventaireActifs: Actif[] = [
     quartier: "Bonanjo",
     rue: "Boulevard de la Liberté",
     codificationDecoupageENEO: "LT-WR-DLA1-BNJ-007",
-    photo: ["/images/celluleP1.jpg","/images/celluleP2.jpg"],
+    photo: ["/images/celluleP1.jpg", "/images/celluleP2.jpg"],
     geolocalisation: { latitude: 4.0492, longitude: 9.6967 },
     positionMateriel: "Terrain",
     numeroImmo: "IMM-CDP-001",
     numeroCompte: "CPT-11001",
     libelleCompte: "Cellule MT Bonanjo",
-    modeDacquisition: 'directe',
-  TypeDeBien: 'bien privée',
-  natureDuBien: 'Tier MINEE' ,
-  
+    modeDacquisition: "directe",
+    TypeDeBien: "bien privée",
+    natureDuBien: "Tier MINEE",
+    valorisation: 60000,
     designationGenerale: "Cellule de distribution primaire Bonanjo",
     anneeMiseEnService: 2017,
     nomPoste: "Poste Bonanjo Centre",
@@ -479,7 +485,7 @@ export const inventaireActifs: Actif[] = [
     personnelENEO: "Antoinette MANDENG",
     personnelMINEE: "Serge NANA",
     personnelARSEL: "Martine ABEGA",
-    etatVisuel: 'Moyen',
+    etatVisuel: "Moyen",
     region: "Littoral",
     departement: "Wouri",
     arrondissement: "Douala 1er",
@@ -488,20 +494,24 @@ export const inventaireActifs: Actif[] = [
     rue: "Avenue de la Liberté",
     precisionLieu: "Face à la Poste Centrale",
     codificationDecoupageENEO: "LT-WR-DLA1-AKW-001",
-    photo: ["/images/support1.jpg","/images/support2.jpg","images/support3.jpg"],
+    photo: [
+      "/images/support1.jpg",
+      "/images/support2.jpg",
+      "images/support3.jpg",
+    ],
     geolocalisation: { latitude: 4.0511, longitude: 9.7679 },
     positionMateriel: "Terrain",
     numeroImmo: "IMM-SUP-001",
     nouveauNumeroImmo: undefined,
     numeroCompte: "CPT-12001",
     libelleCompte: "Support béton Akwa-01",
-    modeDacquisition: 'par immobilisation en cours',
-  TypeDeBien: 'bien privée',
-  natureDuBien: 'Tier industriel',
-  
+    modeDacquisition: "par immobilisation en cours",
+    TypeDeBien: "bien privée",
+    natureDuBien: "Tier industriel",
+
     designationGenerale: "Support béton centrifugé MT",
     anneeMiseEnService: 2018,
-
+    valorisation: 60000,
     // Propriétés spécifiques au Support
     type: "SUPPORT",
     numeroLigne: "LN-AKW-001",
@@ -575,16 +585,17 @@ export const inventaireActifs: Actif[] = [
     quartier: "New Bell",
     rue: "Marché New Bell",
     codificationDecoupageENEO: "LT-WR-DLA2-NWB-008",
-    photo: ["/images/ocr1.jpg","/images/ocr2.jpg"],
+    photo: ["/images/ocr1.jpg", "/images/ocr2.jpg"],
     geolocalisation: { latitude: 4.0612, longitude: 9.7103 },
     positionMateriel: "Terrain",
     numeroImmo: "IMM-OCR-001",
     numeroCompte: "CPT-13001",
     libelleCompte: "OCR New Bell Principal",
-    modeDacquisition: 'directe',
-  TypeDeBien: 'bien privée',
-  natureDuBien: 'Concédé Etat',
-  
+    modeDacquisition: "directe",
+    TypeDeBien: "bien privée",
+    natureDuBien: "Concédé Etat",
+    valorisation: 60000,
+
     designationGenerale: "Organe de coupure réenclencheur New Bell",
     anneeMiseEnService: 2019,
     numeroLigne: "LN-NWB-003",
@@ -621,16 +632,17 @@ export const inventaireActifs: Actif[] = [
     quartier: "Logbaba",
     rue: "Carrefour Logbaba",
     codificationDecoupageENEO: "LT-WR-DLA3-LGB-009",
-    photo: ["/images/plivraison1.jpg","/images/plivraison2.jpg"],
+    photo: ["/images/plivraison1.jpg", "/images/plivraison2.jpg"],
     geolocalisation: { latitude: 4.0891, longitude: 9.7234 },
     positionMateriel: "Terrain",
     numeroImmo: "IMM-PL-001",
     numeroCompte: "CPT-14001",
     libelleCompte: "Point livraison Logbaba Industries",
-    modeDacquisition:'par immobilisation en cours',
-  TypeDeBien: 'bien privée',
-  natureDuBien:'Tier MINEPAT',
-  
+    modeDacquisition: "par immobilisation en cours",
+    TypeDeBien: "bien privée",
+    natureDuBien: "Tier MINEPAT",
+    valorisation: 55000,
+
     designationGenerale: "Point de livraison MT industriel",
     anneeMiseEnService: 2020,
     numeroLigne: "LN-LGB-004",
@@ -663,16 +675,17 @@ export const inventaireActifs: Actif[] = [
     quartier: "Akwa",
     rue: "Magasin Central ENEO",
     codificationDecoupageENEO: "LT-WR-DLA1-AKW-MAG",
-    photo: ["/images/stock1.jpg","/images/stock2.jpg"],
+    photo: ["/images/stock1.jpg", "/images/stock2.jpg"],
     geolocalisation: { latitude: 4.0523, longitude: 9.7691 },
     positionMateriel: "Magasin",
     numeroImmo: "IMM-ES-001",
     numeroCompte: "CPT-15001",
     libelleCompte: "Stock transformateur 100kVA",
-   modeDacquisition: 'directe',
-  TypeDeBien: 'bien privée',
-  natureDuBien: 'Tier AER',
-  
+    modeDacquisition: "directe",
+    TypeDeBien: "bien privée",
+    natureDuBien: "Tier AER",
+    valorisation: 65000,
+
     designationGenerale: "Transformateur de distribution en stock",
     anneeMiseEnService: 2024,
     numeroLigne: "STOCK-MAG-001",
@@ -682,7 +695,6 @@ export const inventaireActifs: Actif[] = [
     etatVisuel: "Bon",
     observations: "Équipement neuf, prêt pour installation",
   },
-
   // Ligne Aérienne supplémentaire
   {
     id: "LA_002",
@@ -705,10 +717,10 @@ export const inventaireActifs: Actif[] = [
     numeroImmo: "IMM-LA-002",
     numeroCompte: "CPT-6002",
     libelleCompte: "Ligne MT Centre Ville Yaoundé",
-    modeDacquisition: 'par immobilisation en cours',
-  TypeDeBien: 'bien privée',
-  natureDuBien: 'privée (ENEO)',
-  
+    modeDacquisition: "par immobilisation en cours",
+    TypeDeBien: "bien privée",
+    natureDuBien: "privée (ENEO)",
+    valorisation: 80000,
     designationGenerale: "Ligne aérienne MT 15kV Centre Ville",
     anneeMiseEnService: 2021,
     numeroLigne: "LN-CVL-002",
@@ -747,16 +759,16 @@ export const inventaireActifs: Actif[] = [
     quartier: "Melen",
     rue: "Carrefour Melen",
     codificationDecoupageENEO: "CT-MF-YDE3-MLN-011",
-    photo: ["/images/transformateur1.jpg","/images/transformateur2.jpg"],
+    photo: ["/images/transformateur1.jpg", "/images/transformateur2.jpg"],
     geolocalisation: { latitude: 3.8267, longitude: 11.4926 },
     positionMateriel: "Terrain",
     numeroImmo: "IMM-TR-002",
     numeroCompte: "CPT-9002",
     libelleCompte: "Transformateur Melen Principal",
-    modeDacquisition: 'directe',
-  TypeDeBien: 'bien privée',
-  natureDuBien:'Tier MUNICIPALITE',
-  
+    modeDacquisition: "directe",
+    TypeDeBien: "bien privée",
+    natureDuBien: "Tier MUNICIPALITE",
+    valorisation: 75000,
     designationGenerale: "Transformateur de distribution MT/BT Melen",
     anneeMiseEnService: 2022,
     nomPoste: "Poste Melen Distribution",
@@ -798,7 +810,7 @@ export const inventaireDeparts: Depart[] = [
     zonesGeographiques: {
       regions: ["Littoral"],
       departements: ["Wouri"],
-      communes: ["Douala 1er", "Douala 2ème",],
+      communes: ["Douala 1er", "Douala 2ème"],
       quartiers: ["Akwa", "Bonanjo", "Bonapriso"],
     },
     tension: 15000,
@@ -807,6 +819,7 @@ export const inventaireDeparts: Depart[] = [
     etatGeneral: "En service",
     typeDepart: "Principal",
     actifs: ["LA_001", "CDP_001", "TR_001", "SUP_001", "OCR_001"],
+    valorisation: 0,
   },
   {
     id: "DEP-BNP-01",
@@ -824,6 +837,7 @@ export const inventaireDeparts: Depart[] = [
     etatGeneral: "En service",
     typeDepart: "Résidentiel",
     actifs: ["LS_001", "TBT_001", "PL_001"],
+    valorisation: 0,
   },
   {
     id: "DEP-MKP-01",
@@ -841,6 +855,7 @@ export const inventaireDeparts: Depart[] = [
     etatGeneral: "En service",
     typeDepart: "Commercial",
     actifs: ["LA_002", "TR_002", "CDS_001"],
+    valorisation: 0,
   },
   {
     id: "DEP-NDK-01",
@@ -858,6 +873,7 @@ export const inventaireDeparts: Depart[] = [
     etatGeneral: "En service",
     typeDepart: "Industriel",
     actifs: ["LA_001", "TR_001", "CDP_001", "CDS_001"],
+    valorisation: 0,
   },
   {
     id: "DEP-YDE-01",
@@ -875,6 +891,7 @@ export const inventaireDeparts: Depart[] = [
     etatGeneral: "En service",
     typeDepart: "Principal",
     actifs: ["LA_002", "TR_002"],
+    valorisation: 0,
   },
   {
     id: "DEP-BPD-01",
@@ -892,6 +909,7 @@ export const inventaireDeparts: Depart[] = [
     etatGeneral: "Maintenance",
     typeDepart: "Résidentiel",
     actifs: ["CDS_001", "TBT_001"],
+    valorisation: 0,
   },
   {
     id: "DEP-LGB-01",
@@ -909,6 +927,7 @@ export const inventaireDeparts: Depart[] = [
     etatGeneral: "En service",
     typeDepart: "Industriel",
     actifs: ["PL_001", "TR_001"],
+    valorisation: 0,
   },
   {
     id: "DEP-NWB-01",
@@ -926,14 +945,15 @@ export const inventaireDeparts: Depart[] = [
     etatGeneral: "En service",
     typeDepart: "Secondaire",
     actifs: ["OCR_001", "LS_001"],
+    valorisation: 0,
   },
 ];
 
 // Fonctions utilitaires pour la base de données
 
-  // TypeDeBien: 'bien privée'|'bien de retour'|'bien de reprise'|'bien cdi';
-  // natureDuBien: 'Concédé Etat' | 'privée (ENEO)' | 'Tier privée' | 'Tier AER' | 'Tier MINEE' | 'Tier MUNICIPALITE' | 'Tier industriel' | 'Tier Riverains' | 'Tier MINEPAT';
-  
+// TypeDeBien: 'bien privée'|'bien de retour'|'bien de reprise'|'bien cdi';
+// natureDuBien: 'Concédé Etat' | 'privée (ENEO)' | 'Tier privée' | 'Tier AER' | 'Tier MINEE' | 'Tier MUNICIPALITE' | 'Tier industriel' | 'Tier Riverains' | 'Tier MINEPAT';
+
 export const getAllActifs = (): Actif[] => {
   return inventaireActifs;
 };
@@ -948,6 +968,35 @@ export const getDepartById = (id: string): Depart | undefined => {
 
 export const getActifById = (id: string): Actif | undefined => {
   return inventaireActifs.find((actif) => actif.id === id);
+};
+
+export const getDepartColor = (typeDepart: string): string => {
+  const colors: Record<string, string> = {
+    Principal: "#e74c3c",
+    Résidentiel: "#3498db",
+    Commercial: "#f39c12",
+    Industriel: "#9b59b6",
+    Secondaire: "#27ae60",
+  };
+  return colors[typeDepart] || "#95a5a6";
+};
+
+// Icônes pour différents types d'actifs
+export const getActifIcon = (type: string): string => {
+  const icons: Record<string, string> = {
+    LIGNE_AERIENNE: "🔌",
+    LIGNE_SOUTERRAINE: "⚡",
+    POSTE_DISTRIBUTION: "🏭",
+    TRANSFORMATEUR: "⚙️",
+    TABLEAU_BT: "📋",
+    CELLULE_DISTRIBUTION_PRIMAIRE: "🔧",
+    CELLULE_DISTRIBUTION_SECONDAIRE: "🔧",
+    SUPPORT: "🗼",
+    OCR: "🔄",
+    POINT_LIVRAISON: "📍",
+    EQUIPEMENT_STOCK: "📦",
+  };
+  return icons[type] || "❓";
 };
 
 export const getActifsByType = <T extends Actif["type"]>(
@@ -971,7 +1020,16 @@ export const getActifsByTypeDeBien = (
 };
 
 export const getActifsByNatureDuBienStrict = (
-  nature: 'Concédé Etat' | 'privée (ENEO)' | 'Tier privée' | 'Tier AER' | 'Tier MINEE' | 'Tier MUNICIPALITE' | 'Tier industriel' | 'Tier Riverains' | 'Tier MINEPAT'
+  nature:
+    | "Concédé Etat"
+    | "privée (ENEO)"
+    | "Tier privée"
+    | "Tier AER"
+    | "Tier MINEE"
+    | "Tier MUNICIPALITE"
+    | "Tier industriel"
+    | "Tier Riverains"
+    | "Tier MINEPAT"
 ): Actif[] => {
   return inventaireActifs.filter((actif) => actif.natureDuBien === nature);
 };
@@ -1003,7 +1061,6 @@ export const getActifsByDepart = (departId: string): Actif[] => {
     .map((actifId) => getActifById(actifId))
     .filter(Boolean) as Actif[];
 };
-
 
 export const getActifsByEtat = (
   etat: "En service" | "Hors service"

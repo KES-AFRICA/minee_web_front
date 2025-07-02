@@ -1,243 +1,369 @@
-import React, { useState } from 'react';
-import { X, Star, MapPin, ExternalLink, Download, Share2, Heart, Eye, Navigation, Clock } from 'lucide-react';
-import ExportModal from './ExportModal';
+import React from 'react';
+import {
+  X,
+  MapPin,
+  Settings,
+  Eye,
+  Zap,
+  Building,
+  Activity,
+  Info,
+  BarChart3,
+  TrendingUp,
+  Clock
+} from 'lucide-react';
+import type {Actif} from "@/types";
 import {useMapStore} from "@/store/mapStore.ts";
 
+
+
 const Sidebar: React.FC = () => {
-  const { selectedElements, sidebarOpen, setSidebarOpen, clearSelection } = useMapStore();
-  const [exportModalOpen, setExportModalOpen] = useState(false);
-  const [likedItems, setLikedItems] = useState<Set<string>>(new Set());
+  const { selectedActifs, isSidebarOpen, setSidebarOpen, clearSelection } = useMapStore();
 
-  if (!sidebarOpen || selectedElements.length === 0) {
-    return null;
-  }
+  if (!isSidebarOpen) return null;
 
-  const getTypeColor = (type: string) => {
-    const colors = {
-      restaurant: 'bg-red-100 text-red-800 border-red-200',
-      hotel: 'bg-blue-100 text-blue-800 border-blue-200',
-      attraction: 'bg-green-100 text-green-800 border-green-200',
-      shop: 'bg-purple-100 text-purple-800 border-purple-200'
-    };
-    return colors[type as keyof typeof colors] || 'bg-gray-100 text-gray-800 border-gray-200';
+  const handleClose = () => {
+    setSidebarOpen(false);
+    clearSelection();
   };
 
-  const getTypeIcon = (type: string) => {
-    const icons = {
-      restaurant: '🍽️',
-      hotel: '🏨',
-      attraction: '🎯',
-      shop: '🛍️'
+  const getActifIcon = (type: string) => {
+    const iconMap = {
+      'LIGNE_AERIENNE': <Zap className="w-4 h-4 text-blue-600" />,
+      'LIGNE_SOUTERRAINE': <Zap className="w-4 h-4 text-purple-600" />,
+      'TRANSFORMATEUR': <Settings className="w-4 h-4 text-red-600" />,
+      'POSTE_DISTRIBUTION': <Building className="w-4 h-4 text-green-600" />,
+      'SUPPORT': <Activity className="w-4 h-4 text-orange-600" />,
+      'OCR': <Settings className="w-4 h-4 text-red-700" />,
+      'TABLEAU_BT': <BarChart3 className="w-4 h-4 text-indigo-600" />,
+      'CELLULE_DISTRIBUTION_SECONDAIRE': <Building className="w-4 h-4 text-pink-600" />,
+      'CELLULE_DISTRIBUTION_PRIMAIRE': <Building className="w-4 h-4 text-pink-700" />,
+      'POINT_LIVRAISON': <MapPin className="w-4 h-4 text-cyan-600" />,
+      'EQUIPEMENT_STOCK': <Building className="w-4 h-4 text-gray-600" />
     };
-    return icons[type as keyof typeof icons] || '📍';
+    return iconMap[type as keyof typeof iconMap] || <MapPin className="w-4 h-4 text-gray-600" />;
+  };
+
+  const getEtatColor = (etat: string) => {
+    switch (etat) {
+      case 'Bon':
+        return 'text-green-700 bg-green-100 border-green-200';
+      case 'Moyen':
+        return 'text-yellow-700 bg-yellow-100 border-yellow-200';
+      case 'Passable':
+        return 'text-orange-700 bg-orange-100 border-orange-200';
+      case 'Mauvais':
+        return 'text-red-700 bg-red-100 border-red-200';
+      default:
+        return 'text-gray-700 bg-gray-100 border-gray-200';
+    }
   };
 
   const getTypeLabel = (type: string) => {
     const labels = {
-      restaurant: 'Restaurant',
-      hotel: 'Hôtel',
-      attraction: 'Attraction',
-      shop: 'Boutique'
+      'LIGNE_AERIENNE': 'Ligne Aérienne',
+      'LIGNE_SOUTERRAINE': 'Ligne Souterraine',
+      'TRANSFORMATEUR': 'Transformateur',
+      'POSTE_DISTRIBUTION': 'Poste Distribution',
+      'SUPPORT': 'Support',
+      'OCR': 'OCR',
+      'TABLEAU_BT': 'Tableau BT',
+      'CELLULE_DISTRIBUTION_SECONDAIRE': 'Cellule Distrib. Secondaire',
+      'CELLULE_DISTRIBUTION_PRIMAIRE': 'Cellule Distrib. Primaire',
+      'POINT_LIVRAISON': 'Point de Livraison',
+      'EQUIPEMENT_STOCK': 'Équipement Stock'
     };
     return labels[type as keyof typeof labels] || type;
   };
 
-  const getTotalValue = () => {
-    return selectedElements.reduce((total, element) => total + element.anneeMiseEnService, 0);
+  // Calculate statistics
+  const stats = {
+    total: selectedActifs.length,
+    byType: selectedActifs.reduce((acc, actif) => {
+      acc[actif.type] = (acc[actif.type] || 0) + 1;
+      return acc;
+    }, {} as Record<string, number>),
+    byState: selectedActifs.reduce((acc, actif) => {
+      acc[actif.etatVisuel] = (acc[actif.etatVisuel] || 0) + 1;
+      return acc;
+    }, {} as Record<string, number>),
+    byRegion: selectedActifs.reduce((acc, actif) => {
+      acc[actif.region] = (acc[actif.region] || 0) + 1;
+      return acc;
+    }, {} as Record<string, number>),
+    avgYear: selectedActifs.length > 0
+        ? Math.round(selectedActifs.reduce((sum, actif) => sum + actif.anneeMiseEnService, 0) / selectedActifs.length)
+        : 0
   };
 
-  const getAverageRating = () => {
-    const total = selectedElements.reduce((sum, element) => sum + element.anneeMiseEnService, 0);
-    return (total / selectedElements.length).toFixed(1);
-  };
+  const renderActifDetails = (actif: Actif) => {
+    const commonDetails = (
+        <div className="space-y-4">
+          {/* Location Info */}
+          <div className="bg-gray-50 p-3 rounded-lg">
+            <h5 className="text-xs font-semibold text-gray-700 mb-2 flex items-center">
+              <MapPin className="w-3 h-3 mr-1" />
+              Localisation
+            </h5>
+            <div className="grid grid-cols-2 gap-2 text-xs">
+              <div>
+                <span className="text-gray-500">Région:</span>
+                <p className="font-medium text-gray-900">{actif.region}</p>
+              </div>
+              <div>
+                <span className="text-gray-500">Département:</span>
+                <p className="font-medium text-gray-900">{actif.departement}</p>
+              </div>
+              <div>
+                <span className="text-gray-500">Commune:</span>
+                <p className="font-medium text-gray-900">{actif.commune}</p>
+              </div>
+              <div>
+                <span className="text-gray-500">Quartier:</span>
+                <p className="font-medium text-gray-900">{actif.quartier}</p>
+              </div>
+            </div>
+          </div>
 
-  const toggleLike = (elementId: string) => {
-    const newLikedItems = new Set(likedItems);
-    if (newLikedItems.has(elementId)) {
-      newLikedItems.delete(elementId);
-    } else {
-      newLikedItems.add(elementId);
+          {/* Technical Info */}
+          <div className="bg-blue-50 p-3 rounded-lg">
+            <h5 className="text-xs font-semibold text-gray-700 mb-2 flex items-center">
+              <Info className="w-3 h-3 mr-1" />
+              Informations techniques
+            </h5>
+            <div className="grid grid-cols-2 gap-2 text-xs">
+              <div>
+                <span className="text-gray-500">Position:</span>
+                <p className="font-medium text-gray-900">{actif.positionMateriel}</p>
+              </div>
+              <div>
+                <span className="text-gray-500">Année Service:</span>
+                <p className="font-medium text-gray-900 flex items-center">
+                  <Clock className="w-3 h-3 mr-1 text-blue-600" />
+                  {actif.anneeMiseEnService}
+                </p>
+              </div>
+              <div className="col-span-2">
+                <span className="text-gray-500">N° Immo:</span>
+                <p className="font-mono text-xs text-gray-900 bg-white px-2 py-1 rounded border">
+                  {actif.numeroImmo}
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* Coordinates */}
+          <div className="bg-green-50 p-3 rounded-lg">
+            <h5 className="text-xs font-semibold text-gray-700 mb-2">Coordonnées GPS</h5>
+            <div className="font-mono text-xs text-gray-900 bg-white px-2 py-1 rounded border">
+              {actif.geolocalisation.latitude.toFixed(6)}, {actif.geolocalisation.longitude.toFixed(6)}
+            </div>
+          </div>
+        </div>
+    );
+
+    // Add type-specific details
+    switch (actif.type) {
+      case 'TRANSFORMATEUR':
+        { const transformateur = actif ;
+        return (
+            <div className="space-y-4">
+              {commonDetails}
+              <div className="bg-red-50 p-3 rounded-lg">
+                <h5 className="text-xs font-semibold text-gray-700 mb-2 flex items-center">
+                  <Settings className="w-3 h-3 mr-1 text-red-600" />
+                  Spécifications Transformateur
+                </h5>
+                <div className="grid grid-cols-2 gap-2 text-xs">
+                  <div>
+                    <span className="text-gray-500">Fabricant:</span>
+                    <p className="font-medium text-gray-900">{transformateur.fabricant}</p>
+                  </div>
+                  <div>
+                    <span className="text-gray-500">Puissance:</span>
+                    <p className="font-medium  text-red-700">{transformateur.puissance} kVA</p>
+                  </div>
+                  <div>
+                    <span className="text-gray-500">Tension Primaire:</span>
+                    <p className="font-medium text-gray-900">{transformateur.tensionPrimaire} V</p>
+                  </div>
+                  <div>
+                    <span className="text-gray-500">Tension Secondaire:</span>
+                    <p className="font-medium text-gray-900">{transformateur.tensionSecondaire} V</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+        ); }
+
+      case 'SUPPORT':
+        { const support = actif;
+        return (
+            <div className="space-y-4">
+              {commonDetails}
+              <div className="bg-orange-50 p-3 rounded-lg">
+                <h5 className="text-xs font-semibold text-gray-700 mb-2 flex items-center">
+                  <Activity className="w-3 h-3 mr-1 text-orange-600" />
+                  Détails Support
+                </h5>
+                <div className="grid grid-cols-2 gap-2 text-xs">
+                  <div>
+                    <span className="text-gray-500">Classe:</span>
+                    <p className="font-medium text-gray-900">{support.classeSupport}</p>
+                  </div>
+                  <div>
+                    <span className="text-gray-500">Utilisation:</span>
+                    <p className="font-medium text-gray-900">{support.utilisation}</p>
+                  </div>
+                  <div>
+                    <span className="text-gray-500">Tension:</span>
+                    <p className="font-medium  text-orange-700">{support.tension} V</p>
+                  </div>
+                  <div>
+                    <span className="text-gray-500">Nb Supports:</span>
+                    <p className="font-medium text-gray-900">{support.nombreSupports}</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+        ); }
+
+      default:
+        return commonDetails;
     }
-    setLikedItems(newLikedItems);
   };
 
   return (
-    <>
-      <div className="fixed right-0 top-0 h-full w-96 bg-white/95 backdrop-blur-xl shadow-2xl z-50 transform transition-all duration-500 ease-out border-l border-gray-200/50 animate-slide-in-right ">
-        {/* Header */}
-        <div className="relative p-6 bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 border-b border-gray-200/50">
-          <div className="absolute inset-0 bg-gradient-to-br from-blue-600/5 to-purple-600/5"></div>
-          <div className="relative">
-            <div className="flex items-center justify-between mb-4">
-              <div>
-                <h2 className="text-2xl font-bold bg-gradient-to-r from-gray-900 to-gray-600 bg-clip-text text-transparent">
-                  Sélection active
-                </h2>
-                <div className="flex items-center space-x-4 text-sm text-gray-600 mt-2">
-                  <div className="flex items-center space-x-1">
-                    <Eye className="h-4 w-4" />
-                    <span className="font-medium">{selectedElements.length} élément{selectedElements.length > 1 ? 's' : ''}</span>
-                  </div>
-                  <div className="w-1 h-1 bg-gray-400 rounded-full"></div>
-                  <div className="flex items-center space-x-1">
-                    <Star className="h-4 w-4 text-yellow-500 fill-current" />
-                    <span className="font-medium">{getAverageRating()}</span>
-                  </div>
-                  <div className="w-1 h-1 bg-gray-400 rounded-full"></div>
-                  <span className="font-bold text-green-600">{getTotalValue()}€</span>
-                </div>
+      <div className="fixed right-10  h-full w-96 bg-white shadow-2xl border-l border-gray-200 z-50 overflow-hidden flex flex-col">
+        {/* Enhanced Header */}
+        <div className="bg-gradient-to-r from-blue-600 to-blue-700 text-white p-4">
+          <div className="flex items-center justify-between mb-2">
+            <h2 className="text-lg font-bold flex items-center">
+              <Eye className="w-5 h-5 mr-2" />
+              Sélection Active
+            </h2>
+            <button
+                onClick={handleClose}
+                className="p-1.5 hover:bg-white/20 rounded-lg transition-colors"
+            >
+              <X className="w-5 h-5" />
+            </button>
+          </div>
+        </div>
+
+        {/* Enhanced Stats */}
+        <div className="p-4 bg-gray-50 border-b border-gray-200">
+          <div className="grid grid-cols-2 gap-3 mb-3">
+            <div className="bg-white p-3 rounded-lg shadow-sm">
+              <div className="flex items-center justify-between">
+                <span className="text-xs text-gray-600">Total</span>
+                <BarChart3 className="w-4 h-4 text-blue-600" />
               </div>
+              <div className="text-2xl font-bold text-blue-600">{stats.total}</div>
+            </div>
+            <div className="bg-white p-3 rounded-lg shadow-sm">
+              <div className="flex items-center justify-between">
+                <span className="text-xs text-gray-600">Année Moy.</span>
+                <TrendingUp className="w-4 h-4 text-green-600" />
+              </div>
+              <div className="text-2xl font-bold text-green-600">{stats.avgYear}</div>
+            </div>
+          </div>
+
+          {selectedActifs.length > 1 && (
+              <>
+                {/* Type Distribution */}
+                <div className="mb-3">
+                  <h4 className="text-xs font-semibold text-gray-700 mb-2">Répartition par type</h4>
+                  <div className="flex flex-wrap gap-1">
+                    {Object.entries(stats.byType).map(([type, count]) => (
+                        <span key={type} className="px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded-full font-medium">
+                    {getTypeLabel(type)}: {count}
+                  </span>
+                    ))}
+                  </div>
+                </div>
+
+                {/* State Distribution */}
+                <div className="mb-3">
+                  <h4 className="text-xs font-semibold text-gray-700 mb-2">État visuel</h4>
+                  <div className="flex flex-wrap gap-1">
+                    {Object.entries(stats.byState).map(([state, count]) => (
+                        <span key={state} className={`px-2 py-1 text-xs rounded-full font-medium border ${getEtatColor(state)}`}>
+                    {state}: {count}
+                  </span>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Region Distribution */}
+                <div>
+                  <h4 className="text-xs font-semibold text-gray-700 mb-2">Régions</h4>
+                  <div className="flex flex-wrap gap-1">
+                    {Object.entries(stats.byRegion).map(([region, count]) => (
+                        <span key={region} className="px-2 py-1 bg-green-100 text-green-800 text-xs rounded-full font-medium">
+                    {region}: {count}
+                  </span>
+                    ))}
+                  </div>
+                </div>
+              </>
+          )}
+        </div>
+
+        {/* Enhanced Content */}
+        <div className="flex-1 overflow-y-auto">
+          {selectedActifs.length === 0 ? (
+              <div className="p-6 text-center text-gray-500">
+                <div className="w-16 h-16 mx-auto mb-4 bg-gray-100 rounded-full flex items-center justify-center">
+                  <MapPin className="w-8 h-8 text-gray-300" />
+                </div>
+                <h3 className="text-lg font-medium text-gray-900 mb-2">Aucune sélection</h3>
+                <p className="text-sm">Sélectionnez des éléments sur la carte pour voir leurs détails ici.</p>
+              </div>
+          ) : (
+              <div className="divide-y divide-gray-200">
+                {/* eslint-disable-next-line @typescript-eslint/no-unused-vars */}
+                {selectedActifs.map((actif) => (
+                    <div key={actif.id} className="p-4 hover:bg-gray-50 transition-colors">
+                      <div className="flex items-start justify-between mb-3">
+                        <div className="flex items-center space-x-3">
+                          <div className="flex-shrink-0">
+                            {getActifIcon(actif.type)}
+                          </div>
+                          <div className="min-w-0 flex-1">
+                            <h3 className="font-semibold text-sm text-gray-900 truncate">
+                              {actif.designationGenerale}
+                            </h3>
+                            <p className="text-xs text-gray-500 mt-1">
+                              {getTypeLabel(actif.type)}
+                            </p>
+                          </div>
+                        </div>
+                        <span className={`px-2 py-1 text-xs rounded-full font-medium border flex-shrink-0 ${getEtatColor(actif.etatVisuel)}`}>
+                    {actif.etatVisuel}
+                  </span>
+                      </div>
+
+                      {renderActifDetails(actif)}
+                    </div>
+                ))}
+              </div>
+          )}
+        </div>
+
+        {/* Enhanced Footer */}
+        {selectedActifs.length > 0 && (
+            <div className="border-t border-gray-200 p-4 bg-gray-50">
               <button
-                onClick={() => setSidebarOpen(false)}
-                className="group p-2 hover:bg-white/50 rounded-xl transition-all duration-200 transform hover:scale-110"
+                  onClick={clearSelection}
+                  className="w-full px-4 py-2 bg-gradient-to-r from-red-500 to-red-600 text-white rounded-lg hover:from-red-600 hover:to-red-700 transition-all font-medium text-sm shadow-md"
               >
-                <X className="h-5 w-5 text-gray-500 group-hover:text-gray-700 transition-colors duration-200" />
+                Effacer la sélection
               </button>
             </div>
-
-            {/* Quick Stats */}
-            <div className="grid grid-cols-3 gap-3">
-              <div className="bg-white/60 backdrop-blur-sm rounded-xl p-3 border border-white/50">
-                <div className="text-xs text-gray-600 font-medium">Valeur totale</div>
-                <div className="text-lg font-bold text-green-600">{getTotalValue()}€</div>
-              </div>
-              <div className="bg-white/60 backdrop-blur-sm rounded-xl p-3 border border-white/50">
-                <div className="text-xs text-gray-600 font-medium">Note moyenne</div>
-                <div className="text-lg font-bold text-yellow-600">{getAverageRating()}⭐</div>
-              </div>
-              <div className="bg-white/60 backdrop-blur-sm rounded-xl p-3 border border-white/50">
-                <div className="text-xs text-gray-600 font-medium">Éléments</div>
-                <div className="text-lg font-bold text-blue-600">{selectedElements.length}</div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Quick Actions */}
-        <div className="p-4 border-b border-gray-200/50 bg-gray-50/50">
-          <div className="grid grid-cols-2 gap-3">
-            <button
-              onClick={() => setExportModalOpen(true)}
-              className="group flex items-center justify-center space-x-2 px-4 py-3 bg-gradient-to-r from-blue-600 to-indigo-700 text-white rounded-xl hover:from-blue-700 hover:to-indigo-800 transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl"
-            >
-              <Download className="h-4 w-4 transition-transform duration-300 group-hover:scale-110" />
-              <span className="font-semibold">Exporter</span>
-            </button>
-            <button className="group flex items-center justify-center space-x-2 px-4 py-3 bg-gradient-to-r from-gray-600 to-gray-700 text-white rounded-xl hover:from-gray-700 hover:to-gray-800 transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl">
-              <Share2 className="h-4 w-4 transition-transform duration-300 group-hover:scale-110" />
-              <span className="font-semibold">Partager</span>
-            </button>
-          </div>
-        </div>
-
-        {/* Content */}
-        <div className="flex-1 p-4 space-y-4 custom-scrollbar overflow-scroll">
-          {selectedElements.map((element, index) => (
-            <div
-              key={element.id}
-              className="group bg-white rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-[1.02] border border-gray-200/50 overflow-hidden"
-              style={{ animationDelay: `${index * 100}ms` }}
-            >
-              {/* Image */}
-              <div className="relative overflow-hidden">
-
-                <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent"></div>
-                
-                {/* Overlays */}
-                <div className="absolute top-3 left-3">
-                  <span className={`flex items-center space-x-1 px-3 py-1 rounded-full text-xs font-semibold border ${getTypeColor(element.type)}`}>
-                    <span>{getTypeIcon(element.type)}</span>
-                    <span>{getTypeLabel(element.type)}</span>
-                  </span>
-                </div>
-                
-                <div className="absolute top-3 right-3 flex space-x-2">
-                  <button
-                    onClick={() => toggleLike(element.id)}
-                    className={`p-2 rounded-full backdrop-blur-sm transition-all duration-300 transform hover:scale-110 ${
-                      likedItems.has(element.id)
-                        ? 'bg-red-500 text-white'
-                        : 'bg-white/90 text-gray-600 hover:bg-white'
-                    }`}
-                  >
-                    <Heart className={`h-4 w-4 ${likedItems.has(element.id) ? 'fill-current' : ''}`} />
-                  </button>
-                  <div className="bg-white/90 backdrop-blur-sm px-3 py-2 rounded-full">
-                    <span className="text-sm font-bold text-green-600">{element.anneeMiseEnService}€</span>
-                  </div>
-                </div>
-
-                <div className="absolute bottom-3 left-3 right-3">
-                  <h3 className="font-bold text-lg text-white drop-shadow-lg">{element.designationGenerale}</h3>
-                </div>
-              </div>
-
-              {/* Content */}
-              <div className="p-4">
-                <p className="text-sm text-gray-600 mb-4 leading-relaxed">{element.designationGenerale}</p>
-                
-                {/* Rating and Category */}
-                <div className="flex items-center justify-between mb-4">
-                  <div className="flex items-center space-x-2">
-                    <div className="flex items-center space-x-1 bg-yellow-50 px-2 py-1 rounded-lg">
-                      <Star className="h-4 w-4 text-yellow-500 fill-current" />
-                      <span className="text-sm font-bold text-yellow-700">{element.anneeMiseEnService}</span>
-                    </div>
-                    <span className="text-xs text-gray-500">({Math.floor(Math.random() * 200 + 50)} avis)</span>
-                  </div>
-                  <span className="text-xs text-gray-500 bg-gray-100 px-3 py-1 rounded-full font-medium">
-                    {element.type}
-                  </span>
-                </div>
-
-                {/* Location */}
-                <div className="flex items-center space-x-2 text-sm text-gray-600 mb-4 bg-gray-50 p-2 rounded-lg">
-                  <MapPin className="h-4 w-4 text-gray-400" />
-                  <span className="font-mono text-xs">{element.geolocalisation.latitude.toFixed(4)}, {element.geolocalisation.longitude.toFixed(4)}</span>
-                </div>
-
-                {/* Actions */}
-                <div className="grid grid-cols-2 gap-2">
-                  <button className="group flex items-center justify-center space-x-2 bg-gradient-to-r from-blue-600 to-indigo-700 text-white px-3 py-2 rounded-xl text-sm font-semibold hover:from-blue-700 hover:to-indigo-800 transition-all duration-300 transform hover:scale-105">
-                    <ExternalLink className="h-4 w-4 transition-transform duration-300 group-hover:scale-110" />
-                    <span>Détails</span>
-                  </button>
-                  <button className="group flex items-center justify-center space-x-2 px-3 py-2 border border-gray-300 text-gray-700 rounded-xl text-sm font-semibold hover:bg-gray-50 hover:border-gray-400 transition-all duration-300 transform hover:scale-105">
-                    <Navigation className="h-4 w-4 transition-transform duration-300 group-hover:scale-110" />
-                    <span>Itinéraire</span>
-                  </button>
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
-
-        {/* Footer */}
-        <div className="border-t border-gray-200/50 p-4 bg-gradient-to-r from-gray-50 to-blue-50">
-          <div className="text-xs text-gray-600 text-center mb-3 flex items-center justify-center space-x-4">
-            <div className="flex items-center space-x-1">
-              <Clock className="h-3 w-3" />
-              <span>Mis à jour maintenant</span>
-            </div>
-            <div className="w-1 h-1 bg-gray-400 rounded-full"></div>
-            <span>Valeur totale: <span className="font-bold text-green-600">{getTotalValue()}€</span></span>
-            <div className="w-1 h-1 bg-gray-400 rounded-full"></div>
-            <span>Note: <span className="font-bold text-yellow-600">{getAverageRating()}⭐</span></span>
-          </div>
-          <button
-            onClick={clearSelection}
-            className="w-full bg-gradient-to-r from-gray-600 to-gray-700 text-white px-4 py-3 rounded-xl font-semibold hover:from-gray-700 hover:to-gray-800 transition-all duration-300 transform hover:scale-105 shadow-lg"
-          >
-            Effacer la sélection
-          </button>
-        </div>
+        )}
       </div>
-
-      <ExportModal 
-        isOpen={exportModalOpen} 
-        onClose={() => setExportModalOpen(false)} 
-      />
-    </>
   );
 };
 
