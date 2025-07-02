@@ -8,8 +8,8 @@ import Rapport from "./components/pages/rapports/Rapport";
 import DashboardPage from "./components/pages/dashboard/DashboardPage";
 import { ThemeProvider } from "./context/ThemeProvider";
 import CollectorPerformancePage from "./components/pages/collecteurs/CollectorPerformancePage";
-import {useThemeStore} from "@/store/themeStore.ts";
-import {useEffect} from "react";
+import { useThemeStore } from "@/store/themeStore.ts";
+import { useEffect } from "react";
 import Maps from "@/components/pages/cartographie/Maps.tsx";
 import { ToastContainer } from "react-toastify";
 import Utilisateur from "./components/pages/utilisateur/Utilisateur";
@@ -21,7 +21,7 @@ const PublicRoute: React.FC<{ element: React.ReactNode }> = ({ element }) => {
   return <>{element}</>;
 };
 export default function App() {
-  const initializeTheme = useThemeStore(state => state.initializeTheme);
+  const initializeTheme = useThemeStore((state) => state.initializeTheme);
 
   useEffect(() => {
     initializeTheme();
@@ -45,7 +45,7 @@ export default function App() {
               <Route path="/parametres" element={<Parametres />} />
               <Route path="/parametres/:tab" element={<Parametres />} />
               <Route
-                path="/suivi-inventaire"
+                path="/suivi_inventaire"
                 element={<CollectorPerformancePage />}
               />
             </Route>

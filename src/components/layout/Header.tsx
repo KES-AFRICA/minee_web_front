@@ -45,16 +45,16 @@ const Header = ({ mobileMenuTrigger }: HeaderProps) => {
     const pathNames: Record<string, string> = {
       dashboard: "Tableau de bord",
       utilisateur: "Utilisateurs",
-      collecteurs: "Collecteurs",
-      actifs: "Actifs",
-      carte: "Carte",
+      suivi_inventaire: "Suivi de l'inventaire",
+      immobilisations: "Immobilisations",
+      systeme_information_graphique: "SIG",
       rapport: "Rapports",
-      parametres: "Paramètres",
+      parametres: "Paramètres",
     };
 
     const parts = path.split("/").filter(Boolean);
     const currentPath = parts[parts.length - 1] || "dashboard";
-    return pathNames[currentPath] || "Paramètres";
+    return pathNames[currentPath] || "";
   };
 
   const handleLogout = () => {

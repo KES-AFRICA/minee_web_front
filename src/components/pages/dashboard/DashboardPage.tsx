@@ -62,12 +62,13 @@ export default function DashboardPage() {
     const communeSet = new Set(filteredActifs.map((actif) => actif.commune));
     return ["Toutes", ...Array.from(communeSet)];
   }, [selectedRegion]);
+
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 p-2 md:p-4">
       <div className="space-y-4 md:space-y-6 lg:space-y-8">
         <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
           <div>
-            <h1 className="text-2xl md:text-3xl  font-bold text-gray-900 dark:text-white mb-1 md:mb-2">
+            <h1 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white mb-1 md:mb-2">
               Inventaire et Valorisation des Actifs Électriques
             </h1>
             <p className="text-sm md:text-base text-gray-600 dark:text-gray-300">
@@ -80,7 +81,7 @@ export default function DashboardPage() {
                 Dernière mise à jour
               </p>
               <p className="text-sm md:text-base font-semibold text-gray-900 dark:text-white">
-                <div className=" bg-teal-600 text-xs md:text-sm p-1  rounded-xl text-white flex items-center justify-center">
+                <div className="bg-teal-600 dark:bg-teal-500 text-xs md:text-sm p-1 rounded-xl text-white flex items-center justify-center">
                   {currentTime.toLocaleTimeString()}
                 </div>
               </p>
@@ -92,7 +93,7 @@ export default function DashboardPage() {
                     currentView === "SIG" ? "Valorisations" : "SIG"
                   )
                 }
-                className="flex items-center gap-2 bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-lg shadow-md transition-all"
+                className="flex items-center gap-2 bg-gray-600 hover:bg-gray-700 dark:bg-gray-700 dark:hover:bg-gray-600 text-white px-4 py-2 rounded-lg shadow-md transition-all"
               >
                 {currentView === "SIG" ? (
                   <BarChart3 className="w-5 h-5" />
@@ -108,9 +109,10 @@ export default function DashboardPage() {
             </div>
           </div>
         </div>
+
         <div className="w-[50vw] grid grid-cols-1 md:grid-cols-4 gap-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               Région
             </label>
             <select
@@ -119,7 +121,7 @@ export default function DashboardPage() {
                 setSelectedRegion(e.target.value);
                 setSelectedCommune("Toutes");
               }}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400"
             >
               {regions.map((region) => (
                 <option key={region} value={region}>
@@ -130,13 +132,13 @@ export default function DashboardPage() {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               Commune
             </label>
             <select
               value={selectedCommune}
               onChange={(e) => setSelectedCommune(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400"
             >
               {communes.map((commune) => (
                 <option key={commune} value={commune}>
@@ -152,7 +154,7 @@ export default function DashboardPage() {
                 setSelectedRegion("Toutes");
                 setSelectedCommune("Toutes");
               }}
-              className="w-full px-4 py-2 bg-teal-600 text-white rounded-md hover:bg-emerald-700 transition-colors"
+              className="w-full px-4 py-2 bg-teal-600 hover:bg-teal-700 dark:bg-teal-500 dark:hover:bg-teal-600 text-white rounded-md transition-colors"
             >
               Réinitialiser
             </button>

@@ -1,9 +1,11 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { inventaireActifs, inventaireDeparts } from "@/data/indexActifs";
-import { useMemo, type Key } from "react";
+import { useMemo, useState, type Key } from "react";
 import ReactECharts from "echarts-for-react";
 import { Colors } from "./types";
+import { Pagination } from "antd";
 
+const page_size = 5;
 export default function Sig({
   selectedRegion,
   selectedCommune,
@@ -11,6 +13,11 @@ export default function Sig({
   selectedRegion: string;
   selectedCommune: string;
 }) {
+  const [currentPage, setCurrentPage] = useState(1);
+  const [activeTab, setActiveTab] = useState<"departs" | "regions">("departs");
+  const handleTabChange = (tab: "departs" | "regions") => {
+    setActiveTab(tab);
+  };
   // Données filtrées pour les actifs
   const filteredActifs = useMemo(() => {
     return inventaireActifs.filter((actif) => {
@@ -75,6 +82,18 @@ export default function Sig({
     }));
   }, [filteredActifs]);
 
+  // pagination pour les tables des departs et regions
+  const pagination = useMemo(() => {
+    const startIndex = (currentPage - 1) * page_size;
+    const endIndex = startIndex + page_size;
+    return departsData.slice(startIndex, endIndex);
+  }, [currentPage, departsData]);
+
+  const paginationRegion = useMemo(() => {
+    const startIndex = (currentPage - 1) * page_size;
+    const endIndex = startIndex + page_size;
+    return regionData.slice(startIndex, endIndex);
+  }, [currentPage, regionData]);
   // Types d'actifs présents dans les données filtrées
   const availableTypes = useMemo(() => {
     return [...new Set(filteredActifs.map((actif) => actif.type))];
@@ -324,15 +343,15 @@ export default function Sig({
   const getEtatBgColor = (etat: string) => {
     switch (etat) {
       case "Excellent":
-        return "bg-emerald-50 border-emerald-200";
+        return "bg-emerald-50 dark:bg-emerald-900/20 border-emerald-200 dark:border-emerald-800";
       case "Bon":
-        return "bg-teal-50 border-teal-200";
+        return "bg-teal-50 dark:bg-teal-900/20 border-teal-200 dark:border-teal-800";
       case "Moyen":
-        return "bg-yellow-50 border-yellow-200";
+        return "bg-yellow-50 dark:bg-yellow-900/20 border-yellow-200 dark:border-yellow-800";
       case "Mauvais":
-        return "bg-red-50 border-red-200";
+        return "bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-800";
       default:
-        return "bg-gray-50 border-gray-200";
+        return "bg-gray-50 dark:bg-gray-800 border-gray-200 dark:border-gray-700";
     }
   };
 
@@ -393,7 +412,7 @@ export default function Sig({
             </div>
           </div>
         </div>
-        <div className=" bg-white dark:bg-gray-800 rounded-lg p-4 md:p-6 shadow-lg border border-gray-100 dark:border-gray-700">
+        <div className="bg-white dark:bg-gray-800 rounded-lg p-4 md:p-6 shadow-lg border border-gray-100 dark:border-gray-700">
           <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-6">
             État des Actifs
           </h3>
@@ -431,7 +450,7 @@ export default function Sig({
                     </div>
 
                     <div className="mt-3">
-                      <div className="w-full bg-gray-200 rounded-full h-2">
+                      <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
                         <div
                           className={`h-2 rounded-full ${getEtatColor(
                             item.etat
@@ -484,77 +503,99 @@ export default function Sig({
         </div>
 
         {/* Tableau */}
-        <div className="p-6">
-          <div className="grid lg:grid-cols-3 gap-4 md:gap-6">
-            <div className="col-span-2 bg-white dark:bg-gray-800 rounded-xl shadow-md p-6 border border-gray-100 dark:border-gray-700">
-              <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-4">
-                Details des Départs
-              </h3>
-              {/* remove scrollbar */}
+        <div className="p-2">
+          <div className="mb-3 flex items-end justify-end space-x-2">
+            <button
+              className={`px-3 py-1 rounded-md ${
+                activeTab === "departs"
+                  ? "bg-teal-700 text-white"
+                  : "bg-gray-200 dark:bg-gray-700"
+              }`}
+              onClick={() => handleTabChange("departs")}
+            >
+              Details des departs
+            </button>
+
+            <button
+              className={`px-3 py-1 rounded-md ${
+                activeTab === "regions"
+                  ? "bg-teal-700 text-white"
+                  : "bg-gray-200 dark:bg-gray-700"
+              }`}
+              onClick={() => handleTabChange("regions")}
+            >
+              Details des regions
+            </button>
+          </div>
+          {activeTab === "departs" && (
+            <div className=" bg-white dark:bg-gray-800 rounded-xl shadow-md p-6 border border-gray-100 dark:border-gray-700">
               <div className="overflow-x-auto">
-                <table className="min-w-full divide-y divide-gray-200">
+                <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
                   <thead className="bg-gray-50 dark:bg-gray-700">
                     <tr>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                         Departs
                       </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                         Nombre d'Actifs
                       </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                         Actif
                       </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                         Type
                       </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                         Longueur (km)
                       </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                         État
                       </th>
                     </tr>
                   </thead>
-                  <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200">
-                    {departsData.map((depart) => (
-                      <tr key={depart.id} className="hover:bg-gray-50">
-                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                  <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+                    {pagination.map((depart) => (
+                      <tr
+                        key={depart.id}
+                        className="hover:bg-gray-50 dark:hover:bg-gray-700"
+                      >
+                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white">
                           {depart.nom}
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">
+                          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200">
                             {depart.nombreActifs}
                           </span>
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">
+                          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200">
                             {depart.actifs.map((actif) => actif).join(", ")}
                           </span>
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">
                           <span
                             className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
                               depart.typeDepart === "Principal"
-                                ? "bg-green-100 text-green-800"
+                                ? "bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200"
                                 : depart.typeDepart === "Industriel"
-                                ? "bg-purple-100 text-purple-800"
+                                ? "bg-purple-100 dark:bg-purple-900 text-purple-800 dark:text-purple-200"
                                 : depart.typeDepart === "Commercial"
-                                ? "bg-orange-100 text-orange-800"
-                                : "bg-gray-100 text-gray-800"
+                                ? "bg-orange-100 dark:bg-orange-900 text-orange-800 dark:text-orange-200"
+                                : "bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200"
                             }`}
                           >
                             {depart.typeDepart}
                           </span>
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">
                           {depart.longueurTotale} km
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">
                           <span
                             className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
                               depart.etatGeneral === "En service"
-                                ? "bg-green-100 text-green-800"
-                                : "bg-yellow-100 text-yellow-800"
+                                ? "bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200"
+                                : "bg-yellow-100 dark:bg-yellow-900 text-yellow-800 dark:text-yellow-200"
                             }`}
                           >
                             {depart.etatGeneral}
@@ -565,45 +606,56 @@ export default function Sig({
                   </tbody>
                 </table>
               </div>
-            </div>{" "}
+              <div className="flex justify-end mt-4 p-4 border-t border-t-gray-200 dark:bg-teal-900/20 rounded-b-xl">
+                <Pagination
+                  current={currentPage}
+                  pageSize={page_size}
+                  total={pagination.length}
+                  onChange={(page) => setCurrentPage(page)}
+                  showSizeChanger={false}
+                />
+              </div>
+            </div>
+          )}
+          {activeTab === "regions" && (
             <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6 border border-gray-100 dark:border-gray-700">
-              <h3 className="text-xl font-bold text-gray-900 mb-4">
-                Détails des Régions
-              </h3>
               <div className="overflow-x-auto">
-                <table className="min-w-full divide-y divide-gray-200">
-                  <thead className="bg-gray-50">
+                <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+                  <thead className="bg-gray-50 dark:bg-gray-700">
                     <tr>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                         Région
                       </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                         Nombre d'Actifs
                       </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                         Communes
                       </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                         État
                       </th>
                     </tr>
                   </thead>
-                  <tbody className="bg-white divide-y divide-gray-200">
-                    {regionData.map((region) => (
-                      <tr key={region.name} className="hover:bg-gray-50">
-                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                  <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+                    {paginationRegion.map((region) => (
+                      <tr
+                        key={region.name}
+                        className="hover:bg-gray-50 dark:hover:bg-gray-700"
+                      >
+                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white">
                           {region.name}
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">
+                          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200">
                             {region.value}
                           </span>
                         </td>
-                        <td className="px-6 py-4 text-sm text-gray-500">
+                        <td className="px-6 py-4 text-sm text-gray-500 dark:text-gray-300">
                           {region.communes.join(", ")}
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">
+                          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200">
                             Actif
                           </span>
                         </td>
@@ -612,8 +664,17 @@ export default function Sig({
                   </tbody>
                 </table>
               </div>
+              <div className="flex justify-end mt-4 p-4 border-t border-t-gray-200  dark:bg-teal-900/20 rounded-b-xl">
+                <Pagination
+                  current={currentPage}
+                  pageSize={page_size}
+                  total={paginationRegion.length}
+                  onChange={(page) => setCurrentPage(page)}
+                  showSizeChanger={false}
+                />
+              </div>
             </div>
-          </div>
+          )}
         </div>
       </div>
     </div>

@@ -1,402 +1,528 @@
-import { useState } from "react";
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import {
   Download,
-  Printer,
   FileText,
-  PieChart,
   BarChart2,
   Filter,
-  Calendar,
+  Printer,
   ChevronDown,
-  HardHat,
-  Zap,
-  Battery,
-  Activity,
-  MapPin,
-  DollarSign,
-  AlertTriangle,
+  Trash2,
+  Calendar,
+  TrendingUp,
+  Eye,
+  AlertCircle,
 } from "lucide-react";
+import { useState } from "react";
+import {
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
+  ResponsiveContainer,
+} from "recharts";
+import type { ValueType } from "recharts/types/component/DefaultTooltipContent";
 
-export default function Reports() {
-  const [selectedReportType, setSelectedReportType] = useState("inventory");
-  const [dateRange, setDateRange] = useState("last30days");
-  const [assetTypeFilter, setAssetTypeFilter] = useState("all");
-  const [regionFilter, setRegionFilter] = useState("all");
-
-  // Données fictives pour les rapports
-  const reportData = {
-    summary: {
-      totalAssets: 1245,
-      active: 1120,
-      maintenance: 85,
-      outOfService: 40,
-      value: 45200000000,
+export default function Rapport() {
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [rapportsRecents, setRapportsRecents] = useState([
+    {
+      id: 1,
+      nom: "Rapport_Actifs_2024-03-15.xlsx",
+      type: "Liste des Actifs",
+      taille: "2.3 MB",
+      dateGeneration: "2024-03-15",
+      status: "Complété",
+      nombreActifs: 1250,
     },
-    byType: [
-      { type: "Transformateur", count: 245, value: 28000000000 },
-      { type: "Ligne HT", count: 560, value: 12000000000 },
-      { type: "Poste", count: 180, value: 4000000000 },
-      { type: "Compteur", count: 260, value: 1200000000 },
-    ],
-    byRegion: [
-      { region: "Littoral", count: 420, percentage: 34 },
-      { region: "Centre", count: 380, percentage: 30 },
-      { region: "Nord", count: 210, percentage: 17 },
-      { region: "Sud", count: 150, percentage: 12 },
-      { region: "Ouest", count: 85, percentage: 7 },
-    ],
-    recentReports: [
-      {
-        id: "RPT-2023-045",
-        title: "Inventaire complet Q3 2023",
-        date: "15/10/2023",
-        type: "Inventaire",
-        size: "2.4 MB",
-      },
-      {
-        id: "RPT-2023-044",
-        title: "Actifs critiques - Sept 2023",
-        date: "30/09/2023",
-        type: "Analyse",
-        size: "1.8 MB",
-      },
-      {
-        id: "RPT-2023-043",
-        title: "Valeur patrimoniale Q3",
-        date: "25/09/2023",
-        type: "Financier",
-        size: "3.2 MB",
-      },
-    ],
+    {
+      id: 2,
+      nom: "Rapport_Valorisation_2024-03-10.pdf",
+      type: "Rapport de Valorisation",
+      taille: "1.8 MB",
+      dateGeneration: "2024-03-10",
+      status: "Complété",
+      nombreActifs: 890,
+    },
+    {
+      id: 3,
+      nom: "Synthese_Globale_2024-03-05.xlsx",
+      type: "Synthèse Globale",
+      taille: "3.1 MB",
+      dateGeneration: "2024-03-05",
+      status: "Complété",
+      nombreActifs: 1450,
+    },
+    {
+      id: 4,
+      nom: "Rapport_Departs_2024-02-28.xlsx",
+      type: "Liste des Départs",
+      taille: "1.2 MB",
+      dateGeneration: "2024-02-28",
+      status: "Complété",
+      nombreActifs: 520,
+    },
+    {
+      id: 5,
+      nom: "Rapport_Actifs_2024-02-20.xlsx",
+      type: "Liste des Actifs",
+      taille: "2.1 MB",
+      dateGeneration: "2024-02-20",
+      status: "En cours",
+      nombreActifs: 1180,
+    },
+  ]);
+
+  // Données fictives pour le graphique d'inflation des valeurs
+  const donneesInflation = [
+    { annee: "2019", valeurTotale: 450000000, inflation: 0 },
+    { annee: "2020", valeurTotale: 520000000, inflation: 15.6 },
+    { annee: "2021", valeurTotale: 650000000, inflation: 25.0 },
+    { annee: "2022", valeurTotale: 780000000, inflation: 20.0 },
+    { annee: "2023", valeurTotale: 920000000, inflation: 17.9 },
+    { annee: "2024", valeurTotale: 1150000000, inflation: 25.0 },
+  ];
+
+  const generateReport = (type: string) => {
+    console.log(`Génération du rapport ${type}`);
+    // Simulation d'ajout d'un nouveau rapport
+    const nouveauRapport = {
+      id: rapportsRecents.length + 1,
+      nom: `Rapport_${type}_${new Date().toISOString().split("T")[0]}.xlsx`,
+      type: type,
+      taille: `${(Math.random() * 3 + 1).toFixed(1)} MB`,
+      dateGeneration: new Date().toISOString().split("T")[0],
+      status: "Complété",
+      nombreActifs: Math.floor(Math.random() * 1000 + 500),
+    };
+    setRapportsRecents([nouveauRapport, ...rapportsRecents]);
   };
 
-  const formatNumber = (num: number) => {
+  const exportToExcel = () => {
+    setIsGenerating(true);
+
+    setTimeout(() => {
+      generateReport("Actifs Excel");
+      setIsGenerating(false);
+    }, 2000);
+  };
+
+  const supprimerRapport = (id: number) => {
+    setRapportsRecents(rapportsRecents.filter((rapport) => rapport.id !== id));
+  };
+
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case "Complété":
+        return "text-green-600 bg-green-100";
+      case "En cours":
+        return "text-yellow-600 bg-yellow-100";
+      case "Erreur":
+        return "text-red-600 bg-red-100";
+      default:
+        return "text-gray-600 bg-gray-100";
+    }
+  };
+
+  const formatNumber = (num: number | bigint) => {
     return new Intl.NumberFormat("fr-FR").format(num);
   };
 
-  const formatCurrency = (value: number) => {
+  const formatCurrency = (value: bigint | ValueType) => {
+    let numericValue: number | bigint;
+    if (typeof value === "number" || typeof value === "bigint") {
+      numericValue = value;
+    } else if (Array.isArray(value) && typeof value[0] === "number") {
+      numericValue = value[0];
+    } else if (
+      typeof value === "object" &&
+      value !== null &&
+      "value" in value &&
+      typeof (value as any).value === "number"
+    ) {
+      numericValue = (value as any).value;
+    } else {
+      numericValue = 0;
+    }
     return new Intl.NumberFormat("fr-FR", {
       style: "currency",
       currency: "XAF",
       minimumFractionDigits: 0,
       maximumFractionDigits: 0,
-    }).format(value);
-  };
-
-  const getAssetIcon = (type: string) => {
-    switch (type) {
-      case "Transformateur":
-        return <Zap className="h-4 w-4 text-teal-600" />;
-      case "Ligne HT":
-        return <Activity className="h-4 w-4 text-blue-600" />;
-      case "Poste":
-        return <HardHat className="h-4 w-4 text-amber-600" />;
-      case "Compteur":
-        return <Battery className="h-4 w-4 text-purple-600" />;
-      default:
-        return <FileText className="h-4 w-4 text-gray-500" />;
-    }
+    }).format(numericValue);
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 p-4 md:p-6">
-      <div className="mx-auto space-y-6">
-        {/* Header */}
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-            <div>
-              <h1 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white flex items-center gap-3">
-            
-                Rapports d'Inventaire
-              </h1>
-              <p className="text-gray-600 dark:text-gray-300 mt-1">
-                Synthèse et analyse du patrimoine électrique ENEO
+    <div className="min-h-screen p-4 md:p-6 bg-gray-50 dark:bg-gray-900">
+      <div className=" space-y-6">
+        {/* En-tête */}
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+          <div>
+            <h1 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white flex items-center gap-3">
+              Rapports
+            </h1>
+            <p className="text-gray-600 dark:text-gray-300 mt-1">
+              Générez et exportez les rapports des immobilisations, départs et
+              valorisations
+            </p>
+          </div>
+
+          <div className="flex gap-3">
+            {/* Dropdown Menu Custom */}
+            <div className="relative">
+              <button
+                disabled={isGenerating}
+                onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+                className="flex items-center gap-2 px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+              >
+                <Download size={16} />
+                {isGenerating ? "Génération..." : "Exporter"}
+                <ChevronDown size={16} className="opacity-50" />
+              </button>
+
+              {isDropdownOpen && (
+                <div className="absolute right-0 mt-2 w-56 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-md shadow-lg z-50">
+                  <div className="py-1">
+                    <button
+                      onClick={() => {
+                        generateReport("Liste des Actifs");
+                        setIsDropdownOpen(false);
+                      }}
+                      className="w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"
+                    >
+                      Liste des Actifs (Excel)
+                    </button>
+                    <button
+                      onClick={() => {
+                        generateReport("Liste des Départs");
+                        setIsDropdownOpen(false);
+                      }}
+                      className="w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"
+                    >
+                      Liste des Départs (Excel)
+                    </button>
+                    <button
+                      onClick={() => {
+                        generateReport("Rapport de Valorisation");
+                        setIsDropdownOpen(false);
+                      }}
+                      className="w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"
+                    >
+                      Rapport de Valorisation
+                    </button>
+                    <hr className="my-1 border-gray-200 dark:border-gray-600" />
+                    <button
+                      onClick={() => {
+                        generateReport("Synthèse Globale");
+                        setIsDropdownOpen(false);
+                      }}
+                      className="w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"
+                    >
+                      Synthèse Globale
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            <button
+              onClick={() => window.print()}
+              className="flex items-center gap-2 px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+            >
+              <Printer size={16} />
+              Imprimer
+            </button>
+          </div>
+        </div>
+        {/* Options de rapport */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div
+            className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6 hover:shadow-lg transition-shadow cursor-pointer"
+            onClick={() => exportToExcel()}
+          >
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-white flex items-center gap-2 mb-4">
+              <FileText size={20} className="text-blue-500" />
+              Rapport Actifs
+            </h3>
+            <p className="text-sm text-gray-600 dark:text-gray-300">
+              Liste complète des actifs avec détails techniques et localisation
+            </p>
+
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                exportToExcel();
+              }}
+              className="mt-4 px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition-colors"
+              disabled={isGenerating}
+            >
+              {isGenerating ? "Génération..." : "Exporter Excel"}
+            </button>
+          </div>
+
+          <div
+            className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6 hover:shadow-lg transition-shadow cursor-pointer"
+            onClick={() => generateReport("Liste des Départs")}
+          >
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-white flex items-center gap-2 mb-4">
+              <BarChart2 size={20} className="text-green-500" />
+              Rapport Départs
+            </h3>
+            <p className="text-sm text-gray-600 dark:text-gray-300">
+              Synthèse des départs avec actifs associés et zones couvertes
+            </p>
+            <button
+              onClick={() => generateReport("Liste des Départs")}
+              className="mt-4 px-4 py-2 bg-green-500 text-white rounded-md hover:bg-green-600 transition-colors"
+            >
+              Exporter
+            </button>
+          </div>
+
+          <div
+            className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6 hover:shadow-lg transition-shadow cursor-pointer"
+            onClick={() => generateReport("Rapport de Valorisation")}
+          >
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-white flex items-center gap-2 mb-4">
+              <Filter size={20} className="text-cyan-500" />
+              Rapport Valorisation
+            </h3>
+            <p className="text-sm text-gray-600 dark:text-gray-300">
+              Analyse des valorisations par région, type et état technique
+            </p>
+            <button
+              onClick={() => generateReport("Rapport de Valorisation")}
+              className="mt-4 px-4 py-2 bg-cyan-500 text-white rounded-md hover:bg-cyan-600 transition-colors"
+            >
+              Exporter
+            </button>
+          </div>
+
+          <div
+            className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6 hover:shadow-lg transition-shadow cursor-pointer"
+            onClick={() => generateReport("Synthèse Globale")}
+          >
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-white flex items-center gap-2 mb-4">
+              <Download size={20} className="text-orange-500" />
+              Synthèse Globale
+            </h3>
+            <p className="text-sm text-gray-600 dark:text-gray-300">
+              Rapport complet avec statistiques et indicateurs clés
+            </p>
+            <button
+              onClick={() => generateReport("Synthèse Globale")}
+              className="mt-4 px-4 py-2 bg-orange-500 text-white rounded-md hover:bg-orange-600 transition-colors"
+            >
+              Exporter
+            </button>
+          </div>
+        </div>
+
+        {/* Graphique d'inflation des valeurs */}
+        <div className="w-full flex items-center bg-white  dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6">
+          <div className="w-[80%]">
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-white flex items-center gap-2 mb-6">
+              <TrendingUp size={20} className="text-blue-500" />
+              Évolution des VNC
+            </h3>
+            <div className="h-80">
+              <ResponsiveContainer width="100%" height="100%">
+                <LineChart data={donneesInflation}>
+                  <CartesianGrid strokeDasharray="3 3" className="opacity-30" />
+                  <XAxis
+                    dataKey="annee"
+                    tick={{ fill: "currentColor" }}
+                    tickLine={{ stroke: "currentColor" }}
+                  />
+                  <YAxis
+                    yAxisId="valeur"
+                    orientation="left"
+                    tick={{ fill: "currentColor" }}
+                    tickLine={{ stroke: "currentColor" }}
+                    tickFormatter={(value) => `${value / 1000000}M`}
+                  />
+                  <YAxis
+                    yAxisId="inflation"
+                    orientation="right"
+                    tick={{ fill: "currentColor" }}
+                    tickLine={{ stroke: "currentColor" }}
+                    tickFormatter={(value) => `${value}%`}
+                  />
+                  <Tooltip
+                    contentStyle={{
+                      backgroundColor: "#1f2937",
+                      border: "1px solid rgb(75 85 99)",
+                      borderRadius: "6px",
+                      color: "white",
+                    }}
+                    formatter={(value, name) => {
+                      if (name === "Valeur Totale") {
+                        return [formatCurrency(value), name];
+                      }
+                      return [`${value}%`, name];
+                    }}
+                  />
+                  <Legend />
+                  <Line
+                    yAxisId="valeur"
+                    type="monotone"
+                    dataKey="valeurTotale"
+                    stroke="#00bfa5"
+                    strokeWidth={3}
+                    name="Valeur Totale"
+                    dot={{ fill: "#00bfa5", strokeWidth: 2, r: 4 }}
+                  />
+                  <Line
+                    yAxisId="inflation"
+                    type="monotone"
+                    dataKey="inflation"
+                    stroke="#03a9f4"
+                    strokeWidth={2}
+                    strokeDasharray="5 5"
+                    name="Taux d'Inflation (%)"
+                    dot={{ fill: "#004d40", strokeWidth: 2, r: 3 }}
+                  />
+                </LineChart>
+              </ResponsiveContainer>
+            </div>
+          </div>
+          <div className="mt-4 flex flex-col  gap-4">
+            <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg">
+              <p className="text-sm text-blue-600 dark:text-blue-400 font-medium">
+                Valeur Actuelle
+              </p>
+              <p className="text-2xl font-bold text-blue-800 dark:text-blue-300">
+                {formatCurrency(1150000000)}
               </p>
             </div>
-            <div className="flex flex-wrap gap-3">
-              <button className="flex items-center gap-2 bg-teal-600 hover:bg-teal-700 text-white px-4 py-2 rounded-lg shadow-md transition-colors">
-                <Download className="h-5 w-5" />
-                <span>Exporter</span>
-              </button>
-              <button className="flex items-center gap-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-600 text-gray-800 dark:text-white px-4 py-2 rounded-lg shadow-sm transition-colors">
-                <Printer className="h-5 w-5" />
-                <span>Imprimer</span>
-              </button>
+            <div className="bg-green-50 dark:bg-green-900/20 p-4 rounded-lg">
+              <p className="text-sm text-green-600 dark:text-green-400 font-medium">
+                Croissance 2024
+              </p>
+              <p className="text-2xl font-bold text-green-800 dark:text-green-300">
+                +25.0%
+              </p>
             </div>
-          </div>
-       
-
-        {/* Filtres */}
-        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md p-4 md:p-6 border border-gray-100 dark:border-gray-700">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-            <div className="flex flex-col">
-              <label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1 flex items-center gap-1">
-                <Filter className="h-4 w-4" />
-                Type de rapport
-              </label>
-              <select
-                className="bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 focus:ring-2 focus:ring-teal-500 focus:border-teal-500 dark:text-white"
-                value={selectedReportType}
-                onChange={(e) => setSelectedReportType(e.target.value)}
-              >
-                <option value="inventory">Inventaire</option>
-                <option value="financial">Financier</option>
-                <option value="maintenance">Maintenance</option>
-                <option value="analysis">Analyse</option>
-              </select>
-            </div>
-
-            <div className="flex flex-col">
-              <label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1 flex items-center gap-1">
-                <Calendar className="h-4 w-4" />
-                Période
-              </label>
-              <select
-                className="bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 focus:ring-2 focus:ring-teal-500 focus:border-teal-500 dark:text-white"
-                value={dateRange}
-                onChange={(e) => setDateRange(e.target.value)}
-              >
-                <option value="last30days">30 derniers jours</option>
-                <option value="lastquarter">Dernier trimestre</option>
-                <option value="lastyear">Année dernière</option>
-                <option value="custom">Personnalisée</option>
-              </select>
-            </div>
-
-            <div className="flex flex-col">
-              <label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1 flex items-center gap-1">
-                <HardHat className="h-4 w-4" />
-                Type d'actif
-              </label>
-              <select
-                className="bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 focus:ring-2 focus:ring-teal-500 focus:border-teal-500 dark:text-white"
-                value={assetTypeFilter}
-                onChange={(e) => setAssetTypeFilter(e.target.value)}
-              >
-                <option value="all">Tous les types</option>
-                <option value="transformer">Transformateurs</option>
-                <option value="line">Lignes HT</option>
-                <option value="station">Postes</option>
-              </select>
-            </div>
-
-            <div className="flex flex-col">
-              <label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1 flex items-center gap-1">
-                <MapPin className="h-4 w-4" />
-                Région
-              </label>
-              <select
-                className="bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 focus:ring-2 focus:ring-teal-500 focus:border-teal-500 dark:text-white"
-                value={regionFilter}
-                onChange={(e) => setRegionFilter(e.target.value)}
-              >
-                <option value="all">Toutes régions</option>
-                <option value="littoral">Littoral</option>
-                <option value="centre">Centre</option>
-                <option value="north">Nord</option>
-              </select>
+            <div className="bg-orange-50 dark:bg-orange-900/20 p-4 rounded-lg">
+              <p className="text-sm text-orange-600 dark:text-orange-400 font-medium">
+                Croissance Moyenne
+              </p>
+              <p className="text-2xl font-bold text-orange-800 dark:text-orange-300">
+                +20.7%
+              </p>
             </div>
           </div>
         </div>
 
-        {/* KPI Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6 border border-gray-100 dark:border-gray-700">
-            <div className="flex items-center justify-between">
-              <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400">
-                Total Actifs
-              </h3>
-              <div className="bg-teal-100 dark:bg-teal-900/30 p-2 rounded-lg">
-                <FileText className="h-5 w-5 text-teal-600 dark:text-teal-400" />
-              </div>
-            </div>
-            <p className="mt-2 text-2xl font-bold text-gray-900 dark:text-white">
-              {formatNumber(reportData.summary.totalAssets)}
-            </p>
-            <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-              Équipements enregistrés
-            </p>
-          </div>
+        {/* Tableau des rapports récents */}
+        <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6">
+          <h3 className="text-lg font-semibold text-gray-900 dark:text-white flex items-center gap-2 mb-6">
+            <Calendar size={20} />
+            Rapports Récents
+          </h3>
 
-          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6 border border-gray-100 dark:border-gray-700">
-            <div className="flex items-center justify-between">
-              <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400">
-                Valeur Totale
-              </h3>
-              <div className="bg-cyan-100 dark:bg-cyan-900/30 p-2 rounded-lg">
-                <DollarSign className="h-5 w-5 text-cyan-600 dark:text-cyan-400" />
-              </div>
-            </div>
-            <p className="mt-2 text-2xl font-bold text-gray-900 dark:text-white">
-              {formatCurrency(reportData.summary.value)}
-            </p>
-            <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-              Patrimoine électrique
-            </p>
-          </div>
-
-          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6 border border-gray-100 dark:border-gray-700">
-            <div className="flex items-center justify-between">
-              <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400">
-                Actifs Actifs
-              </h3>
-              <div className="bg-emerald-100 dark:bg-emerald-900/30 p-2 rounded-lg">
-                <Activity className="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
-              </div>
-            </div>
-            <p className="mt-2 text-2xl font-bold text-gray-900 dark:text-white">
-              {formatNumber(reportData.summary.active)}
-            </p>
-            <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-              En service (
-              {Math.round(
-                (reportData.summary.active / reportData.summary.totalAssets) *
-                  100
-              )}
-              %)
-            </p>
-          </div>
-
-          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6 border border-gray-100 dark:border-gray-700">
-            <div className="flex items-center justify-between">
-              <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400">
-                En Maintenance
-              </h3>
-              <div className="bg-amber-100 dark:bg-amber-900/30 p-2 rounded-lg">
-                <AlertTriangle className="h-5 w-5 text-amber-600 dark:text-amber-400" />
-              </div>
-            </div>
-            <p className="mt-2 text-2xl font-bold text-gray-900 dark:text-white">
-              {formatNumber(reportData.summary.maintenance)}
-            </p>
-            <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-              Actifs en intervention
-            </p>
-          </div>
-        </div>
-
-        {/* Rapport Principal */}
-        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md overflow-hidden border border-gray-100 dark:border-gray-700">
-          <div className="p-6 border-b border-gray-200 dark:border-gray-700">
-            <h2 className="text-lg font-bold text-gray-900 dark:text-white flex items-center gap-2">
-              <PieChart className="text-teal-600 dark:text-teal-400" />
-              Répartition des Actifs par Type
-            </h2>
-          </div>
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 p-6">
-            <div className="lg:col-span-2">
-              <div className="h-80 bg-gray-50 dark:bg-gray-700/30 rounded-lg flex items-center justify-center">
-                <BarChart2 className="h-12 w-12 text-gray-400" />
-                {/* Ici vous intégrerez votre graphique (Chart.js, Recharts, etc.) */}
-              </div>
-            </div>
-            <div className="space-y-4">
-              {reportData.byType.map((item, index) => (
-                <div
-                  key={index}
-                  className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700/30 rounded-lg"
-                >
-                  <div className="flex items-center gap-3">
-                    {getAssetIcon(item.type)}
-                    <span className="font-medium text-gray-900 dark:text-white">
-                      {item.type}
-                    </span>
-                  </div>
-                  <div className="text-right">
-                    <p className="font-bold text-gray-900 dark:text-white">
-                      {item.count}
-                    </p>
-                    <p className="text-xs text-gray-500 dark:text-gray-400">
-                      {formatCurrency(item.value)}
-                    </p>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-
-        {/* Rapports Secondaires */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {/* Répartition par région */}
-          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md overflow-hidden border border-gray-100 dark:border-gray-700">
-            <div className="p-6 border-b border-gray-200 dark:border-gray-700">
-              <h2 className="text-lg font-bold text-gray-900 dark:text-white flex items-center gap-2">
-                <MapPin className="text-blue-600 dark:text-blue-400" />
-                Répartition Géographique
-              </h2>
-            </div>
-            <div className="p-6">
-              <div className="h-64 bg-gray-50 dark:bg-gray-700/30 rounded-lg flex items-center justify-center mb-4">
-                {/* Carte ou graphique des régions */}
-                <span className="text-gray-500">
-                  Visualisation cartographique
-                </span>
-              </div>
-              <div className="space-y-3">
-                {reportData.byRegion.map((region, index) => (
-                  <div key={index}>
-                    <div className="flex justify-between text-sm mb-1">
-                      <span className="font-medium text-gray-900 dark:text-white">
-                        {region.region}
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="border-b border-gray-200 dark:border-gray-700">
+                  <th className="text-left py-3 px-4 font-medium text-gray-900 dark:text-white">
+                    Nom du fichier
+                  </th>
+                  <th className="text-left py-3 px-4 font-medium text-gray-900 dark:text-white">
+                    Type
+                  </th>
+                  <th className="text-left py-3 px-4 font-medium text-gray-900 dark:text-white">
+                    Taille
+                  </th>
+                  <th className="text-left py-3 px-4 font-medium text-gray-900 dark:text-white">
+                    Date
+                  </th>
+                  <th className="text-left py-3 px-4 font-medium text-gray-900 dark:text-white">
+                    Statut
+                  </th>
+                  <th className="text-left py-3 px-4 font-medium text-gray-900 dark:text-white">
+                    Actifs
+                  </th>
+                  <th className="text-center py-3 px-4 font-medium text-gray-900 dark:text-white">
+                    Actions
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                {rapportsRecents.map((rapport) => (
+                  <tr
+                    key={rapport.id}
+                    className="border-b border-gray-100 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700/50"
+                  >
+                    <td className="py-3 px-4">
+                      <div className="flex items-center gap-2">
+                        <FileText size={16} className="text-blue-500" />
+                        <span className="text-gray-900 dark:text-white font-medium">
+                          {rapport.nom}
+                        </span>
+                      </div>
+                    </td>
+                    <td className="py-3 px-4 text-gray-600 dark:text-gray-300">
+                      {rapport.type}
+                    </td>
+                    <td className="py-3 px-4 text-gray-600 dark:text-gray-300">
+                      {rapport.taille}
+                    </td>
+                    <td className="py-3 px-4 text-gray-600 dark:text-gray-300">
+                      {rapport.dateGeneration}
+                    </td>
+                    <td className="py-3 px-4">
+                      <span
+                        className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(
+                          rapport.status
+                        )}`}
+                      >
+                        {rapport.status}
                       </span>
-                      <span className="text-gray-500 dark:text-gray-400">
-                        {region.percentage}%
-                      </span>
-                    </div>
-                    <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
-                      <div
-                        className="bg-blue-600 h-2 rounded-full"
-                        style={{ width: `${region.percentage}%` }}
-                      ></div>
-                    </div>
-                  </div>
+                    </td>
+                    <td className="py-3 px-4 text-gray-600 dark:text-gray-300">
+                      {formatNumber(rapport.nombreActifs)}
+                    </td>
+                    <td className="py-3 px-4">
+                      <div className="flex items-center justify-center gap-2">
+                        <button
+                          className="p-1 text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300"
+                          title="Visualiser"
+                        >
+                          <Eye size={16} />
+                        </button>
+                        <button
+                          className="p-1 text-green-600 hover:text-green-800 dark:text-green-400 dark:hover:text-green-300"
+                          title="Télécharger"
+                        >
+                          <Download size={16} />
+                        </button>
+                        <button
+                          onClick={() => supprimerRapport(rapport.id)}
+                          className="p-1 text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300"
+                          title="Supprimer"
+                        >
+                          <Trash2 size={16} />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
                 ))}
-              </div>
-            </div>
+              </tbody>
+            </table>
           </div>
 
-          {/* Rapports récents */}
-          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md overflow-hidden border border-gray-100 dark:border-gray-700">
-            <div className="p-6 border-b border-gray-200 dark:border-gray-700">
-              <h2 className="text-lg font-bold text-gray-900 dark:text-white flex items-center gap-2">
-                <FileText className="text-purple-600 dark:text-purple-400" />
-                Rapports Récents
-              </h2>
+          {rapportsRecents.length === 0 && (
+            <div className="text-center py-8">
+              <AlertCircle size={48} className="mx-auto text-gray-400 mb-4" />
+              <p className="text-gray-500 dark:text-gray-400">
+                Aucun rapport récent disponible
+              </p>
             </div>
-            <div className="divide-y divide-gray-200 dark:divide-gray-700">
-              {reportData.recentReports.map((report) => (
-                <div
-                  key={report.id}
-                  className="p-4 hover:bg-gray-50 dark:hover:bg-gray-700/30 transition-colors"
-                >
-                  <div className="flex justify-between items-start">
-                    <div>
-                      <h3 className="font-medium text-gray-900 dark:text-white">
-                        {report.title}
-                      </h3>
-                      <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
-                        Généré le {report.date} • {report.type} • {report.size}
-                      </p>
-                    </div>
-                    <div className="flex gap-2">
-                      <button className="text-teal-600 dark:text-teal-400 hover:text-teal-800 dark:hover:text-teal-300 p-1">
-                        <Download className="h-5 w-5" />
-                      </button>
-                      <button className="text-gray-500 hover:text-gray-700 dark:hover:text-gray-300 p-1">
-                        <Printer className="h-5 w-5" />
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-            <div className="p-4 border-t border-gray-200 dark:border-gray-700">
-              <button className="text-teal-600 dark:text-teal-400 hover:text-teal-800 dark:hover:text-teal-300 text-sm font-medium flex items-center gap-1">
-                Voir tous les rapports
-                <ChevronDown className="h-4 w-4" />
-              </button>
-            </div>
-          </div>
+          )}
         </div>
       </div>
     </div>
