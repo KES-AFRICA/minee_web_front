@@ -99,7 +99,6 @@ export const inventaireActifs: Actif[] = [
         valorisation: 5000,
 
         designationGenerale: "Support béton centrifugé MT",
-        valorisation: 0, // Valeur actuelle (calculée)
         valeurAcquisition: 234000, // Valeur d'origine lors de l'acquisition
         anneeMiseEnService: 2018,
         dureeDeVieEstimative: 10, // En années
@@ -191,7 +190,6 @@ export const inventaireActifs: Actif[] = [
     natureDuBien: "Tier MUNICIPALITE",
     valorisation: 60000,
     designationGenerale: "Câble souterrain MT 10kV Bonapriso",
-    valorisation: 0, // Valeur actuelle (calculée)
     valeurAcquisition: 1000000, // Valeur d'origine lors de l'acquisition
     anneeMiseEnService: 2020,
     dureeDeVieEstimative: 15, // En années
@@ -243,7 +241,6 @@ export const inventaireActifs: Actif[] = [
     natureDuBien: "Tier privée",
     valorisation: 60000,
     designationGenerale: "Poste de distribution MT/BT Makepe",
-    valorisation: 0, // Valeur actuelle (calculée)
     valeurAcquisition: 2222000, // Valeur d'origine lors de l'acquisition
     anneeMiseEnService: 2015,
     dureeDeVieEstimative: 15, // En années
@@ -294,7 +291,6 @@ export const inventaireActifs: Actif[] = [
     natureDuBien: "privée (ENEO)",
     valorisation: 60000,
     designationGenerale: "Tableau général basse tension Ndokoti",
-    valorisation: 0, // Valeur actuelle (calculée)
     valeurAcquisition: 500000, // Valeur d'origine lors de l'acquisition
     anneeMiseEnService: 2017,
     dureeDeVieEstimative: 25, // En années
@@ -343,7 +339,6 @@ export const inventaireActifs: Actif[] = [
     natureDuBien: "Concédé Etat",
     valorisation: 60000,
     designationGenerale: "Transformateur de distribution MT/BT Kotto",
-    valorisation: 0, // Valeur actuelle (calculée)
     valeurAcquisition: 8880000, // Valeur d'origine lors de l'acquisition
     anneeMiseEnService: 2015,
     dureeDeVieEstimative: 15, // En années
@@ -405,7 +400,6 @@ export const inventaireActifs: Actif[] = [
     natureDuBien: "Tier Riverains",
     valorisation: 60000,
     designationGenerale: "Cellule de distribution secondaire Bepanda",
-    valorisation: 0, // Valeur actuelle (calculée)
     valeurAcquisition: 8540000, // Valeur d'origine lors de l'acquisition
     anneeMiseEnService: 2018,
     dureeDeVieEstimative: 15, // En années
@@ -459,7 +453,6 @@ export const inventaireActifs: Actif[] = [
     natureDuBien: "Tier MINEE",
     valorisation: 60000,
     designationGenerale: "Cellule de distribution primaire Bonanjo",
-    valorisation: 0, // Valeur actuelle (calculée)
     valeurAcquisition: 330000, // Valeur d'origine lors de l'acquisition
     anneeMiseEnService: 2017,
     dureeDeVieEstimative: 15, // En années
@@ -624,7 +617,6 @@ export const inventaireActifs: Actif[] = [
     valorisation: 60000,
 
     designationGenerale: "Organe de coupure réenclencheur New Bell",
-    valorisation: 0, // Valeur actuelle (calculée)
     valeurAcquisition: 55000, // Valeur d'origine lors de l'acquisition
     anneeMiseEnService: 2019,
     dureeDeVieEstimative: 15, // En années
@@ -675,7 +667,6 @@ export const inventaireActifs: Actif[] = [
     valorisation: 55000,
 
     designationGenerale: "Point de livraison MT industriel",
-    valorisation: 0, // Valeur actuelle (calculée)
     valeurAcquisition: 1000000, // Valeur d'origine lors de l'acquisition
     anneeMiseEnService: 2019,
     dureeDeVieEstimative: 16, // En années
@@ -722,7 +713,6 @@ export const inventaireActifs: Actif[] = [
     valorisation: 65000,
 
     designationGenerale: "Transformateur de distribution en stock",
-    valorisation: 0, // Valeur actuelle (calculée)
     valeurAcquisition: 124500, // Valeur d'origine lors de l'acquisition
     anneeMiseEnService: 2024,
     dureeDeVieEstimative: 15, // En années
@@ -761,7 +751,6 @@ export const inventaireActifs: Actif[] = [
     natureDuBien: "privée (ENEO)",
     valorisation: 80000,
     designationGenerale: "Ligne aérienne MT 15kV Centre Ville",
-    valorisation: 0, // Valeur actuelle (calculée)
     valeurAcquisition: 4440000, // Valeur d'origine lors de l'acquisition
     anneeMiseEnService: 2021,
     dureeDeVieEstimative: 5, // En années
@@ -813,7 +802,6 @@ export const inventaireActifs: Actif[] = [
     natureDuBien: "Tier MUNICIPALITE",
     valorisation: 75000,
     designationGenerale: "Transformateur de distribution MT/BT Melen",
-    valorisation: 0, // Valeur actuelle (calculée)
     valeurAcquisition: 1000000, // Valeur d'origine lors de l'acquisition
     anneeMiseEnService: 2022,
     dureeDeVieEstimative: 15, // En années
