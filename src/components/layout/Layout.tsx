@@ -1,36 +1,50 @@
 import { cn } from "../../lib/utils";
 import { Sheet, SheetContent, SheetTrigger } from "../ui/sheet";
-
-import { useEffect, useState } from "react";
+import { useEffect, useState, createContext, useContext } from "react";
 import { Menu, X } from "lucide-react";
 import Sidebar from "./Sidebar";
 import Header from "./Header";
 import { Outlet, useLocation } from "react-router-dom";
 import { Button } from "../ui/Button";
 
+const SidebarContext = createContext<{
+  isCollapsed: boolean;
+  setIsCollapsed: (collapsed: boolean) => void;
+}>({
+  isCollapsed: false,
+  setIsCollapsed: () => {},
+});
+
+export const useSidebar = () => useContext(SidebarContext);
+
 export const Layout = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [isCollapsed, setIsCollapsed] = useState(false);
   const location = useLocation();
 
-  // Close mobile sidebar when route changes
   useEffect(() => {
     setIsSidebarOpen(false);
   }, [location.pathname]);
 
   return (
-    <div className="flex flex-col min-h-screen bg-gradient-to-br from-slate-50 to-cyan-50 dark:from-gray-900 dark:to-slate-800">
-      <Sheet open={isSidebarOpen} onOpenChange={setIsSidebarOpen}>
-        <div className="flex flex-1 overflow-hidden">
+    <SidebarContext.Provider value={{ isCollapsed, setIsCollapsed }}>
+      <div className="flex h-screen bg-gradient-to-br from-slate-50 to-cyan-50 dark:from-gray-900 dark:to-slate-800">
+        <Sheet open={isSidebarOpen} onOpenChange={setIsSidebarOpen}>
           {/* Desktop Sidebar */}
-          <aside className="hidden lg:block w-72 shrink-0 relative z-30">
-            <div className="fixed w-72 h-full overflow-y-auto scrollbar-thin scrollbar-thumb-teal-600 scrollbar-track-teal-100">
+          <aside
+            className={cn(
+              "hidden lg:block shrink-0 relative z-30 transition-all duration-300 ease-in-out",
+              isCollapsed ? "w-20" : "w-72"
+            )}
+          >
+            <div className="fixed h-full">
               <Sidebar />
             </div>
           </aside>
 
           {/* Main Content */}
-          <main className="flex-1 flex flex-col lg:ml-0 relative">
-            {/* Header */}
+          <main className="flex-1 flex flex-col min-w-0">
+            {/* Fixed Header */}
             <div className="sticky top-0 z-20 w-full bg-white/80 dark:bg-gray-900/80 backdrop-blur-md border-b border-teal-200/50 dark:border-teal-700/50 shadow-sm">
               <Header
                 mobileMenuTrigger={
@@ -54,13 +68,12 @@ export const Layout = () => {
               />
             </div>
 
-            {/* Content Area */}
+            {/* Scrollable Content Area */}
             <div className="flex-1 overflow-auto">
               <div
                 className={cn(
                   "min-h-full px-4 py-6 lg:px-8 lg:py-8",
-                  "bg-gradient-to-br from-white/50 to-cyan-50/50 dark:from-gray-800/50 dark:to-slate-900/50",
-                  "transition-all duration-300 ease-in-out"
+                  "bg-gradient-to-br from-white/30 to-cyan-50/30 dark:from-gray-800/30 dark:to-slate-900/30"
                 )}
               >
                 {/* Content Container */}
@@ -70,18 +83,18 @@ export const Layout = () => {
               </div>
             </div>
           </main>
-        </div>
 
-        {/* Mobile Sidebar Sheet Content */}
-        <SheetContent
-          side="left"
-          className="w-72 p-0 border-none shadow-2xl bg-transparent backdrop-blur-sm"
-        >
-          <div className="h-full overflow-y-auto scrollbar-thin scrollbar-thumb-teal-600 scrollbar-track-teal-100">
-            <Sidebar onItemClick={() => setIsSidebarOpen(false)} />
-          </div>
-        </SheetContent>
-      </Sheet>
-    </div>
+          {/* Mobile Sidebar Sheet Content */}
+          <SheetContent
+            side="left"
+            className="w-72 p-0 border-none shadow-2xl bg-transparent backdrop-blur-sm"
+          >
+            <div className="h-full">
+              <Sidebar onItemClick={() => setIsSidebarOpen(false)} />
+            </div>
+          </SheetContent>
+        </Sheet>
+      </div>
+    </SidebarContext.Provider>
   );
 };

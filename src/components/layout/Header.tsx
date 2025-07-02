@@ -10,17 +10,20 @@ import {
   Monitor,
   ChevronRight,
   User,
+  PanelLeftClose,
+  PanelLeftOpen,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useTheme } from "../../hooks/useTheme";
+import { useSidebar } from "./Layout";
 
 interface HeaderProps {
   mobileMenuTrigger?: React.ReactNode;
 }
 
 const Header = ({ mobileMenuTrigger }: HeaderProps) => {
-
-  const { theme, setTheme, } = useTheme();
+  const { theme, setTheme } = useTheme();
+  const { isCollapsed, setIsCollapsed } = useSidebar();
   const navigate = useNavigate();
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [isNotificationOpen, setIsNotificationOpen] = useState(false);
@@ -39,8 +42,19 @@ const Header = ({ mobileMenuTrigger }: HeaderProps) => {
   }, []);
 
   const getCurrentPath = (path: string) => {
-    const parts = path.split("/");
-    return parts[parts.length - 1] || "Tableau de bord";
+    const pathNames: Record<string, string> = {
+      dashboard: "Tableau de bord",
+      utilisateur: "Utilisateurs",
+      collecteurs: "Collecteurs",
+      actifs: "Actifs",
+      carte: "Carte",
+      rapport: "Rapports",
+      parametres: "Paramètres",
+    };
+
+    const parts = path.split("/").filter(Boolean);
+    const currentPath = parts[parts.length - 1] || "dashboard";
+    return pathNames[currentPath] || "Paramètres";
   };
 
   const handleLogout = () => {
@@ -65,14 +79,33 @@ const Header = ({ mobileMenuTrigger }: HeaderProps) => {
     { value: "system", label: "Système", icon: Monitor },
   ];
 
+  const toggleSidebar = () => {
+    setIsCollapsed(!isCollapsed);
+  };
+
   return (
-    <header className="bg-white/80 dark:bg-gray-900/80 backdrop-blur-md shadow-sm border-b border-teal-200/30 dark:border-teal-700/30">
+    <header className="bg-white/90 dark:bg-gray-900/90 backdrop-blur-md shadow-sm border-b border-teal-200/30 dark:border-teal-700/30">
       <div className="flex items-center justify-between px-4 lg:px-6 h-16">
-        {/* Left Section - Mobile Menu + Title */}
+        {/* Left Section - Mobile Menu + Sidebar Toggle + Title */}
         <div className="flex items-center gap-4">
           {mobileMenuTrigger}
+
+          {/* Desktop Sidebar Toggle */}
+          <button
+            onClick={toggleSidebar}
+            className="hidden lg:flex items-center justify-center p-2 rounded-xl hover:bg-teal-50 dark:hover:bg-teal-900/20 transition-all duration-300 group"
+            title={isCollapsed ? "Étendre la sidebar" : "Réduire la sidebar"}
+          >
+            {isCollapsed ? (
+              <PanelLeftOpen className="w-5 h-5 text-teal-600 dark:text-teal-300 group-hover:text-teal-700 dark:group-hover:text-teal-200 transition-colors" />
+            ) : (
+              <PanelLeftClose className="w-5 h-5 text-teal-600 dark:text-teal-300 group-hover:text-teal-700 dark:group-hover:text-teal-200 transition-colors" />
+            )}
+          </button>
+
+          {/* Page Title */}
           <div className="hidden sm:block">
-            <h1 className="text-xl capitalize font-bold text-teal-800 dark:text-teal-200">
+            <h1 className="text-xl font-bold text-teal-800 dark:text-teal-200 transition-colors">
               {getCurrentPath(window.location.pathname)}
             </h1>
           </div>
@@ -87,6 +120,8 @@ const Header = ({ mobileMenuTrigger }: HeaderProps) => {
               className="relative p-2 rounded-xl hover:bg-teal-50 dark:hover:bg-teal-900/20 transition-all duration-300 group"
             >
               <Bell className="w-5 h-5 text-teal-600 dark:text-teal-300 group-hover:text-teal-700 dark:group-hover:text-teal-200 transition-colors" />
+              {/* Notification badge */}
+              <div className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full border-2 border-white dark:border-gray-900"></div>
             </button>
           </div>
 
@@ -215,7 +250,7 @@ const Header = ({ mobileMenuTrigger }: HeaderProps) => {
                   <div className="border-t border-teal-100 dark:border-teal-700/50 mt-2 pt-2">
                     <button
                       onClick={handleLogout}
-                      className="w-full flex items-center gap-3 px-4 py-3 text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-all duration-200 group rounded-lg mx-2"
+                      className="w-full flex items-center gap-3 px-4 py-3 text-sm text-teal-600 bg-teal-50 dark:bg-teal-900/30 hover:bg-teal-100 dark:hover:bg-teal-900/50 transition-all duration-200 group rounded-lg mx-2"
                     >
                       <LogOut className="w-4 h-4 group-hover:-translate-x-1 transition-transform duration-300" />
                       <span>Déconnexion</span>

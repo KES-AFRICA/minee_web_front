@@ -18,29 +18,30 @@ export const navigationLinks: NavigationGroup[] = [
       },
     ],
   },
+
   {
     items: [
       {
-        name: "Utilisateurs",
-        href: "/utilisateur",
-        iconName: "utilisateur",
+        name: "Immobilisations",
+        href: "/immobilisations",
+        iconName: "immobilisations",
       },
     ],
   },
   {
     items: [
       {
-        name: "Actifs",
-        href: "/actifs",
-        iconName: "actifs",
+        name: "Suivi de l'inventaire",
+        href: "/suivi-inventaire",
+        iconName: "suivi_inventaire",
       },
     ],
   },
   {
     items: [
       {
-        name: "Cartographie",
-        href: "/carte",
+        name: "SIG",
+        href: "/systeme_information_graphique",
         iconName: "carte",
       },
     ],
