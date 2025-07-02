@@ -36,7 +36,7 @@ export const inventaireActifs: Actif[] = [
     rue: "Avenue de la Liberté",
     precisionLieu: "Face à la Poste Centrale",
     codificationDecoupageENEO: "LT-WR-DLA1-AKW-001",
-    photo: ["/images/ligneA1.jpg"],
+    photo: ["/images/ligneA1.jpg","/images/LIGNE AERIENNE.png"],
     geolocalisation: { latitude: 4.0511, longitude: 9.7679 },
     positionMateriel: "Terrain",
     numeroImmo: "IMM-LA-001",
@@ -45,9 +45,13 @@ export const inventaireActifs: Actif[] = [
     modeDacquisition: 'directe' ,
     TypeDeBien: 'bien privée',
     natureDuBien: 'privée (ENEO)',
+    valorisation: 0, // Valeur actuelle (calculée)
+    valeurAcquisition: 1000000, // Valeur d'origine lors de l'acquisition
+    anneeMiseEnService: 2018,
+    dureeDeVieEstimative: 15, // En années
+    tauxAmortissementAnnuel: 30, // En pourcentage (ex: 5 pour 5%)
   
     designationGenerale: "Ligne aérienne MT 15kV Akwa-Centre",
-    anneeMiseEnService: 2018,
     numeroLigne: "LN-AKW-001",
     origineLigne: "Poste Akwa",
     identificationDepart: "DEP-AKW-01",
@@ -82,7 +86,7 @@ export const inventaireActifs: Actif[] = [
         rue: "Avenue de la Liberté",
         precisionLieu: "Face à la Poste Centrale",
         codificationDecoupageENEO: "LT-WR-DLA1-AKW-001",
-        photo: ["/images/support1.jpg","/images/support2.jpg","images/support3.jpg"],
+        photo: ["/images/support1.jpg","/images/support2.jpg","images/support3.jpg","/images/SUPPORT.png"],
         geolocalisation: { latitude: 4.0511, longitude: 9.7679 },
         positionMateriel: "Terrain",
         numeroImmo: "IMM-SUP-001",
@@ -94,7 +98,11 @@ export const inventaireActifs: Actif[] = [
         natureDuBien: 'privée (ENEO)' ,
   
         designationGenerale: "Support béton centrifugé MT",
+        valorisation: 0, // Valeur actuelle (calculée)
+        valeurAcquisition: 234000, // Valeur d'origine lors de l'acquisition
         anneeMiseEnService: 2018,
+        dureeDeVieEstimative: 10, // En années
+        tauxAmortissementAnnuel: 12, // En pourcentage (ex: 5 pour 5%)
 
         // Propriétés spécifiques au Support
         type: "SUPPORT",
@@ -171,7 +179,7 @@ export const inventaireActifs: Actif[] = [
     quartier: "Bonapriso",
     rue: "Rue Joss",
     codificationDecoupageENEO: "LT-WR-DLA2-BNP-002",
-    photo: ["/images/ligneS1.jpg","/images/ligneS2.jpg"],
+    photo: ["/images/ligneS1.jpg","/images/ligneS2.jpg","images/LIGNE SOUTERAINE.png"],
     geolocalisation: { latitude: 4.0483, longitude: 9.6961 },
     positionMateriel: "Terrain",
     numeroImmo: "IMM-LS-001",
@@ -182,7 +190,11 @@ export const inventaireActifs: Actif[] = [
   natureDuBien: 'Tier MUNICIPALITE' ,
   
     designationGenerale: "Câble souterrain MT 10kV Bonapriso",
+    valorisation: 0, // Valeur actuelle (calculée)
+    valeurAcquisition: 1000000, // Valeur d'origine lors de l'acquisition
     anneeMiseEnService: 2020,
+    dureeDeVieEstimative: 15, // En années
+    tauxAmortissementAnnuel: 30, // En pourcentage (ex: 5 pour 5%)
     numeroLigne: "LN-BNP-002",
     origineLigne: "Poste Bonapriso",
     identificationDepart: "DEP-BNP-01",
@@ -219,7 +231,7 @@ export const inventaireActifs: Actif[] = [
     quartier: "Makepe",
     rue: "Carrefour Makepe",
     codificationDecoupageENEO: "LT-WR-DLA3-MKP-003",
-    photo: ["/images/posteD1.jpg","/images/posteD2.jpg"],
+    photo: ["/images/posteD1.jpg","/images/posteD2.jpg","/images/POSTE.png"],
     geolocalisation: { latitude: 4.0792, longitude: 9.7326 },
     positionMateriel: "Terrain",
     numeroImmo: "IMM-PD-001",
@@ -230,7 +242,11 @@ export const inventaireActifs: Actif[] = [
   natureDuBien: 'Tier privée' ,
   
     designationGenerale: "Poste de distribution MT/BT Makepe",
+    valorisation: 0, // Valeur actuelle (calculée)
+    valeurAcquisition: 2222000, // Valeur d'origine lors de l'acquisition
     anneeMiseEnService: 2015,
+    dureeDeVieEstimative: 15, // En années
+    tauxAmortissementAnnuel: 5, // En pourcentage (ex: 5 pour 5%)
     nomPoste: "Poste Makepe Centre",
     departMT: "Départ Makepe Principal",
     anneeFabrication: 2014,
@@ -266,7 +282,7 @@ export const inventaireActifs: Actif[] = [
     quartier: "Ndokoti",
     rue: "Marché Ndokoti",
     codificationDecoupageENEO: "LT-WR-DLA4-NDK-004",
-    photo: ["/images/tabBT1.jpg","/images/tabBT2.jpg"],
+    photo: ["/images/tabBT1.jpg","/images/tabBT2.jpg","images/TABLEAU BT.png"],
     geolocalisation: { latitude: 4.0626, longitude: 9.7578 },
     positionMateriel: "Terrain",
     numeroImmo: "IMM-TBT-001",
@@ -277,7 +293,11 @@ export const inventaireActifs: Actif[] = [
   natureDuBien: 'privée (ENEO)',
   
     designationGenerale: "Tableau général basse tension Ndokoti",
+    valorisation: 0, // Valeur actuelle (calculée)
+    valeurAcquisition: 500000, // Valeur d'origine lors de l'acquisition
     anneeMiseEnService: 2017,
+    dureeDeVieEstimative: 25, // En années
+    tauxAmortissementAnnuel: 13, // En pourcentage (ex: 5 pour 5%)
     nomPoste: "Poste Ndokoti Marché",
     departMT: "Départ Ndokoti Commercial",
     anneeFabrication: 2016,
@@ -311,7 +331,7 @@ export const inventaireActifs: Actif[] = [
     quartier: "Kotto",
     rue: "Carrefour Kotto",
     codificationDecoupageENEO: "LT-WR-DLA5-KTT-005",
-    photo: ["/images/transformateur1.jpg","/images/transformateur2.jpg"],
+    photo: ["/images/transformateur1.jpg","/images/transformateur2.jpg","images/TRANSFORMATEURS.png"],
     geolocalisation: { latitude: 4.0341, longitude: 9.7018 },
     positionMateriel: "Terrain",
     numeroImmo: "IMM-TR-001",
@@ -322,7 +342,11 @@ export const inventaireActifs: Actif[] = [
   natureDuBien: 'Concédé Etat',
   
     designationGenerale: "Transformateur de distribution MT/BT Kotto",
-    anneeMiseEnService: 2016,
+    valorisation: 0, // Valeur actuelle (calculée)
+    valeurAcquisition: 8880000, // Valeur d'origine lors de l'acquisition
+    anneeMiseEnService: 2015,
+    dureeDeVieEstimative: 15, // En années
+    tauxAmortissementAnnuel: 30, // En pourcentage (ex: 5 pour 5%)
     nomPoste: "Poste Kotto Principal",
     departMT: "Départ Kotto Centre",
     ensembleFonctionnel: "Transformateur de distribution sur poteau",
@@ -369,7 +393,7 @@ export const inventaireActifs: Actif[] = [
     quartier: "Bepanda",
     rue: "Carrefour Bepanda",
     codificationDecoupageENEO: "LT-WR-DLA6-BPD-006",
-    photo: ["/images/celluleS1.jpg","/images/celluleS2.jpg"],
+    photo: ["/images/celluleS1.jpg","/images/celluleS2.jpg","images/CELLULE DISTRIBUTION SECONDAIRE.png"],
     geolocalisation: { latitude: 4.0973, longitude: 9.7445 },
     positionMateriel: "Terrain",
     numeroImmo: "IMM-CDS-001",
@@ -380,7 +404,11 @@ export const inventaireActifs: Actif[] = [
   natureDuBien: 'Tier Riverains',
   
     designationGenerale: "Cellule de distribution secondaire Bepanda",
-    anneeMiseEnService: 2019,
+    valorisation: 0, // Valeur actuelle (calculée)
+    valeurAcquisition: 8540000, // Valeur d'origine lors de l'acquisition
+    anneeMiseEnService: 2018,
+    dureeDeVieEstimative: 15, // En années
+    tauxAmortissementAnnuel: 30, // En pourcentage (ex: 5 pour 5%)
     nomPoste: "Poste Bepanda Distribution",
     departMT: "Départ Bepanda Résidentiel",
     anneeFabrication: 2018,
@@ -419,7 +447,7 @@ export const inventaireActifs: Actif[] = [
     quartier: "Bonanjo",
     rue: "Boulevard de la Liberté",
     codificationDecoupageENEO: "LT-WR-DLA1-BNJ-007",
-    photo: ["/images/celluleP1.jpg","/images/celluleP2.jpg"],
+    photo: ["/images/celluleP1.jpg","/images/celluleP2.jpg","/images/CELLULE DISTRIBUTION PRIMAIRE.png"],
     geolocalisation: { latitude: 4.0492, longitude: 9.6967 },
     positionMateriel: "Terrain",
     numeroImmo: "IMM-CDP-001",
@@ -430,7 +458,11 @@ export const inventaireActifs: Actif[] = [
   natureDuBien: 'Tier MINEE' ,
   
     designationGenerale: "Cellule de distribution primaire Bonanjo",
+    valorisation: 0, // Valeur actuelle (calculée)
+    valeurAcquisition: 330000, // Valeur d'origine lors de l'acquisition
     anneeMiseEnService: 2017,
+    dureeDeVieEstimative: 15, // En années
+    tauxAmortissementAnnuel: 20, // En pourcentage (ex: 5 pour 5%)
     nomPoste: "Poste Bonanjo Centre",
     departMT: "Départ Bonanjo Commercial",
     anneeFabrication: 2016,
@@ -488,7 +520,7 @@ export const inventaireActifs: Actif[] = [
     rue: "Avenue de la Liberté",
     precisionLieu: "Face à la Poste Centrale",
     codificationDecoupageENEO: "LT-WR-DLA1-AKW-001",
-    photo: ["/images/support1.jpg","/images/support2.jpg","images/support3.jpg"],
+    photo: ["/images/support1.jpg","/images/support2.jpg","images/support3.jpg","images/SUPPORT.png"],
     geolocalisation: { latitude: 4.0511, longitude: 9.7679 },
     positionMateriel: "Terrain",
     numeroImmo: "IMM-SUP-001",
@@ -500,7 +532,11 @@ export const inventaireActifs: Actif[] = [
   natureDuBien: 'Tier industriel',
   
     designationGenerale: "Support béton centrifugé MT",
+    valorisation: 0, // Valeur actuelle (calculée)
+    valeurAcquisition: 1000000, // Valeur d'origine lors de l'acquisition
     anneeMiseEnService: 2018,
+    dureeDeVieEstimative: 15, // En années
+    tauxAmortissementAnnuel: 30, // En pourcentage (ex: 5 pour 5%)
 
     // Propriétés spécifiques au Support
     type: "SUPPORT",
@@ -575,7 +611,7 @@ export const inventaireActifs: Actif[] = [
     quartier: "New Bell",
     rue: "Marché New Bell",
     codificationDecoupageENEO: "LT-WR-DLA2-NWB-008",
-    photo: ["/images/ocr1.jpg","/images/ocr2.jpg"],
+    photo: ["/images/ocr1.jpg","/images/ocr2.jpg","/images/OCR.png"],
     geolocalisation: { latitude: 4.0612, longitude: 9.7103 },
     positionMateriel: "Terrain",
     numeroImmo: "IMM-OCR-001",
@@ -586,7 +622,11 @@ export const inventaireActifs: Actif[] = [
   natureDuBien: 'Concédé Etat',
   
     designationGenerale: "Organe de coupure réenclencheur New Bell",
+    valorisation: 0, // Valeur actuelle (calculée)
+    valeurAcquisition: 55000, // Valeur d'origine lors de l'acquisition
     anneeMiseEnService: 2019,
+    dureeDeVieEstimative: 15, // En années
+    tauxAmortissementAnnuel: 30, // En pourcentage (ex: 5 pour 5%)
     numeroLigne: "LN-NWB-003",
     anneeFabrication: 2018,
     fabricant: "Cooper Power Systems",
@@ -621,7 +661,7 @@ export const inventaireActifs: Actif[] = [
     quartier: "Logbaba",
     rue: "Carrefour Logbaba",
     codificationDecoupageENEO: "LT-WR-DLA3-LGB-009",
-    photo: ["/images/plivraison1.jpg","/images/plivraison2.jpg"],
+    photo: ["/images/plivraison1.jpg","/images/plivraison2.jpg","/images/POINT DE LIVRAISON.png"],
     geolocalisation: { latitude: 4.0891, longitude: 9.7234 },
     positionMateriel: "Terrain",
     numeroImmo: "IMM-PL-001",
@@ -632,7 +672,11 @@ export const inventaireActifs: Actif[] = [
   natureDuBien:'Tier MINEPAT',
   
     designationGenerale: "Point de livraison MT industriel",
-    anneeMiseEnService: 2020,
+    valorisation: 0, // Valeur actuelle (calculée)
+    valeurAcquisition: 1000000, // Valeur d'origine lors de l'acquisition
+    anneeMiseEnService: 2019,
+    dureeDeVieEstimative: 16, // En années
+    tauxAmortissementAnnuel: 22, // En pourcentage (ex: 5 pour 5%)
     numeroLigne: "LN-LGB-004",
     client: "SOCAVER Industries SARL",
     numeroContrat: "CNT-IND-2020-0145",
@@ -663,7 +707,7 @@ export const inventaireActifs: Actif[] = [
     quartier: "Akwa",
     rue: "Magasin Central ENEO",
     codificationDecoupageENEO: "LT-WR-DLA1-AKW-MAG",
-    photo: ["/images/stock1.jpg","/images/stock2.jpg"],
+    photo: ["/images/stock1.jpg","/images/stock2.jpg","/images/POTEAU.png"],
     geolocalisation: { latitude: 4.0523, longitude: 9.7691 },
     positionMateriel: "Magasin",
     numeroImmo: "IMM-ES-001",
@@ -674,7 +718,11 @@ export const inventaireActifs: Actif[] = [
   natureDuBien: 'Tier AER',
   
     designationGenerale: "Transformateur de distribution en stock",
+    valorisation: 0, // Valeur actuelle (calculée)
+    valeurAcquisition: 124500, // Valeur d'origine lors de l'acquisition
     anneeMiseEnService: 2024,
+    dureeDeVieEstimative: 15, // En années
+    tauxAmortissementAnnuel: 30, // En pourcentage (ex: 5 pour 5%)
     numeroLigne: "STOCK-MAG-001",
     anneeMiseEnStock: 2023,
     nomEquipement: "Transformateur MT/BT 100kVA",
@@ -699,7 +747,7 @@ export const inventaireActifs: Actif[] = [
     quartier: "Centre Ville",
     rue: "Avenue Kennedy",
     codificationDecoupageENEO: "CT-MF-YDE1-CVL-010",
-    photo: ["/images/ligneA1.jpg"],
+    photo: ["/images/ligneA1.jpg","/images/LIGNE AERIENNE.png"],
     geolocalisation: { latitude: 3.848, longitude: 11.5021 },
     positionMateriel: "Terrain",
     numeroImmo: "IMM-LA-002",
@@ -710,7 +758,11 @@ export const inventaireActifs: Actif[] = [
   natureDuBien: 'privée (ENEO)',
   
     designationGenerale: "Ligne aérienne MT 15kV Centre Ville",
+    valorisation: 0, // Valeur actuelle (calculée)
+    valeurAcquisition: 4440000, // Valeur d'origine lors de l'acquisition
     anneeMiseEnService: 2021,
+    dureeDeVieEstimative: 5, // En années
+    tauxAmortissementAnnuel: 32, // En pourcentage (ex: 5 pour 5%)
     numeroLigne: "LN-CVL-002",
     origineLigne: "Poste Centre Ville",
     identificationDepart: "DEP-CVL-02",
@@ -747,7 +799,7 @@ export const inventaireActifs: Actif[] = [
     quartier: "Melen",
     rue: "Carrefour Melen",
     codificationDecoupageENEO: "CT-MF-YDE3-MLN-011",
-    photo: ["/images/transformateur1.jpg","/images/transformateur2.jpg"],
+    photo: ["/images/transformateur1.jpg","/images/transformateur2.jpg","/images/TRANSFORMATEURS.png"],
     geolocalisation: { latitude: 3.8267, longitude: 11.4926 },
     positionMateriel: "Terrain",
     numeroImmo: "IMM-TR-002",
@@ -758,7 +810,11 @@ export const inventaireActifs: Actif[] = [
   natureDuBien:'Tier MUNICIPALITE',
   
     designationGenerale: "Transformateur de distribution MT/BT Melen",
+    valorisation: 0, // Valeur actuelle (calculée)
+    valeurAcquisition: 1000000, // Valeur d'origine lors de l'acquisition
     anneeMiseEnService: 2022,
+    dureeDeVieEstimative: 15, // En années
+    tauxAmortissementAnnuel: 30, // En pourcentage (ex: 5 pour 5%)
     nomPoste: "Poste Melen Distribution",
     departMT: "Départ Melen Résidentiel",
     ensembleFonctionnel: "Transformateur sur socle béton",
@@ -807,6 +863,8 @@ export const inventaireDeparts: Depart[] = [
     etatGeneral: "En service",
     typeDepart: "Principal",
     actifs: ["LA_001", "CDP_001", "TR_001", "SUP_001", "OCR_001"],
+    valorisation: 0, // Valeur actuelle (calculée)
+    valeurAcquisition: 1200000, // Valeur d'origine lors de l'acquisition
   },
   {
     id: "DEP-BNP-01",
@@ -824,6 +882,8 @@ export const inventaireDeparts: Depart[] = [
     etatGeneral: "En service",
     typeDepart: "Résidentiel",
     actifs: ["LS_001", "TBT_001", "PL_001"],
+     valorisation: 0, // Valeur actuelle (calculée)
+    valeurAcquisition: 1200000, // Valeur d'origine lors de l'acquisition
   },
   {
     id: "DEP-MKP-01",
@@ -841,6 +901,8 @@ export const inventaireDeparts: Depart[] = [
     etatGeneral: "En service",
     typeDepart: "Commercial",
     actifs: ["LA_002", "TR_002", "CDS_001"],
+     valorisation: 0, // Valeur actuelle (calculée)
+    valeurAcquisition: 1200000, // Valeur d'origine lors de l'acquisition
   },
   {
     id: "DEP-NDK-01",
@@ -858,6 +920,8 @@ export const inventaireDeparts: Depart[] = [
     etatGeneral: "En service",
     typeDepart: "Industriel",
     actifs: ["LA_001", "TR_001", "CDP_001", "CDS_001"],
+     valorisation: 0, // Valeur actuelle (calculée)
+    valeurAcquisition: 1200000, // Valeur d'origine lors de l'acquisition
   },
   {
     id: "DEP-YDE-01",
@@ -875,6 +939,8 @@ export const inventaireDeparts: Depart[] = [
     etatGeneral: "En service",
     typeDepart: "Principal",
     actifs: ["LA_002", "TR_002"],
+     valorisation: 0, // Valeur actuelle (calculée)
+    valeurAcquisition: 1200000, // Valeur d'origine lors de l'acquisition
   },
   {
     id: "DEP-BPD-01",
@@ -892,6 +958,8 @@ export const inventaireDeparts: Depart[] = [
     etatGeneral: "Maintenance",
     typeDepart: "Résidentiel",
     actifs: ["CDS_001", "TBT_001"],
+     valorisation: 0, // Valeur actuelle (calculée)
+    valeurAcquisition: 1200000, // Valeur d'origine lors de l'acquisition
   },
   {
     id: "DEP-LGB-01",
@@ -909,6 +977,8 @@ export const inventaireDeparts: Depart[] = [
     etatGeneral: "En service",
     typeDepart: "Industriel",
     actifs: ["PL_001", "TR_001"],
+     valorisation: 0, // Valeur actuelle (calculée)
+    valeurAcquisition: 1200000, // Valeur d'origine lors de l'acquisition
   },
   {
     id: "DEP-NWB-01",
@@ -926,6 +996,8 @@ export const inventaireDeparts: Depart[] = [
     etatGeneral: "En service",
     typeDepart: "Secondaire",
     actifs: ["OCR_001", "LS_001"],
+     valorisation: 0, // Valeur actuelle (calculée)
+    valeurAcquisition: 1200000, // Valeur d'origine lors de l'acquisition
   },
 ];
 
@@ -1021,6 +1093,84 @@ export const getActifsByNatureDuBien = (
 ): Actif[] => {
   return inventaireActifs.filter((actif) => actif.natureDuBien === nature);
 };
+/**
+ * Calcule l'âge de l'actif en années
+ */
+function calculerAgeActif(actif: BaseActif, anneeCourante: number = new Date().getFullYear()): number {
+  return anneeCourante - actif.anneeMiseEnService;
+}
+
+/**
+ * Calcule la valeur résiduelle avec amortissement personnalisé
+ */
+function calculerAmortissementPersonnalise(actif: BaseActif, anneeCourante?: number): number {
+  const age = calculerAgeActif(actif, anneeCourante);
+  let valeurResiduelle = actif.valeurAcquisition;
+  
+  for (let i = 0; i < age; i++) {
+    valeurResiduelle *= (1 - actif.tauxAmortissementAnnuel / 100);
+  }
+  
+  return Math.max(0, valeurResiduelle);
+}
+
+/**
+ * Ajuste la valeur en fonction de l'état visuel
+ */
+function ajusterPourEtat(actif: BaseActif, valeurCalculee: number): number {
+  const coefficients = {
+    'Bon': 1,
+    'Moyen': 0.8,
+    'Passable': 0.6,
+    'Mauvais': 0.4
+  };
+  
+  return valeurCalculee * coefficients[actif.etatVisuel];
+}
+
+/**
+ * Fonction principale pour estimer la valeur actuelle
+ */
+export function estimerValeurActuelle(actif: BaseActif): number {
+  const valeur = calculerAmortissementPersonnalise(actif);
+  return ajusterPourEtat(actif, valeur);
+}
+
+/**
+ * Vérifie si l'actif est totalement amorti (valeur résiduelle < 1% de la valeur d'acquisition)
+ */
+export function estTotalementAmorti(actif: BaseActif): boolean {
+  const valeurResiduelle = estimerValeurActuelle(actif);
+  return valeurResiduelle < (actif.valeurAcquisition * 0.01);
+}
+
+/**
+ * Calcule la valeur théorique pour une année spécifique
+ */
+export function projetervaleur(actif: BaseActif, anneeFuture: number): number {
+  return calculerAmortissementPersonnalise({
+    ...actif,
+    anneeMiseEnService: actif.anneeMiseEnService
+  }, anneeFuture);
+}
+
+(function initialiserValorisationsAuChargement() {
+  inventaireActifs.forEach(actif => {
+    if (actif.valorisation === 0) {
+      actif.valorisation = Math.round(estimerValeurActuelle(actif));
+    }
+  });
+
+  inventaireDeparts.forEach(depart => {
+    if (depart.valorisation === 0) {
+      const valorisationTotale = depart.actifs.reduce((total, actifId) => {
+        const actif = inventaireActifs.find(a => a.id === actifId);
+        return total + (actif?.valorisation || 0);
+      }, 0);
+      depart.valorisation = valorisationTotale;
+    }
+  });
+})();
 
 export const getStatistiques = () => {
   const stats = {

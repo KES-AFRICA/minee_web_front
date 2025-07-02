@@ -44,7 +44,13 @@ export interface BaseActif {
     latitude: number;
     longitude: number;
   };
-  valorisation: number;
+  /***************************************** */
+  valorisation: number; // Valeur actuelle (calculée)
+  valeurAcquisition: number; // Valeur d'origine lors de l'acquisition
+  anneeMiseEnService: number;
+  dureeDeVieEstimative: number; // En années
+  tauxAmortissementAnnuel: number; // En pourcentage (ex: 5 pour 5%)
+  /******************************************** */
   positionMateriel: 'Magasin' | 'Terrain';
   etatVisuel: 'Bon' | 'Moyen' | 'Passable' | 'Mauvais';
   numeroImmo: string;
@@ -54,10 +60,7 @@ export interface BaseActif {
   modeDacquisition: 'directe' | 'par projet' | 'par immobilisation en cours';
   TypeDeBien: 'bien privée'|'bien de retour'|'bien de reprise'|'bien cdi';
   natureDuBien: 'Concédé Etat' | 'privée (ENEO)' | 'Tier privée' | 'Tier AER' | 'Tier MINEE' | 'Tier MUNICIPALITE' | 'Tier industriel' | 'Tier Riverains' | 'Tier MINEPAT';
-  
-  //natureDuBien: 'Concédé 2001' | 'ENEO' | 'Tier privée' | 'Tier AER' | 'Tier MINEE' | 'Tier MUNICIPALITE' | 'Tier industriel' | 'Tier Riverains' | 'Tier MINEPAT';
   designationGenerale: string;
-  anneeMiseEnService: number;
 }
 
 // Ligne Aérienne
@@ -363,6 +366,7 @@ export interface Depart {
   };
   tension: number;
   valorisation: number;
+  valeurAcquisition: number; // Valeur d'origine lors de l'acquisition
   longueurTotale: number; // Longueur réelle en kilomètres
   dateCreation: string;
   etatGeneral: 'En service' | 'Hors service' | 'Maintenance';

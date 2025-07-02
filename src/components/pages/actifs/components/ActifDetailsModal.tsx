@@ -5,6 +5,7 @@ import { useState } from "react";
 import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import L from "leaflet";
+import { Accordion } from "@/components/Accordion";
 
 interface ActifDetailsModalProps {
   actif: Actif | null;
@@ -34,36 +35,64 @@ export function ActifDetailsModal({
   };
 
   const renderBaseDetails = () => (
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-      <div className="space-y-2">
-        <DetailItem label="ID" value={actif.id} />
-        <DetailItem label="Date d'inventaire" value={actif.date} />
-        <DetailItem label="Région" value={actif.region} />
-        <DetailItem label="Département" value={actif.departement} />
-        <DetailItem label="Commune" value={actif.commune} />
-        <DetailItem label="Quartier" value={actif.quartier} />
-        <DetailItem label="Rue" value={actif.rue} />
-        {actif.precisionLieu && (
-          <DetailItem label="Précision lieu" value={actif.precisionLieu} />
-        )}
-      </div>
-      <div className="space-y-2">
-        <DetailItem label="Position matériel" value={actif.positionMateriel} />
-        <DetailItem label="État visuel" value={actif.etatVisuel} />
-        <DetailItem label="Numéro immo" value={actif.numeroImmo} />
-        {actif.nouveauNumeroImmo && (
+    <Accordion title="Détails de base" defaultOpen={true} className="mb-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+        <div className="space-y-2">
+          <DetailItem label="ID" value={actif.id} />
+          <DetailItem label="Date d'inventaire" value={actif.date} />
+          <DetailItem label="Région" value={actif.region} />
+          <DetailItem label="Département" value={actif.departement} />
+          <DetailItem label="Commune" value={actif.commune} />
+          <DetailItem label="Quartier" value={actif.quartier} />
+          <DetailItem label="Rue" value={actif.rue} />
+          {actif.precisionLieu && (
+            <DetailItem label="Précision lieu" value={actif.precisionLieu} />
+          )}
           <DetailItem
-            label="Nouveau numéro immo"
-            value={actif.nouveauNumeroImmo}
+            label="Valorisation actuelle"
+            value={`${actif.valorisation} Fcfa`}
           />
-        )}
-        <DetailItem label="Numéro compte" value={actif.numeroCompte} />
-        <DetailItem label="Libellé compte" value={actif.libelleCompte} />
-        <DetailItem label="Mode d'acquisition" value={actif.modeDacquisition} />
-        <DetailItem label="Type de bien" value={actif.TypeDeBien} />
-        <DetailItem label="Nature du bien" value={actif.natureDuBien} />
+          <DetailItem
+            label="Valeur d'acquisition"
+            value={`${actif.valeurAcquisition} Fcfa`}
+          />
+          <DetailItem
+            label="Année mise en service"
+            value={`${actif.anneeMiseEnService}`}
+          />
+          <DetailItem
+            label="Durée de vie estimative"
+            value={`${actif.dureeDeVieEstimative} ans`}
+          />
+          <DetailItem
+            label="Taux d'amortissement annuel"
+            value={`${actif.tauxAmortissementAnnuel} %`}
+          />
+        </div>
+        <div className="space-y-2">
+          <DetailItem
+            label="Position matériel"
+            value={actif.positionMateriel}
+          />
+          <DetailItem label="État visuel" value={actif.etatVisuel} />
+          <DetailItem label="Numéro immo" value={actif.numeroImmo} />
+          {actif.nouveauNumeroImmo && (
+            <DetailItem
+              label="Nouveau numéro immo"
+              value={actif.nouveauNumeroImmo}
+            />
+          )}
+          <DetailItem label="Numéro compte" value={actif.numeroCompte} />
+          <DetailItem label="Libellé compte" value={actif.libelleCompte} />
+          <DetailItem
+            label="Mode d'acquisition"
+            value={actif.modeDacquisition}
+          />
+          <DetailItem label="Type de bien" value={actif.TypeDeBien} />
+          <DetailItem label="Nature du bien" value={actif.natureDuBien} />
+        </div>
       </div>
-    </div>
+    </Accordion>
   );
 
   const renderSpecificDetails = () => {
@@ -71,151 +100,181 @@ export function ActifDetailsModal({
       case "LIGNE_AERIENNE":
       case "LIGNE_SOUTERRAINE":
         return (
-          <div className="space-y-4">
-            <SectionTitle title="Détails de la ligne" />
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <DetailItem label="Numéro ligne" value={actif.numeroLigne} />
-              <DetailItem label="Origine ligne" value={actif.origineLigne} />
-              <DetailItem
-                label="Identification départ"
-                value={actif.identificationDepart}
-              />
-              <DetailItem label="Tension (V)" value={actif.tension} />
-              <DetailItem
-                label="État fonctionnement"
-                value={actif.etatFonctionnement}
-              />
-              <DetailItem
-                label="Typologie ligne"
-                value={actif.typologieLigne}
-              />
-              <DetailItem
-                label="Type distribution"
-                value={actif.typeDistribution}
-              />
-              <DetailItem
-                label="Structure réseau"
-                value={actif.structureReseau}
-              />
-              <DetailItem label="Type câble" value={actif.typeCable} />
-              <DetailItem
-                label="Section conducteur"
-                value={actif.sectionConducteur}
-              />
-              <DetailItem label="Conducteur" value={actif.conducteur} />
-              <DetailItem
-                label="Longueur ligne (m)"
-                value={actif.longueurLigne}
-              />
-              <DetailItem
-                label="Nombre supports"
-                value={actif.nombreSupports}
-              />
+          <Accordion
+            title="Détails de base"
+            defaultOpen={true}
+            className="mb-4"
+          >
+            <div className="space-y-4">
+              <SectionTitle title="Détails de la ligne" />
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <DetailItem label="Numéro ligne" value={actif.numeroLigne} />
+                <DetailItem label="Origine ligne" value={actif.origineLigne} />
+                <DetailItem
+                  label="Identification départ"
+                  value={actif.identificationDepart}
+                />
+                <DetailItem label="Tension (V)" value={actif.tension} />
+                <DetailItem
+                  label="État fonctionnement"
+                  value={actif.etatFonctionnement}
+                />
+                <DetailItem
+                  label="Typologie ligne"
+                  value={actif.typologieLigne}
+                />
+                <DetailItem
+                  label="Type distribution"
+                  value={actif.typeDistribution}
+                />
+                <DetailItem
+                  label="Structure réseau"
+                  value={actif.structureReseau}
+                />
+                <DetailItem label="Type câble" value={actif.typeCable} />
+                <DetailItem
+                  label="Section conducteur"
+                  value={actif.sectionConducteur}
+                />
+                <DetailItem label="Conducteur" value={actif.conducteur} />
+                <DetailItem
+                  label="Longueur ligne (m)"
+                  value={actif.longueurLigne}
+                />
+                <DetailItem
+                  label="Nombre supports"
+                  value={actif.nombreSupports}
+                />
+              </div>
             </div>
-          </div>
+          </Accordion>
         );
 
       case "POSTE_DISTRIBUTION":
         return (
-          <div className="space-y-4">
-            <SectionTitle title="Détails du poste" />
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <DetailItem label="Nom poste" value={actif.nomPoste} />
-              <DetailItem label="Départ MT" value={actif.departMT} />
-              <DetailItem
-                label="Année fabrication"
-                value={actif.anneeFabrication}
-              />
-              <DetailItem label="Fabricant" value={actif.fabricant} />
-              <DetailItem label="Marque" value={actif.marque} />
-              <DetailItem label="Type poste" value={actif.typePoste} />
-              <DetailItem label="Numéro série" value={actif.numeroSerie} />
-              <DetailItem label="Niveau tension" value={actif.niveauTension} />
-              <DetailItem label="Type montage" value={actif.typeMontage} />
-              <DetailItem label="Génie civil" value={actif.genieCivil} />
-              <DetailItem label="Dimensions" value={actif.dimensionPoste} />
+          <Accordion
+            title="Détails de base"
+            defaultOpen={true}
+            className="mb-4"
+          >
+            <div className="space-y-4">
+              <SectionTitle title="Détails du poste" />
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <DetailItem label="Nom poste" value={actif.nomPoste} />
+                <DetailItem label="Départ MT" value={actif.departMT} />
+                <DetailItem
+                  label="Année fabrication"
+                  value={actif.anneeFabrication}
+                />
+                <DetailItem label="Fabricant" value={actif.fabricant} />
+                <DetailItem label="Marque" value={actif.marque} />
+                <DetailItem label="Type poste" value={actif.typePoste} />
+                <DetailItem label="Numéro série" value={actif.numeroSerie} />
+                <DetailItem
+                  label="Niveau tension"
+                  value={actif.niveauTension}
+                />
+                <DetailItem label="Type montage" value={actif.typeMontage} />
+                <DetailItem label="Génie civil" value={actif.genieCivil} />
+                <DetailItem label="Dimensions" value={actif.dimensionPoste} />
+              </div>
             </div>
-          </div>
+          </Accordion>
         );
 
       case "TRANSFORMATEUR":
         return (
-          <div className="space-y-4">
-            <SectionTitle title="Détails du transformateur" />
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <DetailItem label="Nom poste" value={actif.nomPoste} />
-              <DetailItem label="Départ MT" value={actif.departMT} />
-              <DetailItem
-                label="Type transformateur"
-                value={actif.typeTransformateur}
-              />
-              <DetailItem label="Fabricant" value={actif.fabricant} />
-              <DetailItem label="Marque" value={actif.marque} />
-              <DetailItem label="Numéro série" value={actif.numeroSerie} />
-              <DetailItem label="Puissance (kVA)" value={actif.puissance} />
-              <DetailItem
-                label="Tension primaire (V)"
-                value={actif.tensionPrimaire}
-              />
-              <DetailItem
-                label="Tension secondaire (V)"
-                value={actif.tensionSecondaire}
-              />
-              <DetailItem
-                label="Type diélectrique"
-                value={actif.dielectrique}
-              />
-              <DetailItem
-                label="Type refroidissement"
-                value={actif.typeRefroidissement}
-              />
-              <DetailItem label="Protection MT" value={actif.protectionMT} />
-              <DetailItem label="Protection BT" value={actif.protectionBT} />
+          <Accordion
+            title="Détails de base"
+            defaultOpen={false}
+            className="mb-4"
+          >
+            <div className="space-y-4">
+              <SectionTitle title="Détails du transformateur" />
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <DetailItem label="Nom poste" value={actif.nomPoste} />
+                <DetailItem label="Départ MT" value={actif.departMT} />
+                <DetailItem
+                  label="Type transformateur"
+                  value={actif.typeTransformateur}
+                />
+                <DetailItem label="Fabricant" value={actif.fabricant} />
+                <DetailItem label="Marque" value={actif.marque} />
+                <DetailItem label="Numéro série" value={actif.numeroSerie} />
+                <DetailItem label="Puissance (kVA)" value={actif.puissance} />
+                <DetailItem
+                  label="Tension primaire (V)"
+                  value={actif.tensionPrimaire}
+                />
+                <DetailItem
+                  label="Tension secondaire (V)"
+                  value={actif.tensionSecondaire}
+                />
+                <DetailItem
+                  label="Type diélectrique"
+                  value={actif.dielectrique}
+                />
+                <DetailItem
+                  label="Type refroidissement"
+                  value={actif.typeRefroidissement}
+                />
+                <DetailItem label="Protection MT" value={actif.protectionMT} />
+                <DetailItem label="Protection BT" value={actif.protectionBT} />
+              </div>
             </div>
-          </div>
+          </Accordion>
         );
 
       case "CELLULE_DISTRIBUTION_PRIMAIRE":
         return (
-          <div className="space-y-4">
-            <SectionTitle title="Détails de la cellule primaire" />
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <DetailItem label="Nom poste" value={actif.nomPoste} />
-              <DetailItem label="Départ MT" value={actif.departMT} />
-              <DetailItem label="Type cellule" value={actif.typeCellule} />
-              <DetailItem label="Fabricant" value={actif.fabricant} />
-              <DetailItem label="Marque" value={actif.marque} />
-              <DetailItem label="Numéro série" value={actif.numeroSerie} />
-              <DetailItem label="Niveau tension" value={actif.niveauTension} />
-              <DetailItem label="Tension (V)" value={actif.tension} />
-              <DetailItem label="Type relais" value={actif.typeRelais} />
-              <DetailItem label="Modèle relais" value={actif.modeleRelais} />
-              <DetailItem label="Type montage" value={actif.typeMontage} />
+          <Accordion
+            title="Détails de base"
+            defaultOpen={false}
+            className="mb-4"
+          >
+            <div className="space-y-4">
+              <SectionTitle title="Détails de la cellule primaire" />
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <DetailItem label="Nom poste" value={actif.nomPoste} />
+                <DetailItem label="Départ MT" value={actif.departMT} />
+                <DetailItem label="Type cellule" value={actif.typeCellule} />
+                <DetailItem label="Fabricant" value={actif.fabricant} />
+                <DetailItem label="Marque" value={actif.marque} />
+                <DetailItem label="Numéro série" value={actif.numeroSerie} />
+                <DetailItem
+                  label="Niveau tension"
+                  value={actif.niveauTension}
+                />
+                <DetailItem label="Tension (V)" value={actif.tension} />
+                <DetailItem label="Type relais" value={actif.typeRelais} />
+                <DetailItem label="Modèle relais" value={actif.modeleRelais} />
+                <DetailItem label="Type montage" value={actif.typeMontage} />
+              </div>
+              <SectionTitle title="Équipements" />
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <DetailItem
+                  label="Disjoncteur"
+                  value={actif.equipements.disjoncteur ? "Oui" : "Non"}
+                />
+                <DetailItem
+                  label="Interrupteur"
+                  value={actif.equipements.interrupteur ? "Oui" : "Non"}
+                />
+                <DetailItem
+                  label="Mesure"
+                  value={actif.equipements.mesure ? "Oui" : "Non"}
+                />
+                <DetailItem
+                  label="Protection"
+                  value={actif.equipements.protection ? "Oui" : "Non"}
+                />
+                <DetailItem
+                  label="Transformateur"
+                  value={actif.equipements.transfo ? "Oui" : "Non"}
+                />
+              </div>
             </div>
-            <SectionTitle title="Équipements" />
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <DetailItem
-                label="Disjoncteur"
-                value={actif.equipements.disjoncteur ? "Oui" : "Non"}
-              />
-              <DetailItem
-                label="Interrupteur"
-                value={actif.equipements.interrupteur ? "Oui" : "Non"}
-              />
-              <DetailItem
-                label="Mesure"
-                value={actif.equipements.mesure ? "Oui" : "Non"}
-              />
-              <DetailItem
-                label="Protection"
-                value={actif.equipements.protection ? "Oui" : "Non"}
-              />
-              <DetailItem
-                label="Transformateur"
-                value={actif.equipements.transfo ? "Oui" : "Non"}
-              />
-            </div>
-          </div>
+          </Accordion>
         );
 
       // Ajoutez les autres cas pour les différents types d'actifs
@@ -224,7 +283,6 @@ export function ActifDetailsModal({
       default:
         return (
           <div className="space-y-4">
-            <SectionTitle title="Détails spécifiques" />
             <p className="text-gray-500">
               Aucun détail spécifique disponible pour ce type d'actif.
             </p>
@@ -346,6 +404,24 @@ export function ActifDetailsModal({
               </div>
             </div>
           </div>
+          <div className="grid grid-cols-1 gap-6 mb-5">
+            <SectionTitle title="Etiquette" />
+            <div className=" rounded-lg  h-64 flex items-center justify-center">
+              {actif.photo ? (
+                <div className="relative h-full w-full cursor-pointer group">
+                  <img
+                    src={photos[photos.length - 1]}
+                    alt={`Photo de ${actif.designationGenerale}`}
+                    className="object-contain h-full w-full"
+                  />
+                </div>
+              ) : (
+                <span className="text-gray-500 dark:text-gray-400">
+                  Aucune photo disponible
+                </span>
+              )}
+            </div>
+          </div>
           <div className="flex justify-between items-start mb-6">
             <div>
               <h2 className="text-2xl font-bold text-gray-800 dark:text-white">
@@ -388,7 +464,7 @@ export function ActifDetailsModal({
             <SectionTitle title="Informations générales" />
             {renderBaseDetails()}
           </div>
-
+                <SectionTitle title="Informations spécifique" />
           <div className="mb-8">{renderSpecificDetails()}</div>
         </div>
       </Modal>

@@ -19,12 +19,12 @@ export default function TableActifs({
   PAGE_SIZE?: number;
   filteredActifs: Actif[];
 }) {
-  const getEtat = (actif: Actif) => {
-    if ('etatVisuel' in actif) {
-      return actif.etatVisuel;
-    }
-    return 'Inconnu';
-  };
+  // const getEtat = (actif: Actif) => {
+  //   if ('etatVisuel' in actif) {
+  //     return actif.etatVisuel;
+  //   }
+  //   return 'Inconnu';
+  // };
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
@@ -50,7 +50,7 @@ export default function TableActifs({
                 Type
               </th>
               <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                État
+                Valeur actuelle
               </th>
               <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                 Date Mise en Service
@@ -77,8 +77,31 @@ export default function TableActifs({
                  key={actif.id} className="hover:bg-gray-50 dark:hover:bg-gray-700/50">
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="flex items-center">
-                      <div className="flex-shrink-0 h-10 w-10 rounded-full bg-teal-50 dark:bg-teal-900/30 flex items-center justify-center">
-                        {getAssetIcon(actif.type)}
+                      <div className="flex flex-row items-center gap-2">
+                        {/* Dernière photo */}
+                        <div className="flex-shrink-0 h-10 w-10 rounded bg-teal-50 dark:bg-teal-900/30 flex items-center justify-center overflow-hidden">
+                          {actif.photo && actif.photo.length > 0 ? (
+                            <img
+                              src={actif.photo[actif.photo.length - 1]}
+                              alt="Dernière photo"
+                              className="object-cover h-10 w-10"
+                            />
+                          ) : (
+                            getAssetIcon(actif.type)
+                          )}
+                        </div>
+                        {/* Première photo en avatar */}
+                        <div className="flex-shrink-0 h-8 w-8 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center overflow-hidden border-2 border-white dark:border-gray-800">
+                          {actif.photo && actif.photo.length > 0 ? (
+                            <img
+                              src={actif.photo[0]}
+                              alt="Avatar"
+                              className="object-cover h-8 w-8"
+                            />
+                          ) : (
+                            <span className="text-xs text-gray-400">N/A</span>
+                          )}
+                        </div>
                       </div>
                       <div className="ml-4">
                         <div className="text-sm font-medium text-gray-900 dark:text-white">
@@ -105,7 +128,7 @@ export default function TableActifs({
                     {actif.type.replace(/_/g, ' ')}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
-                    <span
+                    {/* <span
                         className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
                             getEtat(actif) === "Bon"
                                 ? "bg-green-100 dark:bg-green-900/50 text-green-800 dark:text-green-300"
@@ -119,6 +142,9 @@ export default function TableActifs({
                         }`}
                     >
                         {getEtat(actif)}
+                    </span> */}
+                    <span className="text-sm font-medium text-gray-900 dark:text-white">
+                      {actif.valorisation} Fcfa
                     </span>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
