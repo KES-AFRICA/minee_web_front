@@ -64,7 +64,7 @@ export default function CommuneDetail({ commune, actifs, PAGE_SIZE = 10 }: Commu
                 </Card>
                 <Card>
                     <Statistic
-                        title="Valeur totale (Fcfa)"
+                        title="VNC (Fcfa)"
                         value={totalValeur}
                         valueStyle={{ color: "#00C49F" }}
                         precision={0}
@@ -160,11 +160,11 @@ export default function CommuneDetail({ commune, actifs, PAGE_SIZE = 10 }: Commu
                                     Type
                                 </th>
                                 <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                                    Valeur (Fcfa)
+                                    VNC (Fcfa)
                                 </th>
-                                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                                {/* <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                                     État visuel
-                                </th>
+                                </th> */}
                                 <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                                     Date inventaire
                                 </th>
@@ -198,9 +198,9 @@ export default function CommuneDetail({ commune, actifs, PAGE_SIZE = 10 }: Commu
                                         <td className="px-4 py-3 whitespace-nowrap text-sm font-semibold text-gray-900 dark:text-white">
                                             {Number(a.valorisation || 0).toLocaleString("fr-FR")}
                                         </td>
-                                        <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900 dark:text-white">
+                                        {/* <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900 dark:text-white">
                                             {a.etatVisuel}
-                                        </td>
+                                        </td> */}
                                         <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900 dark:text-white">
                                             {a.date}
                                         </td>

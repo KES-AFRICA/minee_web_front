@@ -49,11 +49,11 @@ export function ActifDetailsModal({
             <DetailItem label="Précision lieu" value={actif.precisionLieu} />
           )}
           <DetailItem
-            label="Valorisation actuelle"
+            label="VNC"
             value={`${actif.valorisation} Fcfa`}
           />
           <DetailItem
-            label="Valeur d'acquisition"
+            label="Valeur d'acquisition-VO"
             value={`${actif.valeurAcquisition} Fcfa`}
           />
           <DetailItem

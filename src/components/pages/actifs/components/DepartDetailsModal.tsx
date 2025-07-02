@@ -66,11 +66,11 @@ export function DepartDetailsModal({
           value={`${depart.longueurTotale} km`}
         />
         <DetailItem
-          label="Valoristion actuelle (Fcfa)"
+          label="VNC (Fcfa)"
           value={depart.valorisation}
         />
         <DetailItem
-          label="Valeur d'acquisition (Fcfa)"
+          label="Valeur d'acquisition-VO (Fcfa)"
           value={depart.valeurAcquisition}
         />
       </div>
@@ -121,7 +121,7 @@ export function DepartDetailsModal({
               value={`${posteOrigine.quartier}, ${posteOrigine.commune}`}
             />
             <DetailItem
-              label="Valorisation actuelle (Fcfa)"
+              label="VNC (Fcfa)"
               value={posteOrigine.valorisation}
             />
           </div>
@@ -153,7 +153,7 @@ export function DepartDetailsModal({
           ))}
         /> */}
         <StatCard
-          title="Valeur actuelle"
+          title="VNC"
           value={`${depart.valorisation} Fcfa`}
         />
       </div>
@@ -180,7 +180,7 @@ export function DepartDetailsModal({
                 Localisation
               </th>
               <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-300">
-                Valorisation actuelle
+                VNC
               </th>
             </tr>
           </thead>
