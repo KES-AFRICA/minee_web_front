@@ -77,7 +77,7 @@ export const inventaireActifs: Actif[] = [
         personnelENEO: "Antoinette MANDENG",
         personnelMINEE: "Serge NANA",
         personnelARSEL: "Martine ABEGA",
-        etatVisuel:'Moyen',
+        etatVisuel: "Moyen",
         region: "Littoral",
         departement: "Wouri",
         arrondissement: "Douala 1er",
@@ -93,10 +93,11 @@ export const inventaireActifs: Actif[] = [
         nouveauNumeroImmo: undefined,
         numeroCompte: "CPT-12001",
         libelleCompte: "Support béton Akwa-01",
-        modeDacquisition: 'par projet',
-        TypeDeBien: 'bien privée',
-        natureDuBien: 'privée (ENEO)' ,
-  
+        modeDacquisition: "par projet",
+        TypeDeBien: "bien privée",
+        natureDuBien: "privée (ENEO)",
+        valorisation: 5000,
+
         designationGenerale: "Support béton centrifugé MT",
         valorisation: 0, // Valeur actuelle (calculée)
         valeurAcquisition: 234000, // Valeur d'origine lors de l'acquisition
@@ -185,10 +186,10 @@ export const inventaireActifs: Actif[] = [
     numeroImmo: "IMM-LS-001",
     numeroCompte: "CPT-6002",
     libelleCompte: "Ligne souterraine Bonapriso",
-    modeDacquisition: 'directe',
-  TypeDeBien:'bien cdi',
-  natureDuBien: 'Tier MUNICIPALITE' ,
-  
+    modeDacquisition: "directe",
+    TypeDeBien: "bien cdi",
+    natureDuBien: "Tier MUNICIPALITE",
+    valorisation: 60000,
     designationGenerale: "Câble souterrain MT 10kV Bonapriso",
     valorisation: 0, // Valeur actuelle (calculée)
     valeurAcquisition: 1000000, // Valeur d'origine lors de l'acquisition
@@ -237,10 +238,10 @@ export const inventaireActifs: Actif[] = [
     numeroImmo: "IMM-PD-001",
     numeroCompte: "CPT-7001",
     libelleCompte: "Poste Makepe Centre",
-    modeDacquisition: 'directe' ,
-  TypeDeBien: 'bien privée',
-  natureDuBien: 'Tier privée' ,
-  
+    modeDacquisition: "directe",
+    TypeDeBien: "bien privée",
+    natureDuBien: "Tier privée",
+    valorisation: 60000,
     designationGenerale: "Poste de distribution MT/BT Makepe",
     valorisation: 0, // Valeur actuelle (calculée)
     valeurAcquisition: 2222000, // Valeur d'origine lors de l'acquisition
@@ -288,10 +289,10 @@ export const inventaireActifs: Actif[] = [
     numeroImmo: "IMM-TBT-001",
     numeroCompte: "CPT-8001",
     libelleCompte: "Tableau BT Ndokoti Marché",
-    modeDacquisition: 'par projet',
-  TypeDeBien: 'bien cdi',
-  natureDuBien: 'privée (ENEO)',
-  
+    modeDacquisition: "par projet",
+    TypeDeBien: "bien cdi",
+    natureDuBien: "privée (ENEO)",
+    valorisation: 60000,
     designationGenerale: "Tableau général basse tension Ndokoti",
     valorisation: 0, // Valeur actuelle (calculée)
     valeurAcquisition: 500000, // Valeur d'origine lors de l'acquisition
@@ -337,10 +338,10 @@ export const inventaireActifs: Actif[] = [
     numeroImmo: "IMM-TR-001",
     numeroCompte: "CPT-9001",
     libelleCompte: "Transformateur Kotto Principal",
-    modeDacquisition: 'par immobilisation en cours',
-  TypeDeBien: 'bien de reprise',
-  natureDuBien: 'Concédé Etat',
-  
+    modeDacquisition: "par immobilisation en cours",
+    TypeDeBien: "bien de reprise",
+    natureDuBien: "Concédé Etat",
+    valorisation: 60000,
     designationGenerale: "Transformateur de distribution MT/BT Kotto",
     valorisation: 0, // Valeur actuelle (calculée)
     valeurAcquisition: 8880000, // Valeur d'origine lors de l'acquisition
@@ -399,10 +400,10 @@ export const inventaireActifs: Actif[] = [
     numeroImmo: "IMM-CDS-001",
     numeroCompte: "CPT-10001",
     libelleCompte: "Cellule BT Bepanda",
-    modeDacquisition:'par projet',
-  TypeDeBien: 'bien privée',
-  natureDuBien: 'Tier Riverains',
-  
+    modeDacquisition: "par projet",
+    TypeDeBien: "bien privée",
+    natureDuBien: "Tier Riverains",
+    valorisation: 60000,
     designationGenerale: "Cellule de distribution secondaire Bepanda",
     valorisation: 0, // Valeur actuelle (calculée)
     valeurAcquisition: 8540000, // Valeur d'origine lors de l'acquisition
@@ -453,10 +454,10 @@ export const inventaireActifs: Actif[] = [
     numeroImmo: "IMM-CDP-001",
     numeroCompte: "CPT-11001",
     libelleCompte: "Cellule MT Bonanjo",
-    modeDacquisition: 'directe',
-  TypeDeBien: 'bien privée',
-  natureDuBien: 'Tier MINEE' ,
-  
+    modeDacquisition: "directe",
+    TypeDeBien: "bien privée",
+    natureDuBien: "Tier MINEE",
+    valorisation: 60000,
     designationGenerale: "Cellule de distribution primaire Bonanjo",
     valorisation: 0, // Valeur actuelle (calculée)
     valeurAcquisition: 330000, // Valeur d'origine lors de l'acquisition
@@ -511,7 +512,7 @@ export const inventaireActifs: Actif[] = [
     personnelENEO: "Antoinette MANDENG",
     personnelMINEE: "Serge NANA",
     personnelARSEL: "Martine ABEGA",
-    etatVisuel: 'Moyen',
+    etatVisuel: "Moyen",
     region: "Littoral",
     departement: "Wouri",
     arrondissement: "Douala 1er",
@@ -527,10 +528,10 @@ export const inventaireActifs: Actif[] = [
     nouveauNumeroImmo: undefined,
     numeroCompte: "CPT-12001",
     libelleCompte: "Support béton Akwa-01",
-    modeDacquisition: 'par immobilisation en cours',
-  TypeDeBien: 'bien privée',
-  natureDuBien: 'Tier industriel',
-  
+    modeDacquisition: "par immobilisation en cours",
+    TypeDeBien: "bien privée",
+    natureDuBien: "Tier industriel",
+
     designationGenerale: "Support béton centrifugé MT",
     valorisation: 0, // Valeur actuelle (calculée)
     valeurAcquisition: 1000000, // Valeur d'origine lors de l'acquisition
@@ -617,10 +618,11 @@ export const inventaireActifs: Actif[] = [
     numeroImmo: "IMM-OCR-001",
     numeroCompte: "CPT-13001",
     libelleCompte: "OCR New Bell Principal",
-    modeDacquisition: 'directe',
-  TypeDeBien: 'bien privée',
-  natureDuBien: 'Concédé Etat',
-  
+    modeDacquisition: "directe",
+    TypeDeBien: "bien privée",
+    natureDuBien: "Concédé Etat",
+    valorisation: 60000,
+
     designationGenerale: "Organe de coupure réenclencheur New Bell",
     valorisation: 0, // Valeur actuelle (calculée)
     valeurAcquisition: 55000, // Valeur d'origine lors de l'acquisition
@@ -667,10 +669,11 @@ export const inventaireActifs: Actif[] = [
     numeroImmo: "IMM-PL-001",
     numeroCompte: "CPT-14001",
     libelleCompte: "Point livraison Logbaba Industries",
-    modeDacquisition:'par immobilisation en cours',
-  TypeDeBien: 'bien privée',
-  natureDuBien:'Tier MINEPAT',
-  
+    modeDacquisition: "par immobilisation en cours",
+    TypeDeBien: "bien privée",
+    natureDuBien: "Tier MINEPAT",
+    valorisation: 55000,
+
     designationGenerale: "Point de livraison MT industriel",
     valorisation: 0, // Valeur actuelle (calculée)
     valeurAcquisition: 1000000, // Valeur d'origine lors de l'acquisition
@@ -713,10 +716,11 @@ export const inventaireActifs: Actif[] = [
     numeroImmo: "IMM-ES-001",
     numeroCompte: "CPT-15001",
     libelleCompte: "Stock transformateur 100kVA",
-   modeDacquisition: 'directe',
-  TypeDeBien: 'bien privée',
-  natureDuBien: 'Tier AER',
-  
+    modeDacquisition: "directe",
+    TypeDeBien: "bien privée",
+    natureDuBien: "Tier AER",
+    valorisation: 65000,
+
     designationGenerale: "Transformateur de distribution en stock",
     valorisation: 0, // Valeur actuelle (calculée)
     valeurAcquisition: 124500, // Valeur d'origine lors de l'acquisition
@@ -730,7 +734,6 @@ export const inventaireActifs: Actif[] = [
     etatVisuel: "Bon",
     observations: "Équipement neuf, prêt pour installation",
   },
-
   // Ligne Aérienne supplémentaire
   {
     id: "LA_002",
@@ -753,10 +756,10 @@ export const inventaireActifs: Actif[] = [
     numeroImmo: "IMM-LA-002",
     numeroCompte: "CPT-6002",
     libelleCompte: "Ligne MT Centre Ville Yaoundé",
-    modeDacquisition: 'par immobilisation en cours',
-  TypeDeBien: 'bien privée',
-  natureDuBien: 'privée (ENEO)',
-  
+    modeDacquisition: "par immobilisation en cours",
+    TypeDeBien: "bien privée",
+    natureDuBien: "privée (ENEO)",
+    valorisation: 80000,
     designationGenerale: "Ligne aérienne MT 15kV Centre Ville",
     valorisation: 0, // Valeur actuelle (calculée)
     valeurAcquisition: 4440000, // Valeur d'origine lors de l'acquisition
@@ -805,10 +808,10 @@ export const inventaireActifs: Actif[] = [
     numeroImmo: "IMM-TR-002",
     numeroCompte: "CPT-9002",
     libelleCompte: "Transformateur Melen Principal",
-    modeDacquisition: 'directe',
-  TypeDeBien: 'bien privée',
-  natureDuBien:'Tier MUNICIPALITE',
-  
+    modeDacquisition: "directe",
+    TypeDeBien: "bien privée",
+    natureDuBien: "Tier MUNICIPALITE",
+    valorisation: 75000,
     designationGenerale: "Transformateur de distribution MT/BT Melen",
     valorisation: 0, // Valeur actuelle (calculée)
     valeurAcquisition: 1000000, // Valeur d'origine lors de l'acquisition
@@ -854,7 +857,7 @@ export const inventaireDeparts: Depart[] = [
     zonesGeographiques: {
       regions: ["Littoral"],
       departements: ["Wouri"],
-      communes: ["Douala 1er", "Douala 2ème",],
+      communes: ["Douala 1er", "Douala 2ème"],
       quartiers: ["Akwa", "Bonanjo", "Bonapriso"],
     },
     tension: 15000,
@@ -1003,9 +1006,9 @@ export const inventaireDeparts: Depart[] = [
 
 // Fonctions utilitaires pour la base de données
 
-  // TypeDeBien: 'bien privée'|'bien de retour'|'bien de reprise'|'bien cdi';
-  // natureDuBien: 'Concédé Etat' | 'privée (ENEO)' | 'Tier privée' | 'Tier AER' | 'Tier MINEE' | 'Tier MUNICIPALITE' | 'Tier industriel' | 'Tier Riverains' | 'Tier MINEPAT';
-  
+// TypeDeBien: 'bien privée'|'bien de retour'|'bien de reprise'|'bien cdi';
+// natureDuBien: 'Concédé Etat' | 'privée (ENEO)' | 'Tier privée' | 'Tier AER' | 'Tier MINEE' | 'Tier MUNICIPALITE' | 'Tier industriel' | 'Tier Riverains' | 'Tier MINEPAT';
+
 export const getAllActifs = (): Actif[] => {
   return inventaireActifs;
 };
@@ -1020,6 +1023,35 @@ export const getDepartById = (id: string): Depart | undefined => {
 
 export const getActifById = (id: string): Actif | undefined => {
   return inventaireActifs.find((actif) => actif.id === id);
+};
+
+export const getDepartColor = (typeDepart: string): string => {
+  const colors: Record<string, string> = {
+    Principal: "#e74c3c",
+    Résidentiel: "#3498db",
+    Commercial: "#f39c12",
+    Industriel: "#9b59b6",
+    Secondaire: "#27ae60",
+  };
+  return colors[typeDepart] || "#95a5a6";
+};
+
+// Icônes pour différents types d'actifs
+export const getActifIcon = (type: string): string => {
+  const icons: Record<string, string> = {
+    LIGNE_AERIENNE: "🔌",
+    LIGNE_SOUTERRAINE: "⚡",
+    POSTE_DISTRIBUTION: "🏭",
+    TRANSFORMATEUR: "⚙️",
+    TABLEAU_BT: "📋",
+    CELLULE_DISTRIBUTION_PRIMAIRE: "🔧",
+    CELLULE_DISTRIBUTION_SECONDAIRE: "🔧",
+    SUPPORT: "🗼",
+    OCR: "🔄",
+    POINT_LIVRAISON: "📍",
+    EQUIPEMENT_STOCK: "📦",
+  };
+  return icons[type] || "❓";
 };
 
 export const getActifsByType = <T extends Actif["type"]>(
@@ -1043,7 +1075,16 @@ export const getActifsByTypeDeBien = (
 };
 
 export const getActifsByNatureDuBienStrict = (
-  nature: 'Concédé Etat' | 'privée (ENEO)' | 'Tier privée' | 'Tier AER' | 'Tier MINEE' | 'Tier MUNICIPALITE' | 'Tier industriel' | 'Tier Riverains' | 'Tier MINEPAT'
+  nature:
+    | "Concédé Etat"
+    | "privée (ENEO)"
+    | "Tier privée"
+    | "Tier AER"
+    | "Tier MINEE"
+    | "Tier MUNICIPALITE"
+    | "Tier industriel"
+    | "Tier Riverains"
+    | "Tier MINEPAT"
 ): Actif[] => {
   return inventaireActifs.filter((actif) => actif.natureDuBien === nature);
 };
@@ -1075,7 +1116,6 @@ export const getActifsByDepart = (departId: string): Actif[] => {
     .map((actifId) => getActifById(actifId))
     .filter(Boolean) as Actif[];
 };
-
 
 export const getActifsByEtat = (
   etat: "En service" | "Hors service"

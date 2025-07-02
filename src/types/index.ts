@@ -397,3 +397,86 @@ export interface StatistiquesDepart {
     nombreQuartiers: number;
   };
 }
+
+// Filters interface
+export interface Filters {
+  types: string[];
+  regions: string[];
+  etatVisuel: string[];
+  etatFonctionnement: string[];
+  anneeMiseEnService: {
+    min: number;
+    max: number;
+  };
+}
+
+export const regions = ["Centre", "Littoral", "Ouest", "Nord", "Sud", ];
+
+export const types = [
+  {
+    value: "LIGNE_AERIENNE",
+    label: "Ligne Aérienne",
+    icon: "⚡",
+    color: "text-blue-600",
+  },
+  {
+    value: "LIGNE_SOUTERRAINE",
+    label: "Ligne Souterraine",
+    icon: "🔌",
+    color: "text-purple-600",
+  },
+  {
+    value: "TRANSFORMATEUR",
+    label: "Transformateur",
+    icon: "⚙️",
+    color: "text-red-600",
+  },
+  {
+    value: "POSTE_DISTRIBUTION",
+    label: "Poste Distribution",
+    icon: "🏢",
+    color: "text-green-600",
+  },
+  {
+    value: "SUPPORT",
+    label: "Support",
+    icon: "📡",
+    color: "text-orange-600",
+  },
+  {
+    value: "OCR",
+    label: "OCR",
+    icon: "🔄",
+    color: "text-red-700",
+  },
+  {
+    value: "TABLEAU_BT",
+    label: "Tableau BT",
+    icon: "📋",
+    color: "text-indigo-600",
+  },
+  {
+    value: "CELLULE_DISTRIBUTION_SECONDAIRE",
+    label: "Cellule Distribution Secondaire",
+    icon: "🔗",
+    color: "text-teal-600",
+  },
+  {
+    value: "CELLULE_DISTRIBUTION_PRIMAIRE",
+    label: "Cellule Distribution Primaire",
+    icon: "🔗",
+    color: "text-cyan-600",
+  },
+  {
+    value: "POINT_LIVRAISON",
+    label: "Point Livraison",
+    icon: "📍",
+    color: "text-pink-600",
+  },
+  {
+    value: "EQUIPEMENT_STOCK",
+    label: "Équipement Stock",
+    icon: "📦",
+    color: "text-amber-600",
+  },
+];
