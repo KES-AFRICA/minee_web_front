@@ -1,17 +1,26 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { create } from "zustand";
 import type { Actif, Filters, Depart } from "@/types";
-import { inventaireActifs, inventaireDeparts } from "@/data";
+// Import des données générées par le script Python
+import {
+  allAssets,
+  departs as generatedDeparts,
+  statistics,
+} from "@/data/electrical_data";
 import { LatLng } from "leaflet";
 import L from "leaflet";
 
-// Type pour les connexions de départs
+// Type pour les connexions de départs amélioré
 interface DepartConnection {
   depart: Depart;
   actifs: Actif[];
   connections: LatLng[][];
   color: string;
   isVisible: boolean;
+  bounds: L.LatLngBounds | null;
+  centerPoint: LatLng | null;
+  totalLength: number;
+  connectionType: "radial" | "linear" | "mesh";
 }
 
 // Types pour les analytics avancés
@@ -43,10 +52,9 @@ interface DepartAnalytics {
   repartitionParType: Record<string, number>;
   repartitionParRegion: Record<string, number>;
   actifsParDepart: Record<string, number>;
+  connectivite: Record<string, number>;
+  densiteActifs: Record<string, number>;
 }
-
-// Interface étendue du store
-
 
 interface MapState {
   // Data
@@ -72,6 +80,8 @@ interface MapState {
   showDepartLabels: boolean;
   autoSelectFiltered: boolean;
   showAnalytics: boolean;
+  showConnectionAnimation: boolean;
+  connectionOpacity: number;
 
   // Filters
   filters: Filters;
@@ -136,6 +146,8 @@ interface MapState {
   addFavoriteDepart: (departId: string) => void;
   removeFavoriteDepart: (departId: string) => void;
   centerOnDepart: (departId: string) => void;
+  setConnectionOpacity: (opacity: number) => void;
+  setShowConnectionAnimation: (show: boolean) => void;
 
   // UI Actions
   setSidebarOpen: (open: boolean) => void;
@@ -163,8 +175,11 @@ interface MapState {
 
   // Map Actions
   setMapBounds: (bounds: L.LatLngBounds | null) => void;
-  // Analytics
+  setMapCenter: (center: { lat: number; lng: number }) => void;
+  setMapZoom: (zoom: number) => void;
   resetMapView: () => void;
+  fitMapToSelection: () => void;
+  centerOnActif: (actifId: string) => void;
 
   // Export & Import
   exportSelection: (format: "csv" | "json" | "excel") => void;
@@ -193,57 +208,244 @@ interface MapState {
     center: { lat: number; lng: number },
     radiusKm: number
   ) => Actif[];
+  getGeneratedStatistics: () => any;
 }
 
-// Fonction pour obtenir la couleur d'un départ selon son type
-const getDepartColor = (typeDepart: string): string => {
-  const colors: Record<string, string> = {
-    Principal: "#e74c3c",
-    Résidentiel: "#3498db",
-    Commercial: "#f39c12",
-    Industriel: "#9b59b6",
-    Secondaire: "#27ae60",
-    Mixte: "#e67e22",
+// Couleurs distinctes pour chaque type de départ
+const getDepartColor = (typeDepart: string, departId: string): string => {
+  const colors: Record<string, string[]> = {
+    Principal: ["#e74c3c", "#c0392b", "#a93226", "#922b21"],
+    Résidentiel: ["#3498db", "#2980b9", "#2471a3", "#1f618d"],
+    Commercial: ["#f39c12", "#e67e22", "#d68910", "#b7950b"],
+    Industriel: ["#9b59b6", "#8e44ad", "#7d3c98", "#6c3483"],
+    Secondaire: ["#27ae60", "#229954", "#1e8449", "#186a3b"],
+    Mixte: ["#e67e22", "#d35400", "#ba4a00", "#a04000"],
   };
-  return colors[typeDepart] || "#95a5a6";
+
+  const typeColors = colors[typeDepart] || [
+    "#95a5a6",
+    "#7f8c8d",
+    "#707b7c",
+    "#5d6d7e",
+  ];
+
+  // Utiliser l'ID du départ pour choisir une couleur spécifique
+  const colorIndex = parseInt(departId.replace(/\D/g, "")) % typeColors.length;
+  return typeColors[colorIndex];
 };
 
-// Fonction pour calculer les connexions entre actifs d'un départ
+// Fonction améliorée pour calculer les connexions d'un départ
 const calculateConnectionsForDepart = (
   depart: Depart,
   actifs: Actif[]
-): LatLng[][] => {
+): {
+  connections: LatLng[][];
+  bounds: L.LatLngBounds | null;
+  centerPoint: LatLng | null;
+  totalLength: number;
+  connectionType: "radial" | "linear" | "mesh";
+} => {
   const departActifs = depart.actifs
     .map((actifId) => actifs.find((a) => a.id === actifId))
     .filter(Boolean) as Actif[];
 
-  if (departActifs.length <= 1) return [];
+  if (departActifs.length <= 1) {
+    return {
+      connections: [],
+      bounds: null,
+      centerPoint: null,
+      totalLength: 0,
+      connectionType: "radial",
+    };
+  }
 
   const connections: LatLng[][] = [];
+  let totalLength = 0;
 
-  // Trouver le poste d'origine (généralement un poste de distribution)
-  const posteOrigine =
-    departActifs.find(
-      (a) => a.type === "POSTE_DISTRIBUTION" || a.id === depart.posteOrigine
-    ) || departActifs[0];
+  // Créer les points LatLng pour tous les actifs
+  const actifPoints = departActifs.map((actif) => ({
+    actif,
+    point: new LatLng(
+      actif.geolocalisation.latitude,
+      actif.geolocalisation.longitude
+    ),
+  }));
 
-  // Connecter tous les autres actifs au poste d'origine
-  departActifs.forEach((actif) => {
-    if (actif.id !== posteOrigine.id) {
-      connections.push([
-        new LatLng(
-          posteOrigine.geolocalisation.latitude,
-          posteOrigine.geolocalisation.longitude
-        ),
-        new LatLng(
-          actif.geolocalisation.latitude,
-          actif.geolocalisation.longitude
-        ),
-      ]);
+  // Trouver le poste d'origine (priorité: POSTE_DISTRIBUTION, puis par ID)
+  let posteOrigine = actifPoints.find(
+    (ap) =>
+      ap.actif.type === "POSTE_DISTRIBUTION" ||
+      ap.actif.id === depart.posteOrigine
+  );
+
+  if (!posteOrigine) {
+    // Si pas de poste d'origine identifié, prendre le transformateur le plus central
+    const transformateurs = actifPoints.filter(
+      (ap) => ap.actif.type === "TRANSFORMATEUR"
+    );
+    if (transformateurs.length > 0) {
+      // Calculer le point le plus central
+      const avgLat =
+        actifPoints.reduce((sum, ap) => sum + ap.point.lat, 0) /
+        actifPoints.length;
+      const avgLng =
+        actifPoints.reduce((sum, ap) => sum + ap.point.lng, 0) /
+        actifPoints.length;
+
+      posteOrigine = transformateurs.reduce((closest, current) => {
+        const closestDist =
+          Math.abs(closest.point.lat - avgLat) +
+          Math.abs(closest.point.lng - avgLng);
+        const currentDist =
+          Math.abs(current.point.lat - avgLat) +
+          Math.abs(current.point.lng - avgLng);
+        return currentDist < closestDist ? current : closest;
+      });
+    } else {
+      posteOrigine = actifPoints[0];
     }
-  });
+  }
 
-  return connections;
+  // Déterminer le type de connexion basé sur la géographie et le type de départ
+  let connectionType: "radial" | "linear" | "mesh" = "radial";
+
+  if (depart.typeDepart === "Principal" || depart.typeDepart === "Secondaire") {
+    // Pour les départs principaux et secondaires, utiliser une structure linéaire
+    connectionType = "linear";
+  } else if (departActifs.length > 10) {
+    // Pour les gros départs, utiliser une structure en maillage
+    connectionType = "mesh";
+  }
+
+  // Créer les connexions selon le type
+  switch (connectionType) {
+    case "linear":
+      // Connecter en chaîne (ligne droite approximative)
+      { const sortedPoints = actifPoints
+        .filter((ap) => ap.actif.id !== posteOrigine.actif.id)
+        .sort((a, b) => {
+          // Trier par distance au poste d'origine
+          const distA = calculateDistance(
+            { latitude: a.point.lat, longitude: a.point.lng },
+            {
+              latitude: posteOrigine!.point.lat,
+              longitude: posteOrigine!.point.lng,
+            }
+          );
+          const distB = calculateDistance(
+            { latitude: b.point.lat, longitude: b.point.lng },
+            {
+              latitude: posteOrigine!.point.lat,
+              longitude: posteOrigine!.point.lng,
+            }
+          );
+          return distA - distB;
+        });
+
+      // Connecter le poste d'origine au premier point
+      if (sortedPoints.length > 0) {
+        connections.push([posteOrigine.point, sortedPoints[0].point]);
+        totalLength += calculateDistance(
+          {
+            latitude: posteOrigine.point.lat,
+            longitude: posteOrigine.point.lng,
+          },
+          {
+            latitude: sortedPoints[0].point.lat,
+            longitude: sortedPoints[0].point.lng,
+          }
+        );
+      }
+
+      // Connecter les points en chaîne
+      for (let i = 0; i < sortedPoints.length - 1; i++) {
+        connections.push([sortedPoints[i].point, sortedPoints[i + 1].point]);
+        totalLength += calculateDistance(
+          {
+            latitude: sortedPoints[i].point.lat,
+            longitude: sortedPoints[i].point.lng,
+          },
+          {
+            latitude: sortedPoints[i + 1].point.lat,
+            longitude: sortedPoints[i + 1].point.lng,
+          }
+        );
+      }
+      break; }
+
+    case "mesh":
+      // Connecter chaque actif à ses 2-3 voisins les plus proches
+      actifPoints.forEach((sourcePoint) => {
+        const otherPoints = actifPoints.filter(
+          (ap) => ap.actif.id !== sourcePoint.actif.id
+        );
+        const nearestNeighbors = otherPoints
+          .map((ap) => ({
+            point: ap,
+            distance: calculateDistance(
+              {
+                latitude: sourcePoint.point.lat,
+                longitude: sourcePoint.point.lng,
+              },
+              { latitude: ap.point.lat, longitude: ap.point.lng }
+            ),
+          }))
+          .sort((a, b) => a.distance - b.distance)
+          .slice(0, Math.min(3, otherPoints.length));
+
+        nearestNeighbors.forEach((neighbor) => {
+          // Éviter les doublons
+          const connectionExists = connections.some(
+            (conn) =>
+              (conn[0].equals(sourcePoint.point) &&
+                conn[1].equals(neighbor.point.point)) ||
+              (conn[1].equals(sourcePoint.point) &&
+                conn[0].equals(neighbor.point.point))
+          );
+
+          if (!connectionExists) {
+            connections.push([sourcePoint.point, neighbor.point.point]);
+            totalLength += neighbor.distance;
+          }
+        });
+      });
+      break;
+
+    default: // radial
+      // Connecter tous les actifs au poste d'origine (structure radiale)
+      actifPoints.forEach((ap) => {
+        if (ap.actif.id !== posteOrigine!.actif.id) {
+          connections.push([posteOrigine!.point, ap.point]);
+          totalLength += calculateDistance(
+            {
+              latitude: posteOrigine!.point.lat,
+              longitude: posteOrigine!.point.lng,
+            },
+            { latitude: ap.point.lat, longitude: ap.point.lng }
+          );
+        }
+      });
+      break;
+  }
+
+  // Calculer les bounds et le centre
+  const lats = actifPoints.map((ap) => ap.point.lat);
+  const lngs = actifPoints.map((ap) => ap.point.lng);
+
+  const bounds = new L.LatLngBounds([
+    [Math.min(...lats), Math.min(...lngs)],
+    [Math.max(...lats), Math.max(...lngs)],
+  ]);
+
+  const centerPoint = bounds.getCenter();
+
+  return {
+    connections,
+    bounds,
+    centerPoint,
+    totalLength,
+    connectionType,
+  };
 };
 
 // Fonction utilitaire pour calculer la distance
@@ -266,14 +468,14 @@ const calculateDistance = (
 
 export const useMapStore = create<MapState>((set, get) => {
   return {
-    // Initial state
-    actifs: inventaireActifs,
-    filteredActifs: [],
+    // Initial state avec les données générées
+    actifs: allAssets,
+    filteredActifs: allAssets,
     selectedActifs: [],
 
-    // Départs
-    departs: inventaireDeparts,
-    filteredDeparts: inventaireDeparts,
+    // Départs des données générées
+    departs: generatedDeparts,
+    filteredDeparts: generatedDeparts,
     selectedDepart: null,
     departConnections: [],
 
@@ -289,31 +491,42 @@ export const useMapStore = create<MapState>((set, get) => {
     showDepartLabels: false,
     autoSelectFiltered: false,
     showAnalytics: false,
+    showConnectionAnimation: true,
+    connectionOpacity: 0.7,
 
-    // Filters
+    // Filters basés sur les données réelles
     filters: {
       types: [],
       regions: [],
       etatVisuel: [],
       etatFonctionnement: [],
-      anneeMiseEnService: { min: 2000, max: 2024 },
+      anneeMiseEnService: {
+        min: Math.min(...allAssets.map((a) => a.anneeMiseEnService)),
+        max: Math.max(...allAssets.map((a) => a.anneeMiseEnService)),
+      },
     },
     departFilters: {
       types: [],
       regions: [],
       etatGeneral: [],
-      tensionRange: { min: 0, max: 50000 },
+      tensionRange: {
+        min: Math.min(...generatedDeparts.map((d) => d.tension)),
+        max: Math.max(...generatedDeparts.map((d) => d.tension)),
+      },
     },
     advancedFilters: {
-      valorisationRange: { min: 0, max: 1000000 },
+      valorisationRange: {
+        min: Math.min(...allAssets.map((a) => a.valorisation)),
+        max: Math.max(...allAssets.map((a) => a.valorisation)),
+      },
       ageRange: { min: 0, max: 25 },
       communes: [],
       quartiers: [],
     },
 
-    // Map state
+    // Map state - Centré sur le Cameroun
     mapBounds: null,
-    mapCenter: null,
+    mapCenter: { lat: 3.848, lng: 11.502 }, // Centre du Cameroun
     mapZoom: 7,
 
     // History & Favorites
@@ -361,6 +574,7 @@ export const useMapStore = create<MapState>((set, get) => {
     clearSelection: () =>
       set({
         selectedActifs: [],
+        selectedDepart: null,
         isSidebarOpen: false,
       }),
 
@@ -411,7 +625,7 @@ export const useMapStore = create<MapState>((set, get) => {
       });
     },
 
-    // Actions - Départs
+    // Actions - Départs améliorées
     setDeparts: (departs) => {
       set({ departs });
       get().applyDepartFilters();
@@ -422,6 +636,7 @@ export const useMapStore = create<MapState>((set, get) => {
       set({ selectedDepart: departId });
       if (departId) {
         get().selectActifsByDepart(departId);
+        get().centerOnDepart(departId);
       }
     },
 
@@ -436,6 +651,7 @@ export const useMapStore = create<MapState>((set, get) => {
 
       set({
         selectedActifs: departActifs,
+        selectedDepart: departId,
         isSidebarOpen: departActifs.length > 0,
       });
     },
@@ -452,15 +668,23 @@ export const useMapStore = create<MapState>((set, get) => {
 
     calculateDepartConnections: () => {
       const { departs, actifs } = get();
-      const connections: DepartConnection[] = departs.map((depart) => ({
-        depart,
-        actifs: depart.actifs
-          .map((actifId) => actifs.find((a) => a.id === actifId))
-          .filter(Boolean) as Actif[],
-        connections: calculateConnectionsForDepart(depart, actifs),
-        color: getDepartColor(depart.typeDepart),
-        isVisible: true,
-      }));
+      const connections: DepartConnection[] = departs.map((depart) => {
+        const connectionData = calculateConnectionsForDepart(depart, actifs);
+
+        return {
+          depart,
+          actifs: depart.actifs
+            .map((actifId) => actifs.find((a) => a.id === actifId))
+            .filter(Boolean) as Actif[],
+          connections: connectionData.connections,
+          color: getDepartColor(depart.typeDepart, depart.id),
+          isVisible: true,
+          bounds: connectionData.bounds,
+          centerPoint: connectionData.centerPoint,
+          totalLength: connectionData.totalLength,
+          connectionType: connectionData.connectionType,
+        };
+      });
 
       set({ departConnections: connections });
     },
@@ -476,6 +700,21 @@ export const useMapStore = create<MapState>((set, get) => {
         favoriteDeparts: state.favoriteDeparts.filter((id) => id !== departId),
       }));
     },
+
+    centerOnDepart: (departId) => {
+      const { departConnections } = get();
+      const connection = departConnections.find(
+        (conn) => conn.depart.id === departId
+      );
+
+      if (connection && connection.bounds) {
+        set({ mapBounds: connection.bounds });
+      }
+    },
+
+    setConnectionOpacity: (connectionOpacity) => set({ connectionOpacity }),
+    setShowConnectionAnimation: (showConnectionAnimation) =>
+      set({ showConnectionAnimation }),
 
     // UI Actions
     setSidebarOpen: (isSidebarOpen) => set({ isSidebarOpen }),
@@ -535,11 +774,11 @@ export const useMapStore = create<MapState>((set, get) => {
           const searchLower = searchTerm.toLowerCase();
           filtered = filtered.filter(
             (actif) =>
-              actif.designationGenerale.toLowerCase().includes(searchLower) ||
+              actif.designationGenerale?.toLowerCase().includes(searchLower) ||
               actif.type.toLowerCase().includes(searchLower) ||
               actif.region.toLowerCase().includes(searchLower) ||
-              actif.commune.toLowerCase().includes(searchLower) ||
-              actif.quartier.toLowerCase().includes(searchLower)
+              actif.commune?.toLowerCase().includes(searchLower) ||
+              actif.quartier?.toLowerCase().includes(searchLower)
           );
         }
 
@@ -704,9 +943,9 @@ export const useMapStore = create<MapState>((set, get) => {
             .map((a) => a.id);
           break;
         case "highValue":
-          // Actifs de forte valorisation (> 70000€)
+          // Actifs de forte valorisation (> 500000)
           filteredIds = actifs
-            .filter((a) => a.valorisation > 70000)
+            .filter((a) => a.valorisation > 500000)
             .map((a) => a.id);
           break;
       }
@@ -746,53 +985,49 @@ export const useMapStore = create<MapState>((set, get) => {
     },
 
     clearAllFilters: () => {
+      const { actifs, departs } = get();
       set({
         filters: {
           types: [],
           regions: [],
           etatVisuel: [],
           etatFonctionnement: [],
-          anneeMiseEnService: { min: 2000, max: 2024 },
+          anneeMiseEnService: {
+            min: Math.min(...actifs.map((a) => a.anneeMiseEnService)),
+            max: Math.max(...actifs.map((a) => a.anneeMiseEnService)),
+          },
         },
         advancedFilters: {
-          valorisationRange: { min: 0, max: 1000000 },
+          valorisationRange: {
+            min: Math.min(...actifs.map((a) => a.valorisation)),
+            max: Math.max(...actifs.map((a) => a.valorisation)),
+          },
           ageRange: { min: 0, max: 25 },
           communes: [],
           quartiers: [],
         },
+        departFilters: {
+          types: [],
+          regions: [],
+          etatGeneral: [],
+          tensionRange: {
+            min: Math.min(...departs.map((d) => d.tension)),
+            max: Math.max(...departs.map((d) => d.tension)),
+          },
+        },
         searchTerm: "",
+        departSearchTerm: "",
         selectedDepart: null,
         selectedActifs: [],
       });
       get().applyFilters();
+      get().applyDepartFilters();
     },
 
     // Map Actions
     setMapBounds: (mapBounds) => set({ mapBounds }),
-    setMapCenter: (mapCenter: any) => set({ mapCenter }),
-    setMapZoom: (mapZoom: any) => set({ mapZoom }),
-
-    centerOnDepart: (departId: string) => {
-      const { departs, actifs } = get();
-      const depart = departs.find((d) => d.id === departId);
-      if (!depart) return;
-
-      const departActifs = depart.actifs
-        .map((actifId) => actifs.find((a) => a.id === actifId))
-        .filter(Boolean) as Actif[];
-
-      if (departActifs.length > 0) {
-        const latitudes = departActifs.map((a) => a.geolocalisation.latitude);
-        const longitudes = departActifs.map((a) => a.geolocalisation.longitude);
-
-        const bounds = new L.LatLngBounds([
-          [Math.min(...latitudes), Math.min(...longitudes)],
-          [Math.max(...latitudes), Math.max(...longitudes)],
-        ]);
-
-        set({ mapBounds: bounds });
-      }
-    },
+    setMapCenter: (mapCenter) => set({ mapCenter }),
+    setMapZoom: (mapZoom) => set({ mapZoom }),
 
     centerOnActif: (actifId: string) => {
       const { actifs } = get();
@@ -826,12 +1061,12 @@ export const useMapStore = create<MapState>((set, get) => {
     resetMapView: () => {
       set({
         mapBounds: null,
-        mapCenter: { lat: 7.3697, lng: 12.3547 },
+        mapCenter: { lat: 3.848, lng: 11.502 }, // Centre du Cameroun
         mapZoom: 7,
       });
     },
 
-    // Export functions
+    // Export functions améliorées
     exportSelection: (format) => {
       const { selectedActifs } = get();
       if (selectedActifs.length === 0) return;
@@ -859,6 +1094,7 @@ export const useMapStore = create<MapState>((set, get) => {
                   (sum, a) => sum + a.valorisation,
                   0
                 ),
+                statistics: get().getActifStatistics(),
               },
             },
             null,
@@ -1012,12 +1248,14 @@ export const useMapStore = create<MapState>((set, get) => {
       const actifStats = get().getActifStatistics();
       const departStats = get().getDepartAnalytics();
       const filterInsights = get().getFilterInsights();
+      const generatedStats = get().getGeneratedStatistics();
 
       const fullReport = {
         reportDate: new Date().toISOString(),
         actifAnalytics: actifStats,
         departAnalytics: departStats,
         filterInsights,
+        generatedStatistics: generatedStats,
         summary: {
           totalActifs: actifStats.total,
           totalDeparts: departStats.total,
@@ -1025,6 +1263,8 @@ export const useMapStore = create<MapState>((set, get) => {
           actifsEnService:
             actifStats.total - actifStats.actifsDefaillants.length,
           departsEnService: departStats.enService,
+          regionsDesservies: Object.keys(actifStats.parRegion).length,
+          typesActifs: Object.keys(actifStats.parType).length,
         },
       };
 
@@ -1056,12 +1296,15 @@ export const useMapStore = create<MapState>((set, get) => {
       console.log("Export d'image de carte - À implémenter");
     },
 
-    // Analytics
+    // Analytics améliorées avec les données générées
     getDepartStatistics: (departId) => {
-      const { departs, actifs } = get();
+      const { departs, actifs, departConnections } = get();
 
       if (departId) {
         const depart = departs.find((d) => d.id === departId);
+        const connection = departConnections.find(
+          (c) => c.depart.id === departId
+        );
         if (!depart) return null;
 
         const departActifs = depart.actifs
@@ -1070,6 +1313,7 @@ export const useMapStore = create<MapState>((set, get) => {
 
         return {
           depart: depart.nom,
+          id: depart.id,
           nombreActifs: departActifs.length,
           valorisationTotale: departActifs.reduce(
             (sum, actif) => sum + actif.valorisation,
@@ -1079,8 +1323,12 @@ export const useMapStore = create<MapState>((set, get) => {
           regionsDesservies: depart.zonesGeographiques.regions,
           communesDesservies: depart.zonesGeographiques.communes,
           longueurTotale: depart.longueurTotale,
+          longueurCalculee: connection?.totalLength || 0,
           tension: depart.tension,
           etatGeneral: depart.etatGeneral,
+          typeDepart: depart.typeDepart,
+          dateCreation: depart.dateCreation,
+          connectionType: connection?.connectionType || "radial",
           repartitionParType: departActifs.reduce((acc, actif) => {
             acc[actif.type] = (acc[actif.type] || 0) + 1;
             return acc;
@@ -1089,12 +1337,21 @@ export const useMapStore = create<MapState>((set, get) => {
             acc[actif.etatVisuel] = (acc[actif.etatVisuel] || 0) + 1;
             return acc;
           }, {} as Record<string, number>),
+          repartitionParRegion: departActifs.reduce((acc, actif) => {
+            acc[actif.region] = (acc[actif.region] || 0) + 1;
+            return acc;
+          }, {} as Record<string, number>),
           moyenneAge:
             departActifs.reduce(
               (sum, actif) =>
                 sum + (new Date().getFullYear() - actif.anneeMiseEnService),
               0
             ) / departActifs.length || 0,
+          densiteActifs: departActifs.length / (connection?.totalLength || 1), // actifs par km
+          coverage: {
+            bounds: connection?.bounds,
+            centerPoint: connection?.centerPoint,
+          },
         };
       }
 
@@ -1165,7 +1422,7 @@ export const useMapStore = create<MapState>((set, get) => {
     },
 
     getDepartAnalytics: (): DepartAnalytics => {
-      const { departs, filteredDeparts } = get();
+      const { departs, filteredDeparts, departConnections } = get();
 
       return {
         total: departs.length,
@@ -1190,6 +1447,15 @@ export const useMapStore = create<MapState>((set, get) => {
         }, {} as Record<string, number>),
         actifsParDepart: departs.reduce((acc, depart) => {
           acc[depart.nom] = depart.actifs.length;
+          return acc;
+        }, {} as Record<string, number>),
+        connectivite: departConnections.reduce((acc, conn) => {
+          acc[conn.connectionType] = (acc[conn.connectionType] || 0) + 1;
+          return acc;
+        }, {} as Record<string, number>),
+        densiteActifs: departConnections.reduce((acc, conn) => {
+          const density = conn.actifs.length / (conn.totalLength || 1);
+          acc[conn.depart.nom] = density;
           return acc;
         }, {} as Record<string, number>),
       };
@@ -1226,6 +1492,11 @@ export const useMapStore = create<MapState>((set, get) => {
       };
     },
 
+    // Nouvelle fonction pour récupérer les statistiques générées
+    getGeneratedStatistics: () => {
+      return statistics;
+    },
+
     // Comparison & Analysis
     compareDeparts: (departIds) => {
       const comparisons = departIds.map((id) => get().getDepartStatistics(id));
@@ -1244,6 +1515,9 @@ export const useMapStore = create<MapState>((set, get) => {
             (sum, d) => sum + d.longueurTotale,
             0
           ),
+          densiteMoyenne:
+            comparisons.reduce((sum, d) => sum + d.densiteActifs, 0) /
+            comparisons.length,
         },
       };
     },
@@ -1359,11 +1633,11 @@ export const useMapStore = create<MapState>((set, get) => {
 
       return actifs.filter(
         (actif) =>
-          actif.designationGenerale.toLowerCase().includes(searchLower) ||
+          actif.designationGenerale?.toLowerCase().includes(searchLower) ||
           actif.type.toLowerCase().includes(searchLower) ||
           actif.region.toLowerCase().includes(searchLower) ||
-          actif.commune.toLowerCase().includes(searchLower) ||
-          actif.quartier.toLowerCase().includes(searchLower) ||
+          actif.commune?.toLowerCase().includes(searchLower) ||
+          actif.quartier?.toLowerCase().includes(searchLower) ||
           actif.id.toLowerCase().includes(searchLower)
       );
     },
@@ -1379,11 +1653,10 @@ export const useMapStore = create<MapState>((set, get) => {
         return distance <= radiusKm;
       });
     },
-    
   };
 });
 
-// Helper functions
+// Helper functions améliorées
 function convertToCSV(data: Actif[]): string {
   if (data.length === 0) return "";
 
@@ -1406,7 +1679,10 @@ function convertToCSV(data: Actif[]): string {
     "Type de Bien",
     "Nature du Bien",
     "Valorisation",
+    "Valeur Acquisition",
     "Âge (années)",
+    "Taux Amortissement",
+    "Durée de vie estimée",
   ];
 
   const currentYear = new Date().getFullYear();
@@ -1416,8 +1692,8 @@ function convertToCSV(data: Actif[]): string {
     actif.designationGenerale,
     actif.region,
     actif.departement,
-    actif.commune,
-    actif.quartier,
+    actif.commune || "",
+    actif.quartier || "",
     actif.etatVisuel,
     actif.positionMateriel,
     actif.anneeMiseEnService,
@@ -1429,7 +1705,10 @@ function convertToCSV(data: Actif[]): string {
     actif.TypeDeBien,
     actif.natureDuBien,
     actif.valorisation,
+    actif.valeurAcquisition || "",
     currentYear - actif.anneeMiseEnService,
+    actif.tauxAmortissementAnnuel || "",
+    actif.dureeDeVieEstimative || "",
   ]);
 
   return [headers, ...rows]
@@ -1459,26 +1738,30 @@ function convertToExcel(data: Actif[]): string {
     "Type de Bien",
     "Nature du Bien",
     "Valorisation",
+    "Valeur Acquisition",
     "Âge (années)",
+    "Taux Amortissement (%)",
+    "Durée de vie estimée (années)",
   ];
 
   let html = '<table border="1"><tr>';
   headers.forEach((header) => {
-    html += `<th style="background-color: #f0f0f0; font-weight: bold;">${header}</th>`;
+    html += `<th style="background-color: #f0f0f0; font-weight: bold; padding: 5px;">${header}</th>`;
   });
   html += "</tr>";
 
   const currentYear = new Date().getFullYear();
-  data.forEach((actif) => {
-    html += "<tr>";
+  data.forEach((actif, index) => {
+    const rowColor = index % 2 === 0 ? "#ffffff" : "#f9f9f9";
+    html += `<tr style="background-color: ${rowColor};">`;
     [
       actif.id,
       actif.type,
       actif.designationGenerale,
       actif.region,
       actif.departement,
-      actif.commune,
-      actif.quartier,
+      actif.commune || "",
+      actif.quartier || "",
       actif.etatVisuel,
       actif.positionMateriel,
       actif.anneeMiseEnService,
@@ -1490,9 +1773,14 @@ function convertToExcel(data: Actif[]): string {
       actif.TypeDeBien,
       actif.natureDuBien,
       actif.valorisation,
+      actif.valeurAcquisition || "",
       currentYear - actif.anneeMiseEnService,
+      actif.tauxAmortissementAnnuel || "",
+      actif.dureeDeVieEstimative || "",
     ].forEach((cell) => {
-      html += `<td>${String(cell)}</td>`;
+      html += `<td style="padding: 3px; border: 1px solid #ddd;">${String(
+        cell
+      )}</td>`;
     });
     html += "</tr>";
   });
@@ -1512,14 +1800,27 @@ function downloadFile(
   const linkElement = document.createElement("a");
   linkElement.setAttribute("href", dataUri);
   linkElement.setAttribute("download", fileName);
+  linkElement.style.display = "none";
+  document.body.appendChild(linkElement);
   linkElement.click();
+  document.body.removeChild(linkElement);
 }
 
-// Initialize store
+// Initialize store avec les données générées
 setTimeout(() => {
   const store = useMapStore.getState();
+  console.log("🚀 Initialisation du store avec les données générées");
+  console.log(`📊 ${store.actifs.length} actifs chargés`);
+  console.log(`🔌 ${store.departs.length} départs chargés`);
+
+  // Appliquer les filtres initiaux
   store.applyFilters();
   store.applyDepartFilters();
+
+  // Calculer les connexions des départs
   store.calculateDepartConnections();
+
+  console.log("✅ Store initialisé avec succès");
 }, 0);
+
 export default useMapStore;
