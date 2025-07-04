@@ -1,21 +1,4 @@
-export interface MapElement {
-  id: string;
-  name: string;
-  type: 'restaurant' | 'hotel' | 'attraction' | 'shop';
-  position: [number, number];
-  description: string;
-  rating: number;
-  price: number;
-  image: string;
-  category: string;
-}
 
-export interface FilterState {
-  types: string[];
-  priceRange: [number, number];
-  ratingMin: number;
-  searchQuery: string;
-}
 
 export interface SelectionArea {
   bounds: [[number, number], [number, number]] | null;
@@ -410,7 +393,7 @@ export interface Filters {
   };
 }
 
-export const regions = ["Centre", "Littoral", "Ouest", "Nord", "Sud", ];
+export const regions = ["Centre", "Littoral", "Ouest", "Nord", "Sud", "Extreme Nord", "Nord Ouest", "Sud Ouest", "Adamaoua", "Est"];
 
 export const types = [
   {
