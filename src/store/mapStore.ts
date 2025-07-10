@@ -9,7 +9,7 @@ import type {
   DepartConnection,
   StatistiquesDepart,
 } from "@/types";
-import { allMockActifs, mockDeparts } from "@/data/mockData";
+import { actifs, departs } from "@/data/exp";
 
 interface MapState {
   // Data
@@ -118,13 +118,14 @@ const generateDepartConnections = (
   });
 };
 
+
 export const useMapStore = create<MapState>()(
   devtools(
     (set, get) => ({
       // Initial state
-      actifs: allMockActifs,
-      departs: mockDeparts,
-      filteredActifs: allMockActifs,
+      actifs: actifs,
+      departs: departs,
+      filteredActifs: actifs,
       selectedActifs: [],
       selectionArea: {
         bounds: null,
@@ -145,7 +146,7 @@ export const useMapStore = create<MapState>()(
       isDrawingMode: "pan",
       mapBounds: null,
       selectedDepart: null,
-      departConnections: generateDepartConnections(mockDeparts, allMockActifs),
+      departConnections: generateDepartConnections(departs, actifs),
       showDepartConnections: true,
       showDepartLabels: false,
       showAllActifs: true,
