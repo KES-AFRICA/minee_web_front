@@ -1,561 +1,302 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-/* SOLUTION COMPLÈTE POUR 10K+ ÉLÉMENTS */
-import React, { useEffect, useRef, useState, useCallback } from "react";
-import { MapContainer, TileLayer, useMap } from "react-leaflet";
-import L from "leaflet";
-import { useMapStore } from "@/store/mapStore.ts";
-import type { Actif } from "@/types";
-
-// ==================== 1. SPATIAL INDEX AVEC R-TREE ====================
-class SpatialIndex {
-  private tree: any[] = [];
-  private bounds: {
-    minX: number;
-    minY: number;
-    maxX: number;
-    maxY: number;
-  } | null = null;
-
-  insert(actif: Actif) {
-    const node = {
-      minX: actif.geolocalisation.longitude,
-      minY: actif.geolocalisation.latitude,
-      maxX: actif.geolocalisation.longitude,
-      maxY: actif.geolocalisation.latitude,
-      actif,
-    };
-    this.tree.push(node);
-    this.updateBounds(node);
-  }
-
-  private updateBounds(node: any) {
-    if (!this.bounds) {
-      this.bounds = { ...node };
-    } else {
-      this.bounds.minX = Math.min(this.bounds.minX, node.minX);
-      this.bounds.minY = Math.min(this.bounds.minY, node.minY);
-      this.bounds.maxX = Math.max(this.bounds.maxX, node.maxX);
-      this.bounds.maxY = Math.max(this.bounds.maxY, node.maxY);
-    }
-  }
-
-  search(bounds: L.LatLngBounds): Actif[] {
-    const sw = bounds.getSouthWest();
-    const ne = bounds.getNorthEast();
-
-    return this.tree
-      .filter(
-        (node) =>
-          node.minX <= ne.lng &&
-          node.maxX >= sw.lng &&
-          node.minY <= ne.lat &&
-          node.maxY >= sw.lat
-      )
-      .map((node) => node.actif);
-  }
-
-  clear() {
-    this.tree = [];
-    this.bounds = null;
-  }
-}
-
-// ==================== 2. CLUSTERING HIÉRARCHIQUE RAPIDE ====================
-interface ClusterNode {
-  lat: number;
-  lng: number;
-  count: number;
-  actifs: Actif[];
-  id: string;
-  level: number;
-}
-
-class FastClusterer {
-  private gridSize: number;
-  private clusters: Map<string, ClusterNode> = new Map();
-
-  constructor(gridSize: number = 64) {
-    this.gridSize = gridSize;
-  }
-
-  cluster(actifs: Actif[], zoom: number): ClusterNode[] {
-    this.clusters.clear();
-
-    // Ajuster la taille de grille selon le zoom
-    const adaptiveGridSize = Math.max(
-      16,
-      this.gridSize / Math.pow(2, zoom - 10)
-    );
-
-    actifs.forEach((actif) => {
-      const gridX = Math.floor(
-        actif.geolocalisation.longitude * adaptiveGridSize
-      );
-      const gridY = Math.floor(
-        actif.geolocalisation.latitude * adaptiveGridSize
-      );
-      const key = `${gridX},${gridY}`;
-
-      if (this.clusters.has(key)) {
-        const cluster = this.clusters.get(key)!;
-        cluster.count++;
-        cluster.actifs.push(actif);
-
-        // Recalculer le centroïde
-        cluster.lat =
-          cluster.actifs.reduce(
-            (sum, a) => sum + a.geolocalisation.latitude,
-            0
-          ) / cluster.actifs.length;
-        cluster.lng =
-          cluster.actifs.reduce(
-            (sum, a) => sum + a.geolocalisation.longitude,
-            0
-          ) / cluster.actifs.length;
-      } else {
-        this.clusters.set(key, {
-          lat: actif.geolocalisation.latitude,
-          lng: actif.geolocalisation.longitude,
-          count: 1,
-          actifs: [actif],
-          id: key,
-          level: zoom,
-        });
-      }
-    });
-
-    return Array.from(this.clusters.values());
-  }
-}
-
-// ==================== 3. CANVAS RENDERER HAUTE PERFORMANCE ====================
-class CanvasRenderer {
-  private canvas: HTMLCanvasElement;
-  private ctx: CanvasRenderingContext2D;
-  private map: L.Map;
-  private lastBounds: L.LatLngBounds | null = null;
-  private animationFrame: number | null = null;
-
-  constructor(canvas: HTMLCanvasElement, map: L.Map) {
-    this.canvas = canvas;
-    this.ctx = canvas.getContext("2d")!;
-    this.map = map;
-    this.setupCanvas();
-  }
-
-  private setupCanvas() {
-    const container = this.map.getContainer();
-    const { width, height } = container.getBoundingClientRect();
-
-    // Configuration haute résolution
-    const dpr = window.devicePixelRatio || 1;
-    this.canvas.width = width * dpr;
-    this.canvas.height = height * dpr;
-    this.canvas.style.width = `${width}px`;
-    this.canvas.style.height = `${height}px`;
-    this.ctx.scale(dpr, dpr);
-
-    // Positionnement
-    this.canvas.style.position = "absolute";
-    this.canvas.style.top = "0";
-    this.canvas.style.left = "0";
-    this.canvas.style.pointerEvents = "none";
-    this.canvas.style.zIndex = "400";
-  }
-
-  renderClusters(clusters: ClusterNode[], selectedIds: Set<string>) {
-    if (this.animationFrame) {
-      cancelAnimationFrame(this.animationFrame);
-    }
-
-    this.animationFrame = requestAnimationFrame(() => {
-      this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-
-      // Optimisation : pré-calculer les styles
-      const styles = this.precomputeStyles();
-
-      clusters.forEach((cluster) => {
-        const point = this.map.latLngToContainerPoint([
-          cluster.lat,
-          cluster.lng,
-        ]);
-
-        if (cluster.count === 1) {
-          this.renderSingleActif(
-            point,
-            cluster.actifs[0],
-            selectedIds.has(cluster.actifs[0].id),
-            styles
-          );
-        } else {
-          this.renderCluster(point, cluster, styles);
-        }
-      });
-    });
-  }
-
-  private precomputeStyles() {
-    return {
-      colors: {
-        POSTE_DISTRIBUTION: "#10B981",
-        TRANSFORMATEUR: "#EF4444",
-        LIGNE_AERIENNE: "#3B82F6",
-        LIGNE_SOUTERRAINE: "#8B5CF6",
-        SUPPORT: "#F97316",
-        default: "#6B7280",
-      },
-      cluster: {
-        fillStyle: "rgba(59, 130, 246, 0.8)",
-        strokeStyle: "white",
-        lineWidth: 3,
-      },
-    };
-  }
-
-  private renderSingleActif(
-    point: L.Point,
-    actif: Actif,
-    isSelected: boolean,
-    styles: any
-  ) {
-    const size = isSelected ? 12 : 8;
-    const color =
-      styles.colors[actif.type as keyof typeof styles.colors] ||
-      styles.colors.default;
-
-    this.ctx.beginPath();
-    this.ctx.arc(point.x, point.y, size, 0, 2 * Math.PI);
-    this.ctx.fillStyle = color;
-    this.ctx.fill();
-
-    if (isSelected) {
-      this.ctx.strokeStyle = "#F59E0B";
-      this.ctx.lineWidth = 3;
-      this.ctx.stroke();
-    } else {
-      this.ctx.strokeStyle = "white";
-      this.ctx.lineWidth = 2;
-      this.ctx.stroke();
-    }
-  }
-
-  private renderCluster(point: L.Point, cluster: ClusterNode, styles: any) {
-    const size = Math.min(30, Math.max(20, Math.log(cluster.count) * 5));
-
-    // Cercle du cluster
-    this.ctx.beginPath();
-    this.ctx.arc(point.x, point.y, size, 0, 2 * Math.PI);
-    this.ctx.fillStyle = styles.cluster.fillStyle;
-    this.ctx.fill();
-    this.ctx.strokeStyle = styles.cluster.strokeStyle;
-    this.ctx.lineWidth = styles.cluster.lineWidth;
-    this.ctx.stroke();
-
-    // Texte du nombre
-    this.ctx.fillStyle = "white";
-    this.ctx.font = "bold 12px sans-serif";
-    this.ctx.textAlign = "center";
-    this.ctx.textBaseline = "middle";
-    this.ctx.fillText(cluster.count.toString(), point.x, point.y);
-  }
-
-  renderConnections(
-    connections: Array<{ points: L.LatLng[]; color: string; weight: number }>
-  ) {
-    connections.forEach(({ points, color, weight }) => {
-      if (points.length < 2) return;
-
-      this.ctx.beginPath();
-      this.ctx.strokeStyle = color;
-      this.ctx.lineWidth = weight;
-      this.ctx.globalAlpha = 0.6;
-
-      const firstPoint = this.map.latLngToContainerPoint(points[0]);
-      this.ctx.moveTo(firstPoint.x, firstPoint.y);
-
-      for (let i = 1; i < points.length; i++) {
-        const point = this.map.latLngToContainerPoint(points[i]);
-        this.ctx.lineTo(point.x, point.y);
-      }
-
-      this.ctx.stroke();
-      this.ctx.globalAlpha = 1;
-    });
-  }
-
-  destroy() {
-    if (this.animationFrame) {
-      cancelAnimationFrame(this.animationFrame);
-    }
-  }
-}
-
-// ==================== 4. GESTIONNAIRE PRINCIPAL OPTIMISÉ ====================
-const HighVolumeMapRenderer: React.FC = () => {
-  const map = useMap();
-  const canvasRef = useRef<HTMLCanvasElement>(null);
-  const rendererRef = useRef<CanvasRenderer | null>(null);
-  const spatialIndexRef = useRef<SpatialIndex>(new SpatialIndex());
-  const clustererRef = useRef<FastClusterer>(new FastClusterer());
-
-  const {
-    filteredActifs,
-    selectedActifs,
-    departConnections,
-    showDepartConnections,
-    addSelectedActif,
-    removeSelectedActif,
-  } = useMapStore();
-
-  const [currentZoom, setCurrentZoom] = useState(map.getZoom());
-  const [isRendering, setIsRendering] = useState(false);
-  const [stats, setStats] = useState({ visible: 0, total: 0, clusters: 0 });
-
-  // ==================== INDEXATION DES DONNÉES ====================
-  useEffect(() => {
-    const index = spatialIndexRef.current;
-    index.clear();
-
-    filteredActifs.forEach((actif) => {
-      index.insert(actif);
-    });
-  }, [filteredActifs]);
-
-  // ==================== INITIALISATION DU RENDERER ====================
-  useEffect(() => {
-    if (!canvasRef.current || !map) return;
-
-    rendererRef.current = new CanvasRenderer(canvasRef.current, map);
-
-    return () => {
-      rendererRef.current?.destroy();
-    };
-  }, [map]);
-
-  // ==================== RENDU PRINCIPAL ====================
-  const renderFrame = useCallback(async () => {
-    if (!rendererRef.current || isRendering) return;
-
-    setIsRendering(true);
-
-    try {
-      const bounds = map.getBounds();
-      const zoom = map.getZoom();
-
-      // 1. Recherche spatiale rapide
-      const visibleActifs = spatialIndexRef.current.search(bounds);
-
-      // 2. Limitation dynamique selon le zoom
-      const maxActifs = getMaxActifsForZoom(zoom);
-      const limitedActifs = prioritizeActifs(visibleActifs, maxActifs);
-
-      // 3. Clustering adaptatif
-      const clusters = clustererRef.current.cluster(limitedActifs, zoom);
-
-      // 4. Rendu Canvas
-      const selectedIds = new Set(selectedActifs.map((a) => a.id));
-      rendererRef.current.renderClusters(clusters, selectedIds);
-
-      // 5. Rendu des connexions si activé
-      if (showDepartConnections) {
-        const visibleConnections = getVisibleConnections(bounds);
-        rendererRef.current.renderConnections(visibleConnections);
-      }
-
-      // 6. Mise à jour des statistiques
-      setStats({
-        visible: limitedActifs.length,
-        total: filteredActifs.length,
-        clusters: clusters.length,
-      });
-    } finally {
-      setIsRendering(false);
-    }
-  }, [map, filteredActifs, selectedActifs, showDepartConnections, isRendering]);
-
-  // ==================== GESTION DES ÉVÉNEMENTS ====================
-  useEffect(() => {
-    const handleMapEvent = () => {
-      setCurrentZoom(map.getZoom());
-      // Debounce pour éviter trop de rendus
-      const timeoutId = setTimeout(renderFrame, 50);
-      return () => clearTimeout(timeoutId);
-    };
-
-    map.on("moveend", handleMapEvent);
-    map.on("zoomend", handleMapEvent);
-    map.on("resize", () => {
-      if (rendererRef.current) {
-        rendererRef.current = new CanvasRenderer(canvasRef.current!, map);
-      }
-      renderFrame();
-    });
-
-    // Rendu initial
-    renderFrame();
-
-    return () => {
-      map.off("moveend", handleMapEvent);
-      map.off("zoomend", handleMapEvent);
-    };
-  }, [map, renderFrame]);
-
-  // ==================== GESTION DES CLICS ====================
-  useEffect(() => {
-    if (!canvasRef.current) return;
-
-    const handleClick = (e: MouseEvent) => {
-      const rect = canvasRef.current!.getBoundingClientRect();
-      const x = e.clientX - rect.left;
-      const y = e.clientY - rect.top;
-
-      const latlng = map.containerPointToLatLng([x, y]);
-      const clickedActif = findNearestActif(latlng, 20); // 20px de tolérance
-
-      if (clickedActif) {
-        const isSelected = selectedActifs.some((a) => a.id === clickedActif.id);
-        if (isSelected) {
-          removeSelectedActif(clickedActif.id);
-        } else {
-          addSelectedActif(clickedActif);
-        }
-      }
-    };
-
-    canvasRef.current.addEventListener("click", handleClick);
-
-    return () => {
-      canvasRef.current?.removeEventListener("click", handleClick);
-    };
-  }, [map, selectedActifs, addSelectedActif, removeSelectedActif]);
-
-  return (
-    <>
-      <canvas
-        ref={canvasRef}
-        style={{
-          position: "absolute",
-          top: 0,
-          left: 0,
-          pointerEvents: "auto",
-          cursor: "pointer",
-          zIndex: 50,
-        }}
-      />
-
-      {/* Interface de contrôle */}
-      <div className="absolute top-4 right-4 bg-black/80 text-white p-3 rounded-lg text-xs font-mono z-500">
-        <div>Zoom: {currentZoom.toFixed(1)}</div>
-        <div>Visibles: {stats.visible.toLocaleString()}</div>
-        <div>Total: {stats.total.toLocaleString()}</div>
-        <div>Clusters: {stats.clusters}</div>
-        <div
-          className={`mt-1 ${
-            isRendering ? "text-yellow-400" : "text-green-400"
-          }`}
-        >
-          {isRendering ? "🔄 Rendu..." : "✅ Prêt"}
-        </div>
-      </div>
-    </>
-  );
-};
-
-// ==================== FONCTIONS UTILITAIRES ====================
-function getMaxActifsForZoom(zoom: number): number {
-  if (zoom >= 18) return 2000; // Zoom maximum
-  if (zoom >= 15) return 1000; // Zoom élevé
-  if (zoom >= 12) return 500; // Zoom moyen
-  if (zoom >= 9) return 200; // Zoom faible
-  return 50; // Zoom très faible
-}
-
-function prioritizeActifs(actifs: Actif[], maxCount: number): Actif[] {
-  if (actifs.length <= maxCount) return actifs;
-
-  // Prioriser par importance (postes > transformateurs > autres)
-  const priority = {
-    POSTE_DISTRIBUTION: 1,
-    TRANSFORMATEUR: 2,
-    OCR: 3,
-    LIGNE_AERIENNE: 4,
-    LIGNE_SOUTERRAINE: 5,
-    SUPPORT: 6,
+import React, { useEffect, useRef, useState } from 'react';
+import L from 'leaflet';
+import 'leaflet/dist/leaflet.css';
+import { mtData, posteData, supportsData, type GeoJSONFeature, type LineProperties, type PostProperties, type SupportProperties } from '@/data/sup';
+
+
+
+const MapView: React.FC = () => {
+  const mapRef = useRef<L.Map | null>(null);
+  const mapContainerRef = useRef<HTMLDivElement>(null);
+  const [selectedLayer, setSelectedLayer] = useState<string>('all');
+  const [selectedFeature, setSelectedFeature] = useState<any>(null);
+  
+
+
+  // Fonction pour convertir les coordonnées UTM en LatLng
+  const convertUTMToLatLng = (x: number, y: number): [number, number] => {
+    // Approximation pour la zone UTM 32N (Cameroun)
+    // Pour une conversion précise, utilisez une bibliothèque comme proj4
+    const lat = (y - 500000) / 111320;
+    const lng = (x - 500000) / (111320 * Math.cos(lat * Math.PI / 180));
+    return [3.8667 + lat * 0.00001, 11.5167 + lng * 0.00001];
   };
 
-  return actifs
-    .sort((a, b) => {
-      const priorityA = priority[a.type as keyof typeof priority] || 10;
-      const priorityB = priority[b.type as keyof typeof priority] || 10;
-      return priorityA - priorityB;
-    })
-    .slice(0, maxCount);
-}
+  // Styles pour les différents types d'éléments
+  const getLineStyle = (feature: GeoJSONFeature<LineProperties>) => {
+    const type = feature.properties.TYPE;
+    return {
+      color: type === 'Aerien' ? '#ff6b6b' : '#4ecdc4',
+      weight: 3,
+      opacity: 0.8,
+      dashArray: type === 'Souterrain' ? '5, 5' : undefined
+    };
+  };
 
-function findNearestActif(
-  latlng: L.LatLng,
-  tolerancePixels: number
-): Actif | null {
-  // Implémentation simplifiée - dans la vraie version, utiliser l'index spatial
-  // pour une recherche rapide des actifs proches
-  return null;
-}
+  const getPostIcon = (feature: GeoJSONFeature<PostProperties>) => {
+    const typePost = feature.properties.Type_Post;
+    const color = typePost === 'H59' ? '#ff9f43' : '#0fbcf9';
+    
+    return L.divIcon({
+      html: `<div style="background-color: ${color}; width: 12px; height: 12px; border-radius: 50%; border: 2px solid white; box-shadow: 0 0 4px rgba(0,0,0,0.3);"></div>`,
+      className: 'custom-post-icon',
+      iconSize: [12, 12],
+      iconAnchor: [6, 6]
+    });
+  };
 
-function getVisibleConnections(bounds: L.LatLngBounds) {
-  // Retourner seulement les connexions visibles dans la zone
-  return [];
-}
+  const getSupportIcon = (feature: GeoJSONFeature<SupportProperties>) => {
+    const nature = feature.properties.Nature;
+    const color = nature === 'Bois' ? '#8b4513' : nature === 'Metallique' ? '#708090' : '#696969';
+    
+    return L.divIcon({
+      html: `<div style="background-color: ${color}; width: 8px; height: 8px; border-radius: 2px; border: 1px solid white; box-shadow: 0 0 2px rgba(0,0,0,0.3);"></div>`,
+      className: 'custom-support-icon',
+      iconSize: [8, 8],
+      iconAnchor: [4, 4]
+    });
+  };
 
-// ==================== COMPOSANT PRINCIPAL ====================
-const MapView: React.FC = () => {
+  // Fonction pour créer le popup
+  const createPopup = (feature: GeoJSONFeature, type: string) => {
+    let content = `<div style="max-width: 300px; font-family: Arial, sans-serif;">`;
+    content += `<h3 style="margin: 0 0 10px 0; color: #333; font-size: 14px;">${type}</h3>`;
+    
+    Object.entries(feature.properties).forEach(([key, value]) => {
+      if (value !== null && value !== undefined && value !== '') {
+        content += `<p style="margin: 2px 0; font-size: 12px;"><strong>${key}:</strong> ${value}</p>`;
+      }
+    });
+    
+    content += `</div>`;
+    return content;
+  };
+
+  // Initialisation de la carte
+  useEffect(() => {
+    if (!mapContainerRef.current || mapRef.current) return;
+
+    // Initialiser la carte
+    mapRef.current = L.map(mapContainerRef.current, {
+      center: [3.8667, 11.5167], // Centre approximatif du Cameroun
+      zoom: 12,
+      zoomControl: true
+    });
+
+    // Ajouter la couche de base
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '© OpenStreetMap contributors',
+      maxZoom: 18
+    }).addTo(mapRef.current);
+
+    // Groupe de couches
+    const mtLayer = L.layerGroup();
+    const posteLayer = L.layerGroup();
+    const supportsLayer = L.layerGroup();
+
+    // Ajouter les lignes MT
+    mtData.features.forEach(feature => {
+      console.log(feature.geometry.type);
+      if (feature.geometry.type === 'LineString') {
+        const coords = feature.geometry.coordinates
+          .map(coord =>
+            Array.isArray(coord) && coord.length >= 2
+              ? convertUTMToLatLng(coord[0], coord[1]) as [number, number]
+              : null
+          )
+          .filter((c): c is [number, number] => Array.isArray(c) && c.length === 2);
+
+        if (coords.length >= 2) {
+          const line = L.polyline(coords, getLineStyle(feature))
+            .bindPopup(createPopup(feature, 'Ligne MT'))
+            .on('click', () => setSelectedFeature(feature));
+          mtLayer.addLayer(line);
+        }
+      }
+    });
+
+    // Ajouter les postes
+    posteData.features.forEach(feature => {
+
+      console.log(feature.geometry.type);
+      if (feature.geometry.type === 'Point') {
+        const coordsArray = feature.geometry.coordinates as number[];
+        const coords = convertUTMToLatLng(
+          coordsArray[0], 
+          coordsArray[1]
+        );
+        
+        const marker = L.marker(coords, { icon: getPostIcon(feature) })
+          .bindPopup(createPopup(feature, 'Poste'))
+          .on('click', () => setSelectedFeature(feature));
+        
+        posteLayer.addLayer(marker);
+      }
+    });
+
+    // Ajouter les supports
+    supportsData.features.forEach(feature => {
+      console.log(feature.geometry.coordinates);
+      if (feature.geometry.type === 'Point') {
+        const coordsArray = feature.geometry.coordinates as number[];
+        const coords = convertUTMToLatLng(
+          coordsArray[0],
+          coordsArray[1]
+        );
+
+        const marker = L.marker(coords, { icon: getSupportIcon(feature) })
+          .bindPopup(createPopup(feature, 'Support'))
+          .on('click', () => setSelectedFeature(feature));
+
+        supportsLayer.addLayer(marker);
+      }
+    });
+
+    // Ajouter toutes les couches par défaut
+    mtLayer.addTo(mapRef.current);
+    posteLayer.addTo(mapRef.current);
+    supportsLayer.addTo(mapRef.current);
+
+    // Contrôle des couches
+    const overlayMaps = {
+      "Lignes MT": mtLayer,
+      "Postes": posteLayer,
+      "Supports": supportsLayer
+    };
+
+    L.control.layers(undefined, overlayMaps).addTo(mapRef.current);
+
+    // Ajuster la vue pour montrer tous les éléments
+    const allFeatures = [...mtData.features, ...posteData.features, ...supportsData.features];
+    if (allFeatures.length > 0) {
+      const bounds = L.latLngBounds([]);
+      allFeatures.forEach(feature => {
+        if (feature.geometry.type === 'Point') {
+          const coordsArray = feature.geometry.coordinates as number[];
+          const coords = convertUTMToLatLng(
+            coordsArray[0], 
+            coordsArray[1]
+          );
+          bounds.extend(coords);
+        } else if (feature.geometry.type === 'LineString') {
+          feature.geometry.coordinates.forEach(coord => {
+            if (Array.isArray(coord) && coord.length >= 2) {
+              const coords = convertUTMToLatLng(coord[0], coord[1]);
+              bounds.extend(coords);
+            }
+          });
+        }
+      });
+      mapRef.current.fitBounds(bounds, { padding: [10, 10] });
+    }
+
+    return () => {
+      if (mapRef.current) {
+        mapRef.current.remove();
+        mapRef.current = null;
+      }
+    };
+  }, []);
+
   return (
-    <div className="flex-1 z-1 relative">
-      <MapContainer
-        center={[7.3697, 12.3547]}
-        zoom={7}
-        className="w-full h-full z-1"
-        zoomControl={false}
-        preferCanvas={true}
-      >
-        <TileLayer
-          attribution="&copy; OpenStreetMap contributors"
-          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-          updateWhenZooming={false}
-          updateWhenIdle={true}
-          zIndex={5}
-        />
-
-        <HighVolumeMapRenderer />
-      </MapContainer>
-
-      {/* Instructions pour 10K+ éléments */}
-      <div className="absolute bottom-4 left-4 bg-white/95 p-4 rounded-lg shadow-xl max-w-sm z-10">
-        <h4 className="font-bold text-sm mb-2 text-red-600">
-          Mode Haute Volume (10K+)
-        </h4>
-        <div className="text-xs space-y-1 text-gray-700">
-          <div>
-            • <strong>Canvas rendering</strong> ultra-rapide
-          </div>
-          <div>
-            • <strong>Clustering intelligent</strong> par zoom
-          </div>
-          <div>
-            • <strong>Index spatial</strong> pour recherche O(log n)
-          </div>
-          <div>
-            • <strong>Limitation adaptative</strong> par niveau
-          </div>
-          <div>
-            • <strong>Priorisation</strong> par importance
+    <div style={{ width: '100%', height: '100vh', position: 'relative' }}>
+      {/* Panneau de contrôle */}
+      <div style={{
+        position: 'absolute',
+        top: '10px',
+        right: '10px',
+        zIndex: 1000,
+        backgroundColor: 'white',
+        padding: '10px',
+        borderRadius: '8px',
+        boxShadow: '0 2px 10px rgba(0,0,0,0.1)',
+        minWidth: '200px'
+      }}>
+        <h3 style={{ margin: '0 0 10px 0', fontSize: '14px', color: '#333' }}>
+          Réseau Électrique
+        </h3>
+        
+        <div style={{ marginBottom: '10px' }}>
+          <label style={{ fontSize: '12px', fontWeight: 'bold', display: 'block', marginBottom: '5px' }}>
+            Couches:
+          </label>
+          <div style={{ fontSize: '11px', color: '#666' }}>
+            <div style={{ display: 'flex', alignItems: 'center', marginBottom: '3px' }}>
+              <div style={{ width: '12px', height: '3px', backgroundColor: '#ff6b6b', marginRight: '5px' }}></div>
+              Lignes aériennes
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center', marginBottom: '3px' }}>
+              <div style={{ width: '12px', height: '3px', backgroundColor: '#4ecdc4', marginRight: '5px', borderTop: '1px dashed #4ecdc4' }}></div>
+              Lignes souterraines
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center', marginBottom: '3px' }}>
+              <div style={{ width: '8px', height: '8px', backgroundColor: '#ff9f43', borderRadius: '50%', marginRight: '5px' }}></div>
+              Postes H59
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center', marginBottom: '3px' }}>
+              <div style={{ width: '8px', height: '8px', backgroundColor: '#0fbcf9', borderRadius: '50%', marginRight: '5px' }}></div>
+              Postes H61
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center', marginBottom: '3px' }}>
+              <div style={{ width: '6px', height: '6px', backgroundColor: '#8b4513', borderRadius: '1px', marginRight: '5px' }}></div>
+              Supports bois
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center' }}>
+              <div style={{ width: '6px', height: '6px', backgroundColor: '#708090', borderRadius: '1px', marginRight: '5px' }}></div>
+              Supports métalliques
+            </div>
           </div>
         </div>
 
-        <div className="mt-3 text-xs bg-blue-50 p-2 rounded">
-          <strong>Performance:</strong> Capable de gérer 50K+ éléments avec
-          fluidité 60 FPS
+        <div style={{ fontSize: '10px', color: '#999', marginTop: '10px' }}>
+          Total: {mtData.features.length + posteData.features.length + supportsData.features.length} éléments
         </div>
       </div>
+
+      {/* Panneau d'informations sur l'élément sélectionné */}
+      {selectedFeature && (
+        <div style={{
+          position: 'absolute',
+          bottom: '10px',
+          left: '10px',
+          zIndex: 1000,
+          backgroundColor: 'white',
+          padding: '10px',
+          borderRadius: '8px',
+          boxShadow: '0 2px 10px rgba(0,0,0,0.1)',
+          maxWidth: '300px',
+          maxHeight: '200px',
+          overflow: 'auto'
+        }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
+            <h4 style={{ margin: 0, fontSize: '12px', color: '#333' }}>Élément sélectionné</h4>
+            <button
+              onClick={() => setSelectedFeature(null)}
+              style={{
+                background: 'none',
+                border: 'none',
+                fontSize: '16px',
+                cursor: 'pointer',
+                color: '#999'
+              }}
+            >
+              ×
+            </button>
+          </div>
+          <div style={{ fontSize: '11px' }}>
+            {Object.entries(selectedFeature.properties).map(([key, value]) => (
+              value !== null && value !== undefined && value !== '' && (
+                <div key={key} style={{ marginBottom: '2px' }}>
+                  <strong>{key}:</strong> {String(value)}
+                </div>
+              )
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Conteneur de la carte */}
+      <div ref={mapContainerRef} style={{ width: '100%', height: '100%' }} />
     </div>
   );
 };
