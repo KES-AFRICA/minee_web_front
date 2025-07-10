@@ -13,9 +13,11 @@ import {
   Activity,
   Globe,
   CheckCircle,
+  Navigation2,
+  Navigation,
 } from "lucide-react";
 import { useMapStore } from "@/store/mapStore.ts";
-import { types } from "@/types";
+import { natureDeBien, TypeDeBien, types } from "@/types";
 
 const Header: React.FC = () => {
   const {
@@ -41,11 +43,17 @@ const Header: React.FC = () => {
   const [showDepartDropdown, setShowDepartDropdown] = useState(false);
   const [showRegionDropdown, setShowRegionDropdown] = useState(false);
   const [showEtatDropdown, setShowEtatDropdown] = useState(false);
+  const [showTypeBienDropdown, setShowTypeBienDropdown] = useState(false);
+  const [showNatureBienDropdown, setShowNatureBienDropdown] = useState(false);
+
 
   const exportMenuRef = useRef<HTMLDivElement>(null);
   const departDropdownRef = useRef<HTMLDivElement>(null);
   const regionDropdownRef = useRef<HTMLDivElement>(null);
   const etatDropdownRef = useRef<HTMLDivElement>(null);
+  const typeBienDropdownRef = useRef<HTMLDivElement>(null);
+  const natureBienDropdownRef = useRef<HTMLDivElement>(null);
+
 
   // Close dropdowns when clicking outside
   useEffect(() => {
@@ -67,6 +75,18 @@ const Header: React.FC = () => {
         !regionDropdownRef.current.contains(event.target as Node)
       ) {
         setShowRegionDropdown(false);
+      }
+      if (
+        typeBienDropdownRef.current &&
+        !typeBienDropdownRef.current.contains(event.target as Node)
+      ) {
+        setShowTypeBienDropdown(false);
+      }
+      if (
+        natureBienDropdownRef.current &&
+        !natureBienDropdownRef.current.contains(event.target as Node)
+      ) {
+        setShowNatureBienDropdown(false);
       }
       if (
         etatDropdownRef.current &&
@@ -99,6 +119,8 @@ const Header: React.FC = () => {
       types: [],
       regions: [],
       etatVisuel: [],
+      typeDeBien: [],
+      natureDuBien: [],
       etatFonctionnement: [],
       anneeMiseEnService: { min: 2000, max: 2024 },
     });
@@ -221,6 +243,148 @@ const Header: React.FC = () => {
                           {region}
                         </span>
                         {filters.regions.includes(region) && (
+                          <CheckCircle className="w-4 h-4 text-blue-600 ml-auto" />
+                        )}
+                      </label>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* type de bien Filter Dropdown */}
+            <div className="relative" ref={natureBienDropdownRef}>
+              <button
+                onClick={() =>
+                  setShowNatureBienDropdown(!showNatureBienDropdown)
+                }
+                className={`flex items-center space-x-2 px-4 py-2.5 rounded-lg border transition-all ${
+                  filters.natureDuBien.length > 0
+                    ? "bg-blue-50 border-blue-200 text-blue-700"
+                    : "bg-white border-gray-300 text-gray-700 hover:bg-gray-50"
+                }`}
+              >
+                <Navigation2 className="w-4 h-4" />
+                <span className="text-sm font-medium">
+                  {filters.natureDuBien.length > 0
+                    ? `${filters.natureDuBien.length} type de bien${
+                        filters.natureDuBien.length > 1 ? "s" : ""
+                      }`
+                    : "Toutes les nature de bien"}
+                </span>
+                <ChevronDown
+                  className={`w-3 h-3 transition-transform ${
+                    showNatureBienDropdown ? "rotate-180" : ""
+                  }`}
+                />
+              </button>
+
+              {showNatureBienDropdown && (
+                <div className="absolute left-0 top-full mt-2 w-64 bg-white rounded-lg shadow-xl border border-gray-200 z-50">
+                  <div className="px-4 py-3 border-b border-gray-100">
+                    <div className="flex items-center justify-between">
+                      <h3 className="font-medium text-gray-900">
+                        Filtrer par Nature de Bien
+                      </h3>
+                      {filters.natureDuBien.length > 0 && (
+                        <button
+                          onClick={() => {
+                            handleFilterChange("natureDuBien", []);
+                            setShowTypeBienDropdown(false);
+                          }}
+                          className="text-xs text-gray-500 hover:text-gray-700"
+                        >
+                          Effacer
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                  <div className="py-2">
+                    {natureDeBien.map((tb) => (
+                      <label
+                        key={tb}
+                        className="flex items-center px-4 py-2 hover:bg-gray-50 cursor-pointer transition-colors"
+                      >
+                        <input
+                          type="checkbox"
+                          checked={filters.natureDuBien.includes(tb)}
+                          onChange={() =>
+                            handleMultiSelectFilter("natureDuBien", tb)
+                          }
+                          className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                        />
+                        <span className="ml-3 text-sm text-gray-700">{tb}</span>
+                        {filters.natureDuBien.includes(tb) && (
+                          <CheckCircle className="w-4 h-4 text-blue-600 ml-auto" />
+                        )}
+                      </label>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* type de bien Filter Dropdown */}
+            <div className="relative" ref={typeBienDropdownRef}>
+              <button
+                onClick={() => setShowTypeBienDropdown(!showTypeBienDropdown)}
+                className={`flex items-center space-x-2 px-4 py-2.5 rounded-lg border transition-all ${
+                  filters.typeDeBien.length > 0
+                    ? "bg-blue-50 border-blue-200 text-blue-700"
+                    : "bg-white border-gray-300 text-gray-700 hover:bg-gray-50"
+                }`}
+              >
+                <Navigation className="w-4 h-4" />
+                <span className="text-sm font-medium">
+                  {filters.typeDeBien.length > 0
+                    ? `${filters.typeDeBien.length} type de bien${
+                        filters.typeDeBien.length > 1 ? "s" : ""
+                      }`
+                    : "Tous les type de bien"}
+                </span>
+                <ChevronDown
+                  className={`w-3 h-3 transition-transform ${
+                    showTypeBienDropdown ? "rotate-180" : ""
+                  }`}
+                />
+              </button>
+
+              {showTypeBienDropdown && (
+                <div className="absolute left-0 top-full mt-2 w-64 bg-white rounded-lg shadow-xl border border-gray-200 z-50">
+                  <div className="px-4 py-3 border-b border-gray-100">
+                    <div className="flex items-center justify-between">
+                      <h3 className="font-medium text-gray-900">
+                        Filtrer par Type de Bien
+                      </h3>
+                      {filters.typeDeBien.length > 0 && (
+                        <button
+                          onClick={() => {
+                            handleFilterChange("typeDeBien", []);
+                            setShowTypeBienDropdown(false);
+                          }}
+                          className="text-xs text-gray-500 hover:text-gray-700"
+                        >
+                          Effacer
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                  <div className="py-2">
+                    {TypeDeBien.map((tb) => (
+                      <label
+                        key={tb}
+                        className="flex items-center px-4 py-2 hover:bg-gray-50 cursor-pointer transition-colors"
+                      >
+                        <input
+                          type="checkbox"
+                          checked={filters.typeDeBien.includes(tb)}
+                          onChange={() =>
+                            handleMultiSelectFilter("typeDeBien", tb)
+                          }
+                          className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                        />
+                        <span className="ml-3 text-sm text-gray-700">{tb}</span>
+                        {filters.typeDeBien.includes(tb) && (
                           <CheckCircle className="w-4 h-4 text-blue-600 ml-auto" />
                         )}
                       </label>
