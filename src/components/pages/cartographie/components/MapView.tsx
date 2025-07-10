@@ -1,302 +1,378 @@
-import React, { useEffect, useRef, useState } from 'react';
-import L from 'leaflet';
-import 'leaflet/dist/leaflet.css';
-import { mtData, posteData, supportsData, type GeoJSONFeature, type LineProperties, type PostProperties, type SupportProperties } from '@/data/sup';
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* AFFICHAGE AMÉLIORÉ DES ACTIFS AVEC ICÔNES PERSONNALISÉES */
+import React, { useEffect, useRef, useCallback } from "react";
+import { MapContainer, TileLayer, useMap } from "react-leaflet";
+import L from "leaflet";
+import { useMapStore } from "@/store/mapStore.ts";
+import type { Actif } from "@/types";
 
+// ==================== CONSTANTES ====================
+const DEPART_COLORS = [
+  "#e74c3c", "#3498db", "#f39c12", "#9b59b6", "#27ae60",
+  "#e67e22", "#34495e", "#16a085", "#c0392b", "#8e44ad",
+  "#2ecc71", "#f1c40f", "#e91e63", "#9c27b0", "#673ab7",
+  "#3f51b5", "#2196f3", "#00bcd4", "#009688", "#4caf50"
+];
 
+// Types d'actifs avec leurs icônes et couleurs
+const ACTIF_TYPES = [
+  {
+    value: "LIGNE_AERIENNE",
+    label: "Ligne Aérienne",
+    icon: "⚡",
+    color: "blue",
+  },
+  {
+    value: "LIGNE_SOUTERRAINE",
+    label: "Ligne Souterraine",
+    icon: "🔌",
+    color: "purple",
+  },
+  {
+    value: "TRANSFORMATEUR",
+    label: "Transformateur",
+    icon: "⚙️",
+    color: "red",
+  },
+  {
+    value: "POSTE_DISTRIBUTION",
+    label: "Poste Distribution",
+    icon: "🏢",
+    color: "green",
+  },
+  {
+    value: "SUPPORT",
+    label: "Support",
+    icon: "📡",
+    color: "orange",
+  },
+  {
+    value: "OCR",
+    label: "OCR",
+    icon: "🔄",
+    color: "darkred",
+  },
+  {
+    value: "TABLEAU_BT",
+    label: "Tableau BT",
+    icon: "📋",
+    color: "indigo",
+  },
+  {
+    value: "CELLULE_DISTRIBUTION_SECONDAIRE",
+    label: "Cellule Distribution Secondaire",
+    icon: "🔗",
+    color: "teal",
+  },
+  {
+    value: "CELLULE_DISTRIBUTION_PRIMAIRE",
+    label: "Cellule Distribution Primaire",
+    icon: "🔗",
+    color: "cyan",
+  },
+  {
+    value: "POINT_LIVRAISON",
+    label: "Point Livraison",
+    icon: "📍",
+    color: "pink",
+  },
+  {
+    value: "EQUIPEMENT_STOCK",
+    label: "Équipement Stock",
+    icon: "📦",
+    color: "amber",
+  },
+];
 
-const MapView: React.FC = () => {
-  const mapRef = useRef<L.Map | null>(null);
-  const mapContainerRef = useRef<HTMLDivElement>(null);
-  const [selectedLayer, setSelectedLayer] = useState<string>('all');
-  const [selectedFeature, setSelectedFeature] = useState<any>(null);
+// ==================== UTILITAIRES ====================
+const createActifIcon = (actif: Actif, color: string): L.DivIcon => {
+  // Trouver le type d'actif correspondant
+  const actifType = ACTIF_TYPES.find(type => type.value === actif.type) || ACTIF_TYPES[0];
   
+  return L.divIcon({
+    html: `
+      <div style="
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        width: 24px;
+        height: 24px;
+        background-color: ${color};
+        border: 2px solid white;
+        border-radius: 50%;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        transform: translate(-50%, -50%);
+        font-size: 12px;
+        color: white;
+        position: relative;
+      ">
+        <span style="
+          position: absolute;
+          top: 50%;
+          left: 50%;
+          transform: translate(-50%, -50%);
+        ">${actifType.icon}</span>
+      </div>
+    `,
+    className: 'actif-marker',
+    iconSize: [24, 24],
+    iconAnchor: [12, 12],
+  });
+};
 
+// ==================== COMPOSANT GESTIONNAIRE ====================
+const ActifsManager: React.FC = () => {
+  const map = useMap();
+  const { 
+    filteredActifs, 
+    departs,
+    setSelectedActifs,
+  } = useMapStore();
 
-  // Fonction pour convertir les coordonnées UTM en LatLng
-  const convertUTMToLatLng = (x: number, y: number): [number, number] => {
-    // Approximation pour la zone UTM 32N (Cameroun)
-    // Pour une conversion précise, utilisez une bibliothèque comme proj4
-    const lat = (y - 500000) / 111320;
-    const lng = (x - 500000) / (111320 * Math.cos(lat * Math.PI / 180));
-    return [3.8667 + lat * 0.00001, 11.5167 + lng * 0.00001];
-  };
+  const markersRef = useRef<L.LayerGroup>(new L.LayerGroup());
+  const linesRef = useRef<L.LayerGroup>(new L.LayerGroup());
 
-  // Styles pour les différents types d'éléments
-  const getLineStyle = (feature: GeoJSONFeature<LineProperties>) => {
-    const type = feature.properties.TYPE;
-    return {
-      color: type === 'Aerien' ? '#ff6b6b' : '#4ecdc4',
-      weight: 3,
-      opacity: 0.8,
-      dashArray: type === 'Souterrain' ? '5, 5' : undefined
-    };
-  };
+  // Créer un mapping départ -> couleur
+  const departColorMap = useRef<Map<string, string>>(new Map());
 
-  const getPostIcon = (feature: GeoJSONFeature<PostProperties>) => {
-    const typePost = feature.properties.Type_Post;
-    const color = typePost === 'H59' ? '#ff9f43' : '#0fbcf9';
-    
-    return L.divIcon({
-      html: `<div style="background-color: ${color}; width: 12px; height: 12px; border-radius: 50%; border: 2px solid white; box-shadow: 0 0 4px rgba(0,0,0,0.3);"></div>`,
-      className: 'custom-post-icon',
-      iconSize: [12, 12],
-      iconAnchor: [6, 6]
-    });
-  };
-
-  const getSupportIcon = (feature: GeoJSONFeature<SupportProperties>) => {
-    const nature = feature.properties.Nature;
-    const color = nature === 'Bois' ? '#8b4513' : nature === 'Metallique' ? '#708090' : '#696969';
-    
-    return L.divIcon({
-      html: `<div style="background-color: ${color}; width: 8px; height: 8px; border-radius: 2px; border: 1px solid white; box-shadow: 0 0 2px rgba(0,0,0,0.3);"></div>`,
-      className: 'custom-support-icon',
-      iconSize: [8, 8],
-      iconAnchor: [4, 4]
-    });
-  };
-
-  // Fonction pour créer le popup
-  const createPopup = (feature: GeoJSONFeature, type: string) => {
-    let content = `<div style="max-width: 300px; font-family: Arial, sans-serif;">`;
-    content += `<h3 style="margin: 0 0 10px 0; color: #333; font-size: 14px;">${type}</h3>`;
-    
-    Object.entries(feature.properties).forEach(([key, value]) => {
-      if (value !== null && value !== undefined && value !== '') {
-        content += `<p style="margin: 2px 0; font-size: 12px;"><strong>${key}:</strong> ${value}</p>`;
-      }
-    });
-    
-    content += `</div>`;
-    return content;
-  };
-
-  // Initialisation de la carte
+  // Initialiser les couleurs des départs
   useEffect(() => {
-    if (!mapContainerRef.current || mapRef.current) return;
-
-    // Initialiser la carte
-    mapRef.current = L.map(mapContainerRef.current, {
-      center: [3.8667, 11.5167], // Centre approximatif du Cameroun
-      zoom: 12,
-      zoomControl: true
+    departs.forEach((depart, index) => {
+      if (!departColorMap.current.has(depart.id)) {
+        departColorMap.current.set(depart.id, DEPART_COLORS[index % DEPART_COLORS.length]);
+      }
     });
+  }, [departs]);
 
-    // Ajouter la couche de base
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      attribution: '© OpenStreetMap contributors',
-      maxZoom: 18
-    }).addTo(mapRef.current);
+  // Fonction pour trouver le départ d'un actif
+  const findActifDepart = useCallback((actif: Actif) => {
+    return departs.find(depart => {
+      // Vérifier si l'actif est directement dans la liste des actifs du départ
+      if (depart.actifs.includes(actif.id)) {
+        return true;
+      }
+      
+      // Vérifier si l'actif est dans les zones géographiques du départ
+      const isInZone = depart.zonesGeographiques.quartiers.includes(actif.quartier) &&
+                      depart.zonesGeographiques.communes.includes(actif.commune);
+      
+      return isInZone;
+    });
+  }, [departs]);
 
-    // Groupe de couches
-    const mtLayer = L.layerGroup();
-    const posteLayer = L.layerGroup();
-    const supportsLayer = L.layerGroup();
-
-    // Ajouter les lignes MT
-    mtData.features.forEach(feature => {
-      console.log(feature.geometry.type);
-      if (feature.geometry.type === 'LineString') {
-        const coords = feature.geometry.coordinates
-          .map(coord =>
-            Array.isArray(coord) && coord.length >= 2
-              ? convertUTMToLatLng(coord[0], coord[1]) as [number, number]
-              : null
-          )
-          .filter((c): c is [number, number] => Array.isArray(c) && c.length === 2);
-
-        if (coords.length >= 2) {
-          const line = L.polyline(coords, getLineStyle(feature))
-            .bindPopup(createPopup(feature, 'Ligne MT'))
-            .on('click', () => setSelectedFeature(feature));
-          mtLayer.addLayer(line);
+  // Grouper les actifs par départ
+  const groupActifsByDepart = useCallback(() => {
+    const groupedActifs = new Map<string, Actif[]>();
+    
+    filteredActifs.forEach(actif => {
+      const depart = findActifDepart(actif);
+      if (depart) {
+        if (!groupedActifs.has(depart.id)) {
+          groupedActifs.set(depart.id, []);
         }
+        groupedActifs.get(depart.id)!.push(actif);
       }
     });
+    
+    return groupedActifs;
+  }, [filteredActifs, findActifDepart]);
 
-    // Ajouter les postes
-    posteData.features.forEach(feature => {
+  // Rendu des marqueurs et lignes
+  const renderActifsAndLines = useCallback(() => {
+    // Nettoyer les layers existants
+    markersRef.current.clearLayers();
+    linesRef.current.clearLayers();
 
-      console.log(feature.geometry.type);
-      if (feature.geometry.type === 'Point') {
-        const coordsArray = feature.geometry.coordinates as number[];
-        const coords = convertUTMToLatLng(
-          coordsArray[0], 
-          coordsArray[1]
-        );
-        
-        const marker = L.marker(coords, { icon: getPostIcon(feature) })
-          .bindPopup(createPopup(feature, 'Poste'))
-          .on('click', () => setSelectedFeature(feature));
-        
-        posteLayer.addLayer(marker);
-      }
-    });
+    const groupedActifs = groupActifsByDepart();
 
-    // Ajouter les supports
-    supportsData.features.forEach(feature => {
-      console.log(feature.geometry.coordinates);
-      if (feature.geometry.type === 'Point') {
-        const coordsArray = feature.geometry.coordinates as number[];
-        const coords = convertUTMToLatLng(
-          coordsArray[0],
-          coordsArray[1]
+    groupedActifs.forEach((actifs, departId) => {
+      const color = departColorMap.current.get(departId) || DEPART_COLORS[0];
+      const depart = departs.find(d => d.id === departId);
+
+      // Créer les marqueurs pour chaque actif
+      actifs.forEach(actif => {
+        const marker = L.marker(
+          [actif.geolocalisation.latitude, actif.geolocalisation.longitude],
+          {
+            icon: createActifIcon(actif, color),
+          }
         );
 
-        const marker = L.marker(coords, { icon: getSupportIcon(feature) })
-          .bindPopup(createPopup(feature, 'Support'))
-          .on('click', () => setSelectedFeature(feature));
+        // Trouver le type d'actif pour l'affichage
+        const actifType = ACTIF_TYPES.find(type => type.value === actif.type) || 
+                          { label: actif.type, icon: "❓", color: "gray" };
 
-        supportsLayer.addLayer(marker);
-      }
-    });
+        // Popup avec informations de l'actif
+        const popupContent = `
+          <div class="actif-popup">
+            <h3>${actifType.icon} ${actifType.label}</h3>
+            <p><strong>Désignation:</strong> ${actif.designationGenerale}</p>
+            <p><strong>Départ:</strong> ${depart?.id || 'Non assigné'}</p>
+            <p><strong>Région:</strong> ${actif.region}</p>
+            <p><strong>Commune:</strong> ${actif.commune}</p>
+            <p><strong>Quartier:</strong> ${actif.quartier}</p>
+            <p><strong>État:</strong> ${actif.etatVisuel}</p>
+            <p><strong>Année:</strong> ${actif.anneeMiseEnService}</p>
+            <p><strong>Valorisation:</strong> ${actif.valorisation.toLocaleString()} €</p>
+          </div>
+        `;
+        
+        marker.bindPopup(popupContent);
+        
+        // Gestionnaire de clic
+        marker.on('click', (e) => {
+          e.originalEvent.stopPropagation();
+          setSelectedActifs([actif]);
+        });
 
-    // Ajouter toutes les couches par défaut
-    mtLayer.addTo(mapRef.current);
-    posteLayer.addTo(mapRef.current);
-    supportsLayer.addTo(mapRef.current);
+        markersRef.current.addLayer(marker);
+      });
 
-    // Contrôle des couches
-    const overlayMaps = {
-      "Lignes MT": mtLayer,
-      "Postes": posteLayer,
-      "Supports": supportsLayer
-    };
+      // Créer les lignes entre les actifs du même départ
+      if (actifs.length > 1) {
+        // Trier les actifs par distance pour créer un chemin optimisé
+        const sortedActifs = [...actifs];
+        const path: Actif[] = [sortedActifs[0]];
+        sortedActifs.splice(0, 1);
 
-    L.control.layers(undefined, overlayMaps).addTo(mapRef.current);
+        // Algorithme du plus proche voisin pour optimiser le tracé
+        while (sortedActifs.length > 0) {
+          const lastActif = path[path.length - 1];
+          let closestIndex = 0;
+          let minDistance = Infinity;
 
-    // Ajuster la vue pour montrer tous les éléments
-    const allFeatures = [...mtData.features, ...posteData.features, ...supportsData.features];
-    if (allFeatures.length > 0) {
-      const bounds = L.latLngBounds([]);
-      allFeatures.forEach(feature => {
-        if (feature.geometry.type === 'Point') {
-          const coordsArray = feature.geometry.coordinates as number[];
-          const coords = convertUTMToLatLng(
-            coordsArray[0], 
-            coordsArray[1]
-          );
-          bounds.extend(coords);
-        } else if (feature.geometry.type === 'LineString') {
-          feature.geometry.coordinates.forEach(coord => {
-            if (Array.isArray(coord) && coord.length >= 2) {
-              const coords = convertUTMToLatLng(coord[0], coord[1]);
-              bounds.extend(coords);
+          sortedActifs.forEach((actif, index) => {
+            const distance = Math.sqrt(
+              Math.pow(actif.geolocalisation.latitude - lastActif.geolocalisation.latitude, 2) +
+              Math.pow(actif.geolocalisation.longitude - lastActif.geolocalisation.longitude, 2)
+            );
+
+            if (distance < minDistance) {
+              minDistance = distance;
+              closestIndex = index;
             }
           });
-        }
-      });
-      mapRef.current.fitBounds(bounds, { padding: [10, 10] });
-    }
 
+          path.push(sortedActifs[closestIndex]);
+          sortedActifs.splice(closestIndex, 1);
+        }
+
+        // Créer les lignes entre les actifs consécutifs
+        for (let i = 0; i < path.length - 1; i++) {
+          const currentActif = path[i];
+          const nextActif = path[i + 1];
+
+          // Récupérer les types d'actifs pour l'affichage
+          const currentType = ACTIF_TYPES.find(type => type.value === currentActif.type) || 
+                             { label: currentActif.type, icon: "❓" };
+          const nextType = ACTIF_TYPES.find(type => type.value === nextActif.type) || 
+                          { label: nextActif.type, icon: "❓" };
+
+          const polyline = L.polyline(
+            [
+              [currentActif.geolocalisation.latitude, currentActif.geolocalisation.longitude],
+              [nextActif.geolocalisation.latitude, nextActif.geolocalisation.longitude],
+            ],
+            {
+              color: color,
+              weight: 3,
+              opacity: 0.8,
+              dashArray: '10, 10', // Ligne pointillée pour mieux distinguer
+            }
+          );
+
+          // Popup pour la ligne
+          polyline.bindPopup(`
+            <div class="line-popup">
+              <h3>Connexion Départ</h3>
+              <p><strong>Départ:</strong> ${depart?.id || 'Non assigné'}</p>
+              <p><strong>De:</strong> ${currentType.icon} ${currentActif.designationGenerale}</p>
+              <p><strong>Vers:</strong> ${nextType.icon} ${nextActif.designationGenerale}</p>
+            </div>
+          `);
+
+          linesRef.current.addLayer(polyline);
+        }
+      }
+    });
+
+    // Ajouter les layers à la carte
+    if (!map.hasLayer(linesRef.current)) {
+      map.addLayer(linesRef.current);
+    }
+    if (!map.hasLayer(markersRef.current)) {
+      map.addLayer(markersRef.current);
+    }
+  }, [groupActifsByDepart, departs, map, setSelectedActifs]);
+
+  // Effet pour re-rendre quand les données changent
+  useEffect(() => {
+    renderActifsAndLines();
+  }, [renderActifsAndLines]);
+
+  // Nettoyage
+  useEffect(() => {
     return () => {
-      if (mapRef.current) {
-        mapRef.current.remove();
-        mapRef.current = null;
+      if (map.hasLayer(markersRef.current)) {
+        map.removeLayer(markersRef.current);
+      }
+      if (map.hasLayer(linesRef.current)) {
+        map.removeLayer(linesRef.current);
       }
     };
-  }, []);
+  }, [map]);
+
+  return null;
+};
+
+// ==================== LÉGENDE DE LA CARTE ====================
+const MapLegend: React.FC = () => {
+  return (
+    <div className="absolute bottom-5 right-5 bg-white p-3 rounded-lg shadow-lg z-10 max-h-60 overflow-y-auto">
+      <h3 className="font-bold mb-2 text-sm">Types d'Actifs</h3>
+      <div className="grid grid-cols-1 gap-1">
+        {ACTIF_TYPES.map((type) => (
+          <div key={type.value} className="flex items-center text-xs">
+            <span className="mr-2">{type.icon}</span>
+            <span style={{ color: type.color }}>{type.label}</span>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+};
+
+// ==================== COMPOSANT PRINCIPAL ====================
+const MapView: React.FC = () => {
+  const { setMapBounds } = useMapStore();
+
+  const handleMapReady = useCallback((mapInstance: L.Map) => {
+    // Configuration initiale de la carte
+    mapInstance.on('moveend', () => {
+      setMapBounds(mapInstance.getBounds());
+    });
+  }, [setMapBounds]);
 
   return (
-    <div style={{ width: '100%', height: '100vh', position: 'relative' }}>
-      {/* Panneau de contrôle */}
-      <div style={{
-        position: 'absolute',
-        top: '10px',
-        right: '10px',
-        zIndex: 1000,
-        backgroundColor: 'white',
-        padding: '10px',
-        borderRadius: '8px',
-        boxShadow: '0 2px 10px rgba(0,0,0,0.1)',
-        minWidth: '200px'
-      }}>
-        <h3 style={{ margin: '0 0 10px 0', fontSize: '14px', color: '#333' }}>
-          Réseau Électrique
-        </h3>
-        
-        <div style={{ marginBottom: '10px' }}>
-          <label style={{ fontSize: '12px', fontWeight: 'bold', display: 'block', marginBottom: '5px' }}>
-            Couches:
-          </label>
-          <div style={{ fontSize: '11px', color: '#666' }}>
-            <div style={{ display: 'flex', alignItems: 'center', marginBottom: '3px' }}>
-              <div style={{ width: '12px', height: '3px', backgroundColor: '#ff6b6b', marginRight: '5px' }}></div>
-              Lignes aériennes
-            </div>
-            <div style={{ display: 'flex', alignItems: 'center', marginBottom: '3px' }}>
-              <div style={{ width: '12px', height: '3px', backgroundColor: '#4ecdc4', marginRight: '5px', borderTop: '1px dashed #4ecdc4' }}></div>
-              Lignes souterraines
-            </div>
-            <div style={{ display: 'flex', alignItems: 'center', marginBottom: '3px' }}>
-              <div style={{ width: '8px', height: '8px', backgroundColor: '#ff9f43', borderRadius: '50%', marginRight: '5px' }}></div>
-              Postes H59
-            </div>
-            <div style={{ display: 'flex', alignItems: 'center', marginBottom: '3px' }}>
-              <div style={{ width: '8px', height: '8px', backgroundColor: '#0fbcf9', borderRadius: '50%', marginRight: '5px' }}></div>
-              Postes H61
-            </div>
-            <div style={{ display: 'flex', alignItems: 'center', marginBottom: '3px' }}>
-              <div style={{ width: '6px', height: '6px', backgroundColor: '#8b4513', borderRadius: '1px', marginRight: '5px' }}></div>
-              Supports bois
-            </div>
-            <div style={{ display: 'flex', alignItems: 'center' }}>
-              <div style={{ width: '6px', height: '6px', backgroundColor: '#708090', borderRadius: '1px', marginRight: '5px' }}></div>
-              Supports métalliques
-            </div>
-          </div>
-        </div>
-
-        <div style={{ fontSize: '10px', color: '#999', marginTop: '10px' }}>
-          Total: {mtData.features.length + posteData.features.length + supportsData.features.length} éléments
-        </div>
-      </div>
-
-      {/* Panneau d'informations sur l'élément sélectionné */}
-      {selectedFeature && (
-        <div style={{
-          position: 'absolute',
-          bottom: '10px',
-          left: '10px',
-          zIndex: 1000,
-          backgroundColor: 'white',
-          padding: '10px',
-          borderRadius: '8px',
-          boxShadow: '0 2px 10px rgba(0,0,0,0.1)',
-          maxWidth: '300px',
-          maxHeight: '200px',
-          overflow: 'auto'
-        }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
-            <h4 style={{ margin: 0, fontSize: '12px', color: '#333' }}>Élément sélectionné</h4>
-            <button
-              onClick={() => setSelectedFeature(null)}
-              style={{
-                background: 'none',
-                border: 'none',
-                fontSize: '16px',
-                cursor: 'pointer',
-                color: '#999'
-              }}
-            >
-              ×
-            </button>
-          </div>
-          <div style={{ fontSize: '11px' }}>
-            {Object.entries(selectedFeature.properties).map(([key, value]) => (
-              value !== null && value !== undefined && value !== '' && (
-                <div key={key} style={{ marginBottom: '2px' }}>
-                  <strong>{key}:</strong> {String(value)}
-                </div>
-              )
-            ))}
-          </div>
-        </div>
-      )}
-
-      {/* Conteneur de la carte */}
-      <div ref={mapContainerRef} style={{ width: '100%', height: '100%' }} />
+    <div className="flex-1 z-1 relative">
+      <MapContainer
+        center={[7.3697, 12.3547]}
+        zoom={7}
+        className="w-full h-full z-1"
+        zoomControl={false}
+        preferCanvas={true}
+        //whenCreated={handleMapReady} // Remplace whenReady qui est déprécié
+      >
+        <TileLayer
+          attribution="&copy; OpenStreetMap contributors"
+          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+          updateWhenZooming={false}
+          updateWhenIdle={true}
+          zIndex={5}
+        />
+        <ActifsManager />
+      </MapContainer>
+      <MapLegend />
     </div>
   );
 };
