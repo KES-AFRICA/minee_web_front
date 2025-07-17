@@ -323,7 +323,7 @@ const Sidebar: React.FC = () => {
               </div>
           ) : (
               <div className="divide-y divide-gray-200">
-                {/* eslint-disable-next-line @typescript-eslint/no-unused-vars */}
+                { }
                 {selectedActifs.map((actif) => (
                     <div key={actif.id} className="p-4 hover:bg-gray-50 transition-colors">
                       <div className="flex items-start justify-between mb-3">

@@ -8,8 +8,14 @@ function Maps() {
         <div className="min-h-[90vh] bg-gray-50 flex flex-col p-0">
             <Header />
             <div className="flex-1 flex relative">
-                <MapView />
-                <Sidebar />
+                <div >
+                    <Sidebar />
+                </div>
+
+                <div>
+                    <MapView />
+                </div>
+
             </div>
         </div>
     );

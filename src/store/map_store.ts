@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { devtools } from 'zustand/middleware';
-import type { GeoJSONFeature } from '@/data/sup';
+import { mtData, posteData, supportsData, type GeoJSONFeature } from '@/data/sup';
 
 // Types pour le store
 export interface ConversionStats {
@@ -525,7 +525,7 @@ export const useMapStore = create<MapState & MapActions>()(
     }),
     {
       name: 'map-store',
-      partialize: (state) => ({
+      partialize: (state: { layerVisibility: any; selectedLayer: any; showLayerPanel: any; showInfoPanel: any; showStatsPanel: any; showFilterPanel: any; showSelectionPanel: any; showExportPanel: any; filters: any; selection: any; }) => ({
         layerVisibility: state.layerVisibility,
         selectedLayer: state.selectedLayer,
         showLayerPanel: state.showLayerPanel,

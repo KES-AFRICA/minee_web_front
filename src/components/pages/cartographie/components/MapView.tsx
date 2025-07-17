@@ -1,546 +1,24 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef } from 'react';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
-import { mtData, posteData, supportsData, type GeoJSONFeature } from '@/data/sup';
-import { convertCoordinates, getLineStyle, getPostIcon, getSupportIcon } from './utils';
+import { mtData, posteData, supportsData } from '@/data/sup';
+import { convertCoordinates } from './utils';
 import { 
   useMapStore, 
   useLayerActions, 
   useSelectionActions, 
-  useFilterActions,
-  useExportActions,
   useLayerVisibility,
   useSelection,
   useConversionStats,
-  useFilters,
-  useFilteredFeatures,
-  useHasActiveFilters,
-  useSelectedCount,
-  useFilteredCount,
-  type ExportOptions
 } from '@/store/map_store';
+import { addMTLines, addPostesToLayer, addSupportsToLayer } from './utilLayer';
+import { FilterPanel } from './FilterPanel';
+import { SelectionPanel } from './SelectionPanel';
+import { ExportPanel } from './ExportPanel';
 
-// Composant pour le panneau de filtres
-const FilterPanel: React.FC = () => {
-  const filters = useFilters();
-  const { setFilter, clearFilters, clearFilter, applyFilters } = useFilterActions();
-  const { toggleFilterPanel } = useMapStore();
-  const hasActiveFilters = useHasActiveFilters();
-  const filteredCount = useFilteredCount();
 
-  const handleApplyFilters = () => {
-    applyFilters({
-      mt: mtData.features,
-      postes: posteData.features,
-      supports: supportsData.features,
-    });
-  };
 
-  return (
-    <div style={{
-      position: 'absolute',
-      top: '10px',
-      left: '10px',
-      zIndex: 1000,
-      backgroundColor: 'white',
-      padding: '15px',
-      borderRadius: '8px',
-      boxShadow: '0 2px 10px rgba(0,0,0,0.1)',
-      minWidth: '300px',
-      maxHeight: '500px',
-      overflow: 'auto'
-    }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '15px' }}>
-        <h3 style={{ margin: 0, fontSize: '16px', color: '#333' }}>Filtres</h3>
-        <button onClick={toggleFilterPanel} style={{ background: 'none', border: 'none', fontSize: '16px', cursor: 'pointer' }}>
-          ×
-        </button>
-      </div>
 
-      {/* Recherche générale */}
-      <div style={{ marginBottom: '15px' }}>
-        <label style={{ display: 'block', fontSize: '12px', fontWeight: 'bold', marginBottom: '5px' }}>
-          Recherche générale
-        </label>
-        <input
-          type="text"
-          value={filters.searchTerm}
-          onChange={(e) => setFilter('searchTerm', e.target.value)}
-          placeholder="Rechercher..."
-          style={{
-            width: '100%',
-            padding: '6px',
-            border: '1px solid #ddd',
-            borderRadius: '4px',
-            fontSize: '12px'
-          }}
-        />
-      </div>
-
-      {/* Filtres pour les supports */}
-      <div style={{ marginBottom: '15px' }}>
-        <h4 style={{ margin: '0 0 10px 0', fontSize: '14px', color: '#555' }}>Supports</h4>
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
-          <div>
-            <label style={{ display: 'block', fontSize: '11px', marginBottom: '3px' }}>Type</label>
-            <select
-              value={filters.supportType || ''}
-              onChange={(e) => setFilter('supportType', e.target.value || null)}
-              style={{ width: '100%', padding: '4px', fontSize: '11px' }}
-            >
-              <option value="">Tous</option>
-              <option value="bois">Bois</option>
-              <option value="metallique">Métallique</option>
-              <option value="beton">Béton</option>
-            </select>
-          </div>
-          <div>
-            <label style={{ display: 'block', fontSize: '11px', marginBottom: '3px' }}>Statut</label>
-            <select
-              value={filters.supportStatus || ''}
-              onChange={(e) => setFilter('supportStatus', e.target.value || null)}
-              style={{ width: '100%', padding: '4px', fontSize: '11px' }}
-            >
-              <option value="">Tous</option>
-              <option value="bon">Bon</option>
-              <option value="moyen">Moyen</option>
-              <option value="mauvais">Mauvais</option>
-            </select>
-          </div>
-        </div>
-      </div>
-
-      {/* Filtres pour les postes */}
-      <div style={{ marginBottom: '15px' }}>
-        <h4 style={{ margin: '0 0 10px 0', fontSize: '14px', color: '#555' }}>Postes</h4>
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
-          <div>
-            <label style={{ display: 'block', fontSize: '11px', marginBottom: '3px' }}>Type</label>
-            <select
-              value={filters.postType || ''}
-              onChange={(e) => setFilter('postType', e.target.value || null)}
-              style={{ width: '100%', padding: '4px', fontSize: '11px' }}
-            >
-              <option value="">Tous</option>
-              <option value="H59">H59</option>
-              <option value="H61">H61</option>
-              <option value="H63">H63</option>
-            </select>
-          </div>
-          <div>
-            <label style={{ display: 'block', fontSize: '11px', marginBottom: '3px' }}>Tension</label>
-            <select
-              value={filters.postVoltage || ''}
-              onChange={(e) => setFilter('postVoltage', e.target.value || null)}
-              style={{ width: '100%', padding: '4px', fontSize: '11px' }}
-            >
-              <option value="">Toutes</option>
-              <option value="5.5kV">5.5kV</option>
-              <option value="15kV">15kV</option>
-              <option value="30kV">30kV</option>
-            </select>
-          </div>
-        </div>
-      </div>
-
-      {/* Filtres pour les lignes */}
-      <div style={{ marginBottom: '15px' }}>
-        <h4 style={{ margin: '0 0 10px 0', fontSize: '14px', color: '#555' }}>Lignes MT</h4>
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
-          <div>
-            <label style={{ display: 'block', fontSize: '11px', marginBottom: '3px' }}>Type</label>
-            <select
-              value={filters.lineType || ''}
-              onChange={(e) => setFilter('lineType', e.target.value || null)}
-              style={{ width: '100%', padding: '4px', fontSize: '11px' }}
-            >
-              <option value="">Tous</option>
-              <option value="aerienne">Aérienne</option>
-              <option value="souterraine">Souterraine</option>
-            </select>
-          </div>
-          <div>
-            <label style={{ display: 'block', fontSize: '11px', marginBottom: '3px' }}>Statut</label>
-            <select
-              value={filters.lineStatus || ''}
-              onChange={(e) => setFilter('lineStatus', e.target.value || null)}
-              style={{ width: '100%', padding: '4px', fontSize: '11px' }}
-            >
-              <option value="">Tous</option>
-              <option value="actif">Actif</option>
-              <option value="inactif">Inactif</option>
-              <option value="maintenance">Maintenance</option>
-            </select>
-          </div>
-        </div>
-      </div>
-
-      {/* Boutons d'action */}
-      <div style={{ display: 'flex', gap: '10px', marginTop: '15px' }}>
-        <button
-          onClick={handleApplyFilters}
-          style={{
-            flex: 1,
-            padding: '8px',
-            backgroundColor: '#007bff',
-            color: 'white',
-            border: 'none',
-            borderRadius: '4px',
-            cursor: 'pointer',
-            fontSize: '12px'
-          }}
-        >
-          Appliquer ({filteredCount})
-        </button>
-        <button
-          onClick={clearFilters}
-          style={{
-            flex: 1,
-            padding: '8px',
-            backgroundColor: '#6c757d',
-            color: 'white',
-            border: 'none',
-            borderRadius: '4px',
-            cursor: 'pointer',
-            fontSize: '12px'
-          }}
-        >
-          Effacer
-        </button>
-      </div>
-
-      {hasActiveFilters && (
-        <div style={{ marginTop: '10px', fontSize: '11px', color: '#28a745' }}>
-          ✓ Filtres actifs - {filteredCount} résultats
-        </div>
-      )}
-    </div>
-  );
-};
-
-// Composant pour le panneau de sélection
-const SelectionPanel: React.FC = () => {
-  const selection = useSelection();
-  const { clearSelection, setSelectionMode, selectAll } = useSelectionActions();
-  const { toggleSelectionPanel } = useMapStore();
-  const selectedCount = useSelectedCount();
-
-  return (
-    <div style={{
-      position: 'absolute',
-      bottom: '10px',
-      right: '10px',
-      zIndex: 1000,
-      backgroundColor: 'white',
-      padding: '15px',
-      borderRadius: '8px',
-      boxShadow: '0 2px 10px rgba(0,0,0,0.1)',
-      minWidth: '300px',
-      maxHeight: '400px',
-      overflow: 'auto'
-    }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '15px' }}>
-        <h3 style={{ margin: 0, fontSize: '16px', color: '#333' }}>
-          Sélection ({selectedCount})
-        </h3>
-        <button onClick={toggleSelectionPanel} style={{ background: 'none', border: 'none', fontSize: '16px', cursor: 'pointer' }}>
-          ×
-        </button>
-      </div>
-
-      {/* Mode de sélection */}
-      <div style={{ marginBottom: '15px' }}>
-        <label style={{ display: 'block', fontSize: '12px', fontWeight: 'bold', marginBottom: '5px' }}>
-          Mode de sélection
-        </label>
-        <div style={{ display: 'flex', gap: '10px' }}>
-          <label style={{ display: 'flex', alignItems: 'center', fontSize: '11px', cursor: 'pointer' }}>
-            <input
-              type="radio"
-              name="selectionMode"
-              checked={selection.selectionMode === 'single'}
-              onChange={() => setSelectionMode('single')}
-              style={{ marginRight: '5px' }}
-            />
-            Simple
-          </label>
-          <label style={{ display: 'flex', alignItems: 'center', fontSize: '11px', cursor: 'pointer' }}>
-            <input
-              type="radio"
-              name="selectionMode"
-              checked={selection.selectionMode === 'multiple'}
-              onChange={() => setSelectionMode('multiple')}
-              style={{ marginRight: '5px' }}
-            />
-            Multiple
-          </label>
-        </div>
-      </div>
-
-      {/* Actions de sélection */}
-      <div style={{ marginBottom: '15px' }}>
-        <label style={{ display: 'block', fontSize: '12px', fontWeight: 'bold', marginBottom: '5px' }}>
-          Actions
-        </label>
-        <div style={{ display: 'flex', gap: '5px', flexWrap: 'wrap' }}>
-          <button
-            onClick={() => selectAll()}
-            style={{
-              padding: '4px 8px',
-              fontSize: '10px',
-              border: '1px solid #ddd',
-              borderRadius: '3px',
-              cursor: 'pointer',
-              backgroundColor: '#f8f9fa'
-            }}
-          >
-            Tout sélectionner
-          </button>
-          <button
-            onClick={() => selectAll('mt')}
-            style={{
-              padding: '4px 8px',
-              fontSize: '10px',
-              border: '1px solid #ddd',
-              borderRadius: '3px',
-              cursor: 'pointer',
-              backgroundColor: '#f8f9fa'
-            }}
-          >
-            Lignes MT
-          </button>
-          <button
-            onClick={() => selectAll('postes')}
-            style={{
-              padding: '4px 8px',
-              fontSize: '10px',
-              border: '1px solid #ddd',
-              borderRadius: '3px',
-              cursor: 'pointer',
-              backgroundColor: '#f8f9fa'
-            }}
-          >
-            Postes
-          </button>
-          <button
-            onClick={() => selectAll('supports')}
-            style={{
-              padding: '4px 8px',
-              fontSize: '10px',
-              border: '1px solid #ddd',
-              borderRadius: '3px',
-              cursor: 'pointer',
-              backgroundColor: '#f8f9fa'
-            }}
-          >
-            Supports
-          </button>
-          <button
-            onClick={clearSelection}
-            style={{
-              padding: '4px 8px',
-              fontSize: '10px',
-              border: '1px solid #dc3545',
-              borderRadius: '3px',
-              cursor: 'pointer',
-              backgroundColor: '#f8f9fa',
-              color: '#dc3545'
-            }}
-          >
-            Effacer
-          </button>
-        </div>
-      </div>
-
-      {/* Liste des éléments sélectionnés */}
-      {selection.selectedFeatures.length > 0 && (
-        <div style={{ marginTop: '15px' }}>
-          <label style={{ display: 'block', fontSize: '12px', fontWeight: 'bold', marginBottom: '5px' }}>
-            Éléments sélectionnés
-          </label>
-          <div style={{ maxHeight: '150px', overflow: 'auto' }}>
-            {selection.selectedFeatures.map((feature, index) => (
-              <div key={index} style={{
-                padding: '5px',
-                border: '1px solid #eee',
-                borderRadius: '3px',
-                marginBottom: '3px',
-                fontSize: '10px'
-              }}>
-                <strong>{feature.properties.name || feature.properties.id || `Item ${index + 1}`}</strong>
-                <br />
-                <span style={{ color: '#666' }}>
-                  {feature.geometry.type} - {Object.keys(feature.properties).length} propriétés
-                </span>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
-    </div>
-  );
-};
-
-// Composant pour le panneau d'exportation
-const ExportPanel: React.FC = () => {
-  const { toggleExportPanel } = useMapStore();
-  const { exportSelection, exportFilteredData, exportAll } = useExportActions();
-  const selectedCount = useSelectedCount();
-  const filteredCount = useFilteredCount();
-  const [exportOptions, setExportOptions] = useState<ExportOptions>({
-    format: 'json',
-    includeGeometry: true,
-    selectedOnly: false,
-    layerTypes: ['mt', 'postes', 'supports']
-  });
-
-  const handleExport = (type: 'selection' | 'filtered' | 'all') => {
-    switch (type) {
-      case 'selection':
-        exportSelection(exportOptions);
-        break;
-      case 'filtered':
-        exportFilteredData(exportOptions);
-        break;
-      case 'all':
-        exportAll(exportOptions);
-        break;
-    }
-  };
-
-  return (
-    <div style={{
-      position: 'absolute',
-      top: '50%',
-      left: '50%',
-      transform: 'translate(-50%, -50%)',
-      zIndex: 1000,
-      backgroundColor: 'white',
-      padding: '20px',
-      borderRadius: '8px',
-      boxShadow: '0 4px 20px rgba(0,0,0,0.15)',
-      minWidth: '400px'
-    }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
-        <h3 style={{ margin: 0, fontSize: '18px', color: '#333' }}>Exportation</h3>
-        <button onClick={toggleExportPanel} style={{ background: 'none', border: 'none', fontSize: '18px', cursor: 'pointer' }}>
-          ×
-        </button>
-      </div>
-
-      {/* Options d'exportation */}
-      <div style={{ marginBottom: '20px' }}>
-        <label style={{ display: 'block', fontSize: '12px', fontWeight: 'bold', marginBottom: '10px' }}>
-          Format d'exportation
-        </label>
-        <div style={{ display: 'flex', gap: '10px' }}>
-          {(['json', 'csv', 'kml', 'excel'] as const).map(format => (
-            <label key={format} style={{ display: 'flex', alignItems: 'center', fontSize: '11px', cursor: 'pointer' }}>
-              <input
-                type="radio"
-                name="format"
-                value={format}
-                checked={exportOptions.format === format}
-                onChange={(e) => setExportOptions({...exportOptions, format: e.target.value as any})}
-                style={{ marginRight: '5px' }}
-              />
-              {format.toUpperCase()}
-            </label>
-          ))}
-        </div>
-      </div>
-
-      {/* Couches à exporter */}
-      <div style={{ marginBottom: '20px' }}>
-        <label style={{ display: 'block', fontSize: '12px', fontWeight: 'bold', marginBottom: '10px' }}>
-          Couches à exporter
-        </label>
-        <div style={{ display: 'flex', gap: '10px' }}>
-          {(['mt', 'postes', 'supports'] as const).map(layer => (
-            <label key={layer} style={{ display: 'flex', alignItems: 'center', fontSize: '11px', cursor: 'pointer' }}>
-              <input
-                type="checkbox"
-                checked={exportOptions.layerTypes.includes(layer)}
-                onChange={(e) => {
-                  const newLayerTypes = e.target.checked
-                    ? [...exportOptions.layerTypes, layer]
-                    : exportOptions.layerTypes.filter(l => l !== layer);
-                  setExportOptions({...exportOptions, layerTypes: newLayerTypes});
-                }}
-                style={{ marginRight: '5px' }}
-              />
-              {layer === 'mt' ? 'Lignes MT' : layer === 'postes' ? 'Postes' : 'Supports'}
-            </label>
-          ))}
-        </div>
-      </div>
-
-      {/* Options supplémentaires */}
-      <div style={{ marginBottom: '20px' }}>
-        <label style={{ display: 'flex', alignItems: 'center', fontSize: '11px', cursor: 'pointer', marginBottom: '5px' }}>
-          <input
-            type="checkbox"
-            checked={exportOptions.includeGeometry}
-            onChange={(e) => setExportOptions({...exportOptions, includeGeometry: e.target.checked})}
-            style={{ marginRight: '5px' }}
-          />
-          Inclure la géométrie
-        </label>
-      </div>
-
-      {/* Boutons d'exportation */}
-      <div style={{ display: 'flex', gap: '10px' }}>
-        <button
-          onClick={() => handleExport('selection')}
-          disabled={selectedCount === 0}
-          style={{
-            flex: 1,
-            padding: '10px',
-            backgroundColor: selectedCount > 0 ? '#28a745' : '#6c757d',
-            color: 'white',
-            border: 'none',
-            borderRadius: '4px',
-            cursor: selectedCount > 0 ? 'pointer' : 'not-allowed',
-            fontSize: '12px'
-          }}
-        >
-          Sélection ({selectedCount})
-        </button>
-        <button
-          onClick={() => handleExport('filtered')}
-          disabled={filteredCount === 0}
-          style={{
-            flex: 1,
-            padding: '10px',
-            backgroundColor: filteredCount > 0 ? '#007bff' : '#6c757d',
-            color: 'white',
-            border: 'none',
-            borderRadius: '4px',
-            cursor: filteredCount > 0 ? 'pointer' : 'not-allowed',
-            fontSize: '12px'
-          }}
-        >
-          Filtrés ({filteredCount})
-        </button>
-        <button
-          onClick={() => handleExport('all')}
-          style={{
-            flex: 1,
-            padding: '10px',
-            backgroundColor: '#ffc107',
-            color: 'black',
-            border: 'none',
-            borderRadius: '4px',
-            cursor: 'pointer',
-            fontSize: '12px'
-          }}
-        >
-          Tout
-        </button>
-      </div>
-    </div>
-  );
-};
 
 const MapView: React.FC = () => {
   const mapContainerRef = useRef<HTMLDivElement>(null);
@@ -555,7 +33,6 @@ const MapView: React.FC = () => {
     mapInstance, 
     isMapInitialized, 
     showLayerPanel, 
-    showInfoPanel, 
     showStatsPanel,
     showFilterPanel,
     showSelectionPanel,
@@ -576,20 +53,6 @@ const MapView: React.FC = () => {
   const { toggleLayer, showAllLayers, hideAllLayers } = useLayerActions();
   const { addToSelection } = useSelectionActions();
 
-  // Fonction pour créer le popup
-  const createPopup = (feature: GeoJSONFeature, type: string) => {
-    let content = `<div style="max-width: 300px; font-family: Arial, sans-serif;">`;
-    content += `<h3 style="margin: 0 0 10px 0; color: #333; font-size: 14px;">${type}</h3>`;
-    
-    Object.entries(feature.properties).forEach(([key, value]) => {
-      if (value !== null && value !== undefined && value !== '') {
-        content += `<p style="margin: 2px 0; font-size: 12px;"><strong>${key}:</strong> ${value}</p>`;
-      }
-    });
-    
-    content += `</div>`;
-    return content;
-  };
 
   // Fonction pour créer les couches de données
   const createDataLayers = () => {
@@ -607,84 +70,21 @@ const MapView: React.FC = () => {
       invalidCoordinates: 0
     };
 
-    const mtLayer = L.layerGroup();
+    
     const posteLayer = L.layerGroup();
     const supportsLayer = L.layerGroup();
+    const mtLayer = L.layerGroup();
+
+    
 
     // Ajouter les lignes MT
-    mtData.features.forEach(feature => {
-      stats.totalFeatures++;
-      
-      if (feature.geometry.type === 'LineString') {
-        const coords = feature.geometry.coordinates
-          .map(coord => {
-            if (Array.isArray(coord) && coord.length >= 2) {
-              const converted = convertCoordinates(coord[0], coord[1]);
-              if (converted) {
-                stats.validCoordinates++;
-                return converted;
-              } else {
-                stats.invalidCoordinates++;
-                return null;
-              }
-            }
-            stats.invalidCoordinates++;
-            return null;
-          })
-          .filter((c): c is [number, number] => c !== null);
-
-        if (coords.length >= 2) {
-          const line = L.polyline(coords, getLineStyle(feature))
-            .bindPopup(createPopup(feature, 'Ligne MT'))
-            .on('click', () => addToSelection(feature));
-          mtLayer.addLayer(line);
-        }
-      }
-    });
-
+    addMTLines(mtData, mtLayer, stats, addToSelection);
+ 
     // Ajouter les postes
-    posteData.features.forEach(feature => {
-      stats.totalFeatures++;
-      
-      if (feature.geometry.type === 'Point') {
-        const coordsArray = feature.geometry.coordinates as number[];
-        const coords = convertCoordinates(coordsArray[0], coordsArray[1]);
-        
-        if (coords) {
-          stats.validCoordinates++;
-          const marker = L.marker(coords, { icon: getPostIcon(feature) })
-            .bindPopup(createPopup(feature, 'Poste'))
-            .on('click', () => addToSelection(feature));
-          
-          posteLayer.addLayer(marker);
-        } else {
-          stats.invalidCoordinates++;
-          console.warn(`Impossible de convertir les coordonnées du poste: ${feature.properties.NOM}`, coordsArray);
-        }
-      }
-    });
+    addPostesToLayer(posteData, posteLayer, stats, addToSelection);
 
     // Ajouter les supports
-    supportsData.features.forEach(feature => {
-      stats.totalFeatures++;
-      
-      if (feature.geometry.type === 'Point') {
-        const coordsArray = feature.geometry.coordinates as number[];
-        const coords = convertCoordinates(coordsArray[0], coordsArray[1]);
-
-        if (coords) {
-          stats.validCoordinates++;
-          const marker = L.marker(coords, { icon: getSupportIcon(feature) })
-            .bindPopup(createPopup(feature, 'Support'))
-            .on('click', () => addToSelection(feature));
-
-          supportsLayer.addLayer(marker);
-        } else {
-          stats.invalidCoordinates++;
-          console.warn(`Impossible de convertir les coordonnées du support: ${feature.properties.ID_Support}`, coordsArray);
-        }
-      }
-    });
+    addSupportsToLayer(supportsData, supportsLayer, stats, addToSelection);
 
     layerGroupsRef.current = {
       mt: mtLayer,
@@ -721,7 +121,6 @@ const MapView: React.FC = () => {
     }
 
     fitMapToBounds();
-    console.log('Statistiques de conversion:', stats);
   };
 
   // Fonction pour ajuster la vue de la carte
@@ -856,7 +255,7 @@ const MapView: React.FC = () => {
   }, [layerVisibility, mapInstance]);
 
   return (
-    <div style={{ width: '100%', height: '100vh', position: 'relative' }}>
+    <div style={{ width: '100%', height: '100vh', position: 'relative', zIndex: 10 }}>
       {/* Panneau de filtres */}
       {showFilterPanel && <FilterPanel />}
 
@@ -1150,50 +549,7 @@ const MapView: React.FC = () => {
         </button>
       </div>
 
-      {/* Panneau d'informations sur l'élément sélectionné */}
-      {selection.selectedFeatures.length > 0 && showInfoPanel && (
-        <div style={{
-          position: 'absolute',
-          top: '10px',
-          left: '320px',
-          zIndex: 1000,
-          backgroundColor: 'white',
-          padding: '10px',
-          borderRadius: '8px',
-          boxShadow: '0 2px 10px rgba(0,0,0,0.1)',
-          maxWidth: '300px',
-          maxHeight: '200px',
-          overflow: 'auto'
-        }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
-            <h4 style={{ margin: 0, fontSize: '12px', color: '#333' }}>
-              Dernier élément sélectionné
-            </h4>
-            <button
-              onClick={() => {/* Implémenter la fermeture si nécessaire */}}
-              style={{
-                background: 'none',
-                border: 'none',
-                fontSize: '16px',
-                cursor: 'pointer',
-                color: '#999'
-              }}
-            >
-              ×
-            </button>
-          </div>
-          <div style={{ fontSize: '11px' }}>
-            {selection.selectedFeatures.length > 0 && Object.entries(selection.selectedFeatures[selection.selectedFeatures.length - 1].properties).map(([key, value]) => (
-              value !== null && value !== undefined && value !== '' && (
-                <div key={key} style={{ marginBottom: '2px' }}>
-                  <strong>{key}:</strong> {String(value)}
-                </div>
-              )
-            ))}
-          </div>
-        </div>
-      )}
-
+      
       {/* Conteneur de la carte */}
       <div ref={mapContainerRef} style={{ width: '100%', height: '100%' }} />
     </div>

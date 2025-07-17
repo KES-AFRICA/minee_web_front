@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
+ 
 import { Pagination } from "antd";
 import { Edit2, MapPin, Tag, Trash2 } from "lucide-react";
 import type { Asset } from "./types";

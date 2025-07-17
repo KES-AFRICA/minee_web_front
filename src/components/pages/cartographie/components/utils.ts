@@ -133,3 +133,18 @@ export const convertUTMToLatLngSimple = (x: number, y: number): [number, number]
       iconAnchor: [4, 4]
     });
   };
+
+  // Fonction pour créer le popup
+  export const createPopup = (feature: GeoJSONFeature, type: string) => {
+    let content = `<div style="max-width: 300px; font-family: Arial, sans-serif;">`;
+    content += `<h3 style="margin: 0 0 10px 0; color: #333; font-size: 14px;">${type}</h3>`;
+    
+    Object.entries(feature.properties).forEach(([key, value]) => {
+      if (value !== null && value !== undefined && value !== '') {
+        content += `<p style="margin: 2px 0; font-size: 12px;"><strong>${key}:</strong> ${value}</p>`;
+      }
+    });
+    
+    content += `</div>`;
+    return content;
+  };
