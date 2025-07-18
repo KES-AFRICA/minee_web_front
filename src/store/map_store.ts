@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { create } from 'zustand';
 import { devtools } from 'zustand/middleware';
 import { mtData, posteData, supportsData, type GeoJSONFeature } from '@/data/sup';
@@ -17,19 +18,19 @@ export interface LayerVisibility {
 
 export interface FilterCriteria {
   // Filtres pour les supports
-  supportType: string | null; // 'bois', 'metallique', etc.
+  supportType: string | null;
   supportStatus: string | null;
-  
+
   // Filtres pour les postes
-  postType: string | null; // 'H59', 'H61', etc.
+  postType: string | null;
   postStatus: string | null;
   postVoltage: string | null;
-  
+
   // Filtres pour les lignes MT
-  lineType: string | null; // 'aerienne', 'souterraine'
+  lineType: string | null;
   lineStatus: string | null;
   lineVoltage: string | null;
-  
+
   // Filtres généraux
   searchTerm: string;
   dateRange: {
@@ -41,7 +42,7 @@ export interface FilterCriteria {
 export interface SelectionState {
   selectedFeatures: GeoJSONFeature[];
   selectionMode: 'single' | 'multiple';
-  highlightedFeatures: Set<string>; // IDs des éléments surlignés
+  highlightedFeatures: string[]; // Changé de Set à array pour éviter les problèmes de sérialisation
 }
 
 export interface ExportOptions {
@@ -55,26 +56,27 @@ export interface MapState {
   // État de la carte
   mapInstance: L.Map | null;
   isMapInitialized: boolean;
-  
+  mapType: 'street' | 'satellite' | 'terrain';
+
   // Couches et visibilité
   layerVisibility: LayerVisibility;
   selectedLayer: string;
-  
+
   // Sélection
   selection: SelectionState;
-  
+
   // Statistiques
   conversionStats: ConversionStats;
-  
+
   // Filtres
   filters: FilterCriteria;
-  activeFilters: string[]; // Liste des filtres actifs
+  activeFilters: string[];
   filteredFeatures: {
     mt: GeoJSONFeature[];
     postes: GeoJSONFeature[];
     supports: GeoJSONFeature[];
   };
-  
+
   // UI
   showLayerPanel: boolean;
   showInfoPanel: boolean;
@@ -86,16 +88,18 @@ export interface MapState {
 
 export interface MapActions {
   // Actions pour la carte
-  setMapInstance: (map: L.Map) => void;
+  setMapInstance: (map: L.Map | null) => void;
   setMapInitialized: (initialized: boolean) => void;
-  
+  setMapType: (type: 'street' | 'satellite' | 'terrain') => void;
+  toggleMapType: () => void;
+
   // Actions pour les couches
   toggleLayer: (layerName: keyof LayerVisibility) => void;
   setLayerVisibility: (layerName: keyof LayerVisibility, visible: boolean) => void;
   setSelectedLayer: (layer: string) => void;
   showAllLayers: () => void;
   hideAllLayers: () => void;
-  
+
   // Actions pour la sélection
   addToSelection: (feature: GeoJSONFeature) => void;
   removeFromSelection: (featureId: string) => void;
@@ -105,12 +109,12 @@ export interface MapActions {
   highlightFeature: (featureId: string) => void;
   unhighlightFeature: (featureId: string) => void;
   clearHighlights: () => void;
-  
+
   // Actions pour les statistiques
   updateConversionStats: (stats: ConversionStats) => void;
   incrementValidCoordinates: () => void;
   incrementInvalidCoordinates: () => void;
-  
+
   // Actions pour les filtres
   setFilter: (filterKey: keyof FilterCriteria, value: any) => void;
   clearFilters: () => void;
@@ -118,12 +122,12 @@ export interface MapActions {
   applyFilters: (features: { mt: GeoJSONFeature[]; postes: GeoJSONFeature[]; supports: GeoJSONFeature[] }) => void;
   addActiveFilter: (filterName: string) => void;
   removeActiveFilter: (filterName: string) => void;
-  
+
   // Actions pour l'exportation
   exportSelection: (options: ExportOptions) => void;
   exportFilteredData: (options: ExportOptions) => void;
   exportAll: (options: ExportOptions) => void;
-  
+
   // Actions pour l'UI
   toggleLayerPanel: () => void;
   toggleInfoPanel: () => void;
@@ -137,7 +141,7 @@ export interface MapActions {
   setShowFilterPanel: (show: boolean) => void;
   setShowSelectionPanel: (show: boolean) => void;
   setShowExportPanel: (show: boolean) => void;
-  
+
   // Actions utilitaires
   resetStore: () => void;
   fitMapToBounds: (bounds: L.LatLngBounds) => void;
@@ -147,6 +151,7 @@ export interface MapActions {
 const initialState: MapState = {
   mapInstance: null,
   isMapInitialized: false,
+  mapType: 'street',
   layerVisibility: {
     mt: true,
     postes: true,
@@ -156,7 +161,7 @@ const initialState: MapState = {
   selection: {
     selectedFeatures: [],
     selectionMode: 'single',
-    highlightedFeatures: new Set(),
+    highlightedFeatures: [], // Array au lieu de Set
   },
   conversionStats: {
     totalFeatures: 0,
@@ -201,6 +206,15 @@ export const useMapStore = create<MapState & MapActions>()(
       // Actions pour la carte
       setMapInstance: (map) => set({ mapInstance: map }),
       setMapInitialized: (initialized) => set({ isMapInitialized: initialized }),
+      setMapType: (type) => set({ mapType: type }),
+
+      // Correction: toggleMapType pour 3 types
+      toggleMapType: () => set((state) => {
+        const typeOrder: ('street' | 'satellite' | 'terrain')[] = ['street', 'satellite', 'terrain'];
+        const currentIndex = typeOrder.indexOf(state.mapType);
+        const nextIndex = (currentIndex + 1) % typeOrder.length;
+        return { mapType: typeOrder[nextIndex] };
+      }),
 
       // Actions pour les couches
       toggleLayer: (layerName) =>
@@ -245,9 +259,9 @@ export const useMapStore = create<MapState & MapActions>()(
           const isAlreadySelected = state.selection.selectedFeatures.some(
             (f) => f.properties.id === feature.properties.id
           );
-          
+
           if (isAlreadySelected) return state;
-          
+
           if (state.selection.selectionMode === 'single') {
             return {
               ...state,
@@ -301,7 +315,7 @@ export const useMapStore = create<MapState & MapActions>()(
         set((state) => {
           const { filteredFeatures } = state;
           let featuresToSelect: GeoJSONFeature[] = [];
-          
+
           if (layerType) {
             featuresToSelect = filteredFeatures[layerType];
           } else {
@@ -311,7 +325,7 @@ export const useMapStore = create<MapState & MapActions>()(
               ...filteredFeatures.supports,
             ];
           }
-          
+
           return {
             ...state,
             selection: {
@@ -321,34 +335,36 @@ export const useMapStore = create<MapState & MapActions>()(
           };
         }),
 
+      // Correction: highlightFeature avec array
       highlightFeature: (featureId) =>
-        set((state) => ({
-          ...state,
-          selection: {
-            ...state.selection,
-            highlightedFeatures: new Set([...state.selection.highlightedFeatures, featureId]),
-          },
-        })),
-
-      unhighlightFeature: (featureId) =>
         set((state) => {
-          const newHighlighted = new Set(state.selection.highlightedFeatures);
-          newHighlighted.delete(featureId);
+          if (state.selection.highlightedFeatures.includes(featureId)) {
+            return state;
+          }
           return {
             ...state,
             selection: {
               ...state.selection,
-              highlightedFeatures: newHighlighted,
+              highlightedFeatures: [...state.selection.highlightedFeatures, featureId],
             },
           };
         }),
+
+      unhighlightFeature: (featureId) =>
+        set((state) => ({
+          ...state,
+          selection: {
+            ...state.selection,
+            highlightedFeatures: state.selection.highlightedFeatures.filter(id => id !== featureId),
+          },
+        })),
 
       clearHighlights: () =>
         set((state) => ({
           ...state,
           selection: {
             ...state.selection,
-            highlightedFeatures: new Set(),
+            highlightedFeatures: [],
           },
         })),
 
@@ -395,25 +411,26 @@ export const useMapStore = create<MapState & MapActions>()(
           ...state,
           filters: {
             ...state.filters,
-            [filterKey]: filterKey === 'dateRange' ? { start: null, end: null } : null,
+            [filterKey]: filterKey === 'dateRange' ? { start: null, end: null } :
+              filterKey === 'searchTerm' ? '' : null,
           },
         })),
 
       applyFilters: (features) =>
         set((state) => {
           const { filters } = state;
-          
+
           const filterFeatures = (featureArray: GeoJSONFeature[], type: 'mt' | 'postes' | 'supports') => {
             return featureArray.filter(feature => {
               const props = feature.properties;
-              
+
               // Filtre de recherche général
               if (filters.searchTerm) {
                 const searchTerm = filters.searchTerm.toLowerCase();
                 const searchableText = Object.values(props).join(' ').toLowerCase();
                 if (!searchableText.includes(searchTerm)) return false;
               }
-              
+
               // Filtres spécifiques selon le type
               if (type === 'supports') {
                 if (filters.supportType && props.type !== filters.supportType) return false;
@@ -427,7 +444,7 @@ export const useMapStore = create<MapState & MapActions>()(
                 if (filters.lineStatus && props.status !== filters.lineStatus) return false;
                 if (filters.lineVoltage && props.voltage !== filters.lineVoltage) return false;
               }
-              
+
               // Filtre par date
               if (filters.dateRange.start && props.date) {
                 const featureDate = new Date(props.date);
@@ -437,11 +454,11 @@ export const useMapStore = create<MapState & MapActions>()(
                 const featureDate = new Date(props.date);
                 if (featureDate > filters.dateRange.end) return false;
               }
-              
+
               return true;
             });
           };
-          
+
           return {
             ...state,
             filteredFeatures: {
@@ -453,10 +470,13 @@ export const useMapStore = create<MapState & MapActions>()(
         }),
 
       addActiveFilter: (filterName) =>
-        set((state) => ({
-          ...state,
-          activeFilters: [...state.activeFilters, filterName],
-        })),
+        set((state) => {
+          if (state.activeFilters.includes(filterName)) return state;
+          return {
+            ...state,
+            activeFilters: [...state.activeFilters, filterName],
+          };
+        }),
 
       removeActiveFilter: (filterName) =>
         set((state) => ({
@@ -473,16 +493,15 @@ export const useMapStore = create<MapState & MapActions>()(
       exportFilteredData: (options) => {
         const { filteredFeatures } = get();
         let dataToExport: GeoJSONFeature[] = [];
-        
+
         options.layerTypes.forEach(layerType => {
           dataToExport = [...dataToExport, ...filteredFeatures[layerType]];
         });
-        
+
         exportData(dataToExport, options);
       },
 
       exportAll: (options) => {
-        // Implémenter l'exportation de toutes les données
         const allFeatures = [...mtData.features, ...posteData.features, ...supportsData.features];
         exportData(allFeatures, options);
       },
@@ -525,7 +544,9 @@ export const useMapStore = create<MapState & MapActions>()(
     }),
     {
       name: 'map-store',
-      partialize: (state: { layerVisibility: any; selectedLayer: any; showLayerPanel: any; showInfoPanel: any; showStatsPanel: any; showFilterPanel: any; showSelectionPanel: any; showExportPanel: any; filters: any; selection: any; }) => ({
+      // Simplification du partialize pour éviter les problèmes
+      partialize: (state: { mapType: any; layerVisibility: any; selectedLayer: any; showLayerPanel: any; showInfoPanel: any; showStatsPanel: any; showFilterPanel: any; showSelectionPanel: any; showExportPanel: any; }) => ({
+        mapType: state.mapType,
         layerVisibility: state.layerVisibility,
         selectedLayer: state.selectedLayer,
         showLayerPanel: state.showLayerPanel,
@@ -534,32 +555,27 @@ export const useMapStore = create<MapState & MapActions>()(
         showFilterPanel: state.showFilterPanel,
         showSelectionPanel: state.showSelectionPanel,
         showExportPanel: state.showExportPanel,
-        filters: state.filters,
-        selection: {
-          ...state.selection,
-          highlightedFeatures: new Set(), // Ne pas persister les highlights
-        },
       }),
     }
   )
 );
 
-// Fonction utilitaire pour l'exportation
+// Fonctions d'exportation (inchangées)
 const exportData = (features: GeoJSONFeature[], options: ExportOptions) => {
-  const { format, includeGeometry, selectedOnly } = options;
-  
+  const { format, includeGeometry } = options;
+
   const processedFeatures = features.map(feature => {
     const processed: any = {
       ...feature.properties,
     };
-    
+
     if (includeGeometry) {
       processed.geometry = feature.geometry;
     }
-    
+
     return processed;
   });
-  
+
   switch (format) {
     case 'json':
       downloadJSON(processedFeatures, 'export.json');
@@ -576,8 +592,7 @@ const exportData = (features: GeoJSONFeature[], options: ExportOptions) => {
   }
 };
 
-// Fonctions d'exportation
-const downloadJSON = (data: any[], filename: string) => {
+const downloadJSON = (data: unknown[], filename: string) => {
   const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
@@ -587,15 +602,15 @@ const downloadJSON = (data: any[], filename: string) => {
   URL.revokeObjectURL(url);
 };
 
-const downloadCSV = (data: any[], filename: string) => {
+const downloadCSV = (data: unknown[], filename: string) => {
   if (data.length === 0) return;
-  
-  const headers = Object.keys(data[0]);
+
+  const headers = Object.keys(data[0] as Record<string, unknown>);
   const csvContent = [
     headers.join(','),
-    ...data.map(row => headers.map(header => `"${row[header] || ''}"`).join(','))
+    ...data.map(row => headers.map(header => `"${(row as Record<string, unknown>)[header] || ''}"`).join(','))
   ].join('\n');
-  
+
   const blob = new Blob([csvContent], { type: 'text/csv' });
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
@@ -606,7 +621,6 @@ const downloadCSV = (data: any[], filename: string) => {
 };
 
 const downloadKML = (features: GeoJSONFeature[], filename: string) => {
-  // Implémentation basique du KML
   const kmlContent = `<?xml version="1.0" encoding="UTF-8"?>
 <kml xmlns="http://www.opengis.net/kml/2.2">
   <Document>
@@ -633,14 +647,12 @@ const downloadKML = (features: GeoJSONFeature[], filename: string) => {
   URL.revokeObjectURL(url);
 };
 
-const downloadExcel = (data: any[], filename: string) => {
-  // Implémentation basique Excel (nécessite une bibliothèque comme xlsx)
+const downloadExcel = (data: unknown[], filename: string) => {
   console.log('Export Excel nécessite la bibliothèque xlsx');
-  // Fallback en CSV
   downloadCSV(data, filename.replace('.xlsx', '.csv'));
 };
 
-// Sélecteurs personnalisés pour optimiser les performances
+// Sélecteurs personnalisés optimisés
 export const useLayerVisibility = () => useMapStore((state) => state.layerVisibility);
 export const useSelection = () => useMapStore((state) => state.selection);
 export const useConversionStats = () => useMapStore((state) => state.conversionStats);
@@ -683,85 +695,44 @@ export const useFilteredCount = () =>
     return filteredFeatures.mt.length + filteredFeatures.postes.length + filteredFeatures.supports.length;
   });
 
-// Hook personnalisé pour les actions de couches
-export const useLayerActions = () => {
-  const {
-    toggleLayer,
-    setLayerVisibility,
-    showAllLayers,
-    hideAllLayers,
-    setSelectedLayer,
-  } = useMapStore();
+// Hooks personnalisés optimisés
+export const useLayerActions = () => useMapStore((state) => ({
+  toggleLayer: state.toggleLayer,
+  setLayerVisibility: state.setLayerVisibility,
+  showAllLayers: state.showAllLayers,
+  hideAllLayers: state.hideAllLayers,
+  setSelectedLayer: state.setSelectedLayer,
+}));
 
-  return {
-    toggleLayer,
-    setLayerVisibility,
-    showAllLayers,
-    hideAllLayers,
-    setSelectedLayer,
-  };
-};
+export const useSelectionActions = () => useMapStore((state) => ({
+  addToSelection: state.addToSelection,
+  removeFromSelection: state.removeFromSelection,
+  clearSelection: state.clearSelection,
+  setSelectionMode: state.setSelectionMode,
+  selectAll: state.selectAll,
+  highlightFeature: state.highlightFeature,
+  unhighlightFeature: state.unhighlightFeature,
+  clearHighlights: state.clearHighlights,
+}));
 
-// Hook personnalisé pour les actions de sélection
-export const useSelectionActions = () => {
-  const {
-    addToSelection,
-    removeFromSelection,
-    clearSelection,
-    setSelectionMode,
-    selectAll,
-    highlightFeature,
-    unhighlightFeature,
-    clearHighlights,
-  } = useMapStore();
+export const useFilterActions = () => useMapStore((state) => ({
+  setFilter: state.setFilter,
+  clearFilters: state.clearFilters,
+  clearFilter: state.clearFilter,
+  applyFilters: state.applyFilters,
+  addActiveFilter: state.addActiveFilter,
+  removeActiveFilter: state.removeActiveFilter,
+}));
 
-  return {
-    addToSelection,
-    removeFromSelection,
-    clearSelection,
-    setSelectionMode,
-    selectAll,
-    highlightFeature,
-    unhighlightFeature,
-    clearHighlights,
-  };
-};
+export const useExportActions = () => useMapStore((state) => ({
+  exportSelection: state.exportSelection,
+  exportFilteredData: state.exportFilteredData,
+  exportAll: state.exportAll,
+}));
 
-// Hook personnalisé pour les actions de filtre
-export const useFilterActions = () => {
-  const {
-    setFilter,
-    clearFilters,
-    clearFilter,
-    applyFilters,
-    addActiveFilter,
-    removeActiveFilter,
-  } = useMapStore();
-
-  return {
-    setFilter,
-    clearFilters,
-    clearFilter,
-    applyFilters,
-    addActiveFilter,
-    removeActiveFilter,
-  };
-};
-
-// Hook personnalisé pour les actions d'exportation
-export const useExportActions = () => {
-  const {
-    exportSelection,
-    exportFilteredData,
-    exportAll,
-  } = useMapStore();
-
-  return {
-    exportSelection,
-    exportFilteredData,
-    exportAll,
-  };
-}; () => useMapStore((state) => ({
-  //searchTerm: state.searchTerm,
-  //filterBy: state.filterBy,
+// Hooks pour le type de carte
+export const useMapType = () => useMapStore((state) => state.mapType);
+export const useMapTypeActions = () => useMapStore((state) => ({
+  setMapType: state.setMapType,
+  toggleMapType: state.toggleMapType,
 }));

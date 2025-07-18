@@ -4,7 +4,7 @@ import { useFilterActions, useFilteredCount, useFilters, useHasActiveFilters, us
 // Composant pour le panneau de filtres
 export const FilterPanel: React.FC = () => {
   const filters = useFilters();
-  const { setFilter, clearFilters, clearFilter, applyFilters } = useFilterActions();
+  const { setFilter, clearFilters, applyFilters } = useFilterActions();
   const { toggleFilterPanel } = useMapStore();
   const hasActiveFilters = useHasActiveFilters();
   const filteredCount = useFilteredCount();
