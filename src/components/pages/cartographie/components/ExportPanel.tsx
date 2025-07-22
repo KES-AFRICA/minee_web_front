@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useExportActions, useFilteredCount, useMapStore, useSelectedCount, type ExportOptions } from "@/store/map_store";
 import { useState } from "react";
 
