@@ -1,11 +1,17 @@
-
-
 export interface SelectionArea {
   bounds: [[number, number], [number, number]] | null;
-  shape: 'rectangle' | 'polygon' | 'circle' | null;
+  shape: "rectangle" | "polygon" | "circle" | null;
   coordinates: [number, number][] | null;
-}// Types pour les données d'inventaire des actifs électriques
+} // Types pour les données d'inventaire des actifs électriques
+export type DrawingMode = "pan" | "rectangle" | "circle" | "polygon";
 
+export interface DepartConnection {
+  depart: Depart;
+  actifs: Actif[];
+  connections: [number, number][][];
+  color: string;
+  isVisible: boolean;
+}
 // Types communs
 export interface BaseActif {
   id: string;
@@ -34,32 +40,41 @@ export interface BaseActif {
   dureeDeVieEstimative: number; // En années
   tauxAmortissementAnnuel: number; // En pourcentage (ex: 5 pour 5%)
   /******************************************** */
-  positionMateriel: 'Magasin' | 'Terrain';
-  etatVisuel: 'Bon' | 'Moyen' | 'Passable' | 'Mauvais';
+  positionMateriel: "Magasin" | "Terrain";
+  etatVisuel: "Bon" | "Moyen" | "Passable" | "Mauvais";
   numeroImmo: string;
   nouveauNumeroImmo?: string;
   numeroCompte: string;
   libelleCompte: string;
-  modeDacquisition: 'directe' | 'par projet' | 'par immobilisation en cours';
-  TypeDeBien: 'bien privée'|'bien de retour'|'bien de reprise'|'bien cdi';
-  natureDuBien: 'Concédé Etat' | 'privée (ENEO)' | 'Tier privée' | 'Tier AER' | 'Tier MINEE' | 'Tier MUNICIPALITE' | 'Tier industriel' | 'Tier Riverains' | 'Tier MINEPAT';
+  modeDacquisition: "directe" | "par projet" | "par immobilisation en cours";
+  TypeDeBien: "bien privée" | "bien de retour" | "bien de reprise" | "bien cdi";
+  natureDuBien:
+    | "Concédé Etat"
+    | "privée (ENEO)"
+    | "Tier privée"
+    | "Tier AER"
+    | "Tier MINEE"
+    | "Tier MUNICIPALITE"
+    | "Tier industriel"
+    | "Tier Riverains"
+    | "Tier MINEPAT";
   designationGenerale: string;
 }
 
 // Ligne Aérienne
 export interface LigneAerienne extends BaseActif {
-  type: 'LIGNE_AERIENNE';
+  type: "LIGNE_AERIENNE";
   numeroLigne: string;
   origineLigne: string;
   identificationDepart: string;
   tension: number;
-  etatFonctionnement: 'En service' | 'Hors service';
-  typologieLigne: 'Principale' | 'Secondaire' | 'Dérivation' | 'Branchement';
-  typeDistribution: 'Monophasé' | 'Triphasé';
-  structureReseau: 'Radial' | 'Bouclé';
-  typeCable: 'Torsadé' | 'Cuivre' | 'Alu/Acier' | 'Almélec';
+  etatFonctionnement: "En service" | "Hors service";
+  typologieLigne: "Principale" | "Secondaire" | "Dérivation" | "Branchement";
+  typeDistribution: "Monophasé" | "Triphasé";
+  structureReseau: "Radial" | "Bouclé";
+  typeCable: "Torsadé" | "Cuivre" | "Alu/Acier" | "Almélec";
   sectionConducteur: number;
-  conducteur: 'Nu' | 'Isolé';
+  conducteur: "Nu" | "Isolé";
   typeIsolateurs: string;
   etatIsolateurs: string;
   longueurLigne: number;
@@ -70,18 +85,18 @@ export interface LigneAerienne extends BaseActif {
 
 // Ligne Souterraine
 export interface LigneSouterraine extends BaseActif {
-  type: 'LIGNE_SOUTERRAINE';
+  type: "LIGNE_SOUTERRAINE";
   numeroLigne: string;
   origineLigne: string;
   identificationDepart: string;
   tension: number;
-  etatFonctionnement: 'En service' | 'Hors service';
-  typologieLigne: 'Principale' | 'Secondaire' | 'Dérivation' | 'Branchement';
-  typeDistribution: 'Monophasé' | 'Triphasé';
-  structureReseau: 'Radial' | 'Bouclé';
-  typeCable: 'Torsadé' | 'Cuivre' | 'Alu/Acier' | 'Almélec';
+  etatFonctionnement: "En service" | "Hors service";
+  typologieLigne: "Principale" | "Secondaire" | "Dérivation" | "Branchement";
+  typeDistribution: "Monophasé" | "Triphasé";
+  structureReseau: "Radial" | "Bouclé";
+  typeCable: "Torsadé" | "Cuivre" | "Alu/Acier" | "Almélec";
   sectionConducteur: number;
-  conducteur: 'Nu' | 'Isolé';
+  conducteur: "Nu" | "Isolé";
   typeIsolateurs: string;
   etatIsolateurs: string;
   longueurLigne: number;
@@ -92,7 +107,7 @@ export interface LigneSouterraine extends BaseActif {
 
 // Poste de Distribution
 export interface PosteDistribution extends BaseActif {
-  type: 'POSTE_DISTRIBUTION';
+  type: "POSTE_DISTRIBUTION";
   nomPoste: string;
   departMT: string;
   anneeFabrication: number;
@@ -104,7 +119,7 @@ export interface PosteDistribution extends BaseActif {
   conditionsFonctionnement: string;
   raisonDeclassement?: string;
   principauxIncidents: string;
-  typeMontage: 'Sol' | 'Poteau' | 'Cabine' | 'Struct. Acier';
+  typeMontage: "Sol" | "Poteau" | "Cabine" | "Struct. Acier";
   genieCivil: string;
   dimensionPoste: string;
   porte: string;
@@ -114,7 +129,7 @@ export interface PosteDistribution extends BaseActif {
 
 // Tableau BT
 export interface TableauBT extends BaseActif {
-  type: 'TABLEAU_BT';
+  type: "TABLEAU_BT";
   nomPoste: string;
   departMT: string;
   anneeFabrication: number;
@@ -123,7 +138,7 @@ export interface TableauBT extends BaseActif {
   typeTableau: string;
   numeroSerie: string;
   niveauTension: number;
-  etatFonctionnement: 'En service' | 'Hors service';
+  etatFonctionnement: "En service" | "Hors service";
   raisonsHorsService?: string;
   principauxIncidents: string;
   nombreDeparts: number;
@@ -134,7 +149,7 @@ export interface TableauBT extends BaseActif {
 
 // Transformateur
 export interface Transformateur extends BaseActif {
-  type: 'TRANSFORMATEUR';
+  type: "TRANSFORMATEUR";
   nomPoste: string;
   departMT: string;
   ensembleFonctionnel: string;
@@ -146,28 +161,37 @@ export interface Transformateur extends BaseActif {
   poidsTotal: number;
   poidsDielectrique: number;
   poidsDecuivrage: number;
-  etatFonctionnement: 'En service' | 'Hors service';
+  etatFonctionnement: "En service" | "Hors service";
   raisonsHorsService?: string;
   principauxIncidents: string;
-  typeTransfo: 'Transfo de puissance' | 'Transfo de distr' | 'Transfo de tension' | 'Transfo de courant' | 'Combiné TT -TC' | 'TSA BPN' | 'Combiné TSA - BPN' | 'Transfo MT/MT' | 'Transfo MT/BT';
-  dielectrique: 'Huile' | 'PCB' | 'Sec';
-  typeMontage: 'Sol' | 'Poteau' | 'Cabine' | 'Struct. Acier';
+  typeTransfo:
+    | "Transfo de puissance"
+    | "Transfo de distr"
+    | "Transfo de tension"
+    | "Transfo de courant"
+    | "Combiné TT -TC"
+    | "TSA BPN"
+    | "Combiné TSA - BPN"
+    | "Transfo MT/MT"
+    | "Transfo MT/BT";
+  dielectrique: "Huile" | "PCB" | "Sec";
+  typeMontage: "Sol" | "Poteau" | "Cabine" | "Struct. Acier";
   coordonneesGeographiques: string;
   tensionPrimaire: number;
   tensionSecondaire: number;
   puissance: number;
   courantPrimaire: number;
   courantSecondaire: number;
-  fuitesDielectriques: 'Aucune fuite' | 'Traces de fuites' | 'Fuites avérées';
-  typeRefroidissement: 'ONAN' | 'ONAF' | 'OFAF' | 'ODAF';
-  protectionMT: 'Fusible' | 'Disjoncteur' | 'Cellule' | 'Inter-fusible';
-  protectionBT: 'Disj haut de poteau' | 'Disjoncteur BT' | 'Autres';
+  fuitesDielectriques: "Aucune fuite" | "Traces de fuites" | "Fuites avérées";
+  typeRefroidissement: "ONAN" | "ONAF" | "OFAF" | "ODAF";
+  protectionMT: "Fusible" | "Disjoncteur" | "Cellule" | "Inter-fusible";
+  protectionBT: "Disj haut de poteau" | "Disjoncteur BT" | "Autres";
   observations: string;
 }
 
 // Cellule Distribution Secondaire
 export interface CelluleDistributionSecondaire extends BaseActif {
-  type: 'CELLULE_DISTRIBUTION_SECONDAIRE';
+  type: "CELLULE_DISTRIBUTION_SECONDAIRE";
   nomPoste: string;
   departMT: string;
   anneeFabrication: number;
@@ -178,7 +202,7 @@ export interface CelluleDistributionSecondaire extends BaseActif {
   niveauTension: number;
   intensiteCourtCircuit: number;
   calibreJeuBarre: number;
-  etatFonctionnement: 'En service' | 'Hors service';
+  etatFonctionnement: "En service" | "Hors service";
   raisonsHorsService?: string;
   principauxIncidents: string;
   typeCelluleDistribution: string;
@@ -192,7 +216,7 @@ export interface CelluleDistributionSecondaire extends BaseActif {
 
 // Cellule Distribution Primaire
 export interface CelluleDistributionPrimaire extends BaseActif {
-  type: 'CELLULE_DISTRIBUTION_PRIMAIRE';
+  type: "CELLULE_DISTRIBUTION_PRIMAIRE";
   nomPoste: string;
   departMT: string;
   anneeFabrication: number;
@@ -203,7 +227,7 @@ export interface CelluleDistributionPrimaire extends BaseActif {
   niveauTension: number;
   intensiteCourtCircuit: number;
   calibreJeuBarre: number;
-  etatFonctionnement: 'En service' | 'Hors service';
+  etatFonctionnement: "En service" | "Hors service";
   raisonsHorsService?: string;
   principauxIncidents: string;
   equipements: {
@@ -214,7 +238,7 @@ export interface CelluleDistributionPrimaire extends BaseActif {
     transfo: boolean;
   };
   disjoncteur: {
-    type: 'Fixe' | 'Débrochable';
+    type: "Fixe" | "Débrochable";
     calibre: number;
     modele: string;
   };
@@ -236,7 +260,7 @@ export interface CelluleDistributionPrimaire extends BaseActif {
 // Support
 export interface Support extends BaseActif {
   id: string;
-  type: 'SUPPORT';
+  type: "SUPPORT";
   region: string;
   departement: string;
   arrondissement: string;
@@ -253,7 +277,7 @@ export interface Support extends BaseActif {
   nombreSupports: number;
   classeSupport: string;
   effortTeteSupport: number;
-  utilisation: 'MT' | 'BT';
+  utilisation: "MT" | "BT";
   tension: number;
   raisonsMauvaisEtat?: string;
   observations: string;
@@ -272,16 +296,40 @@ export interface Support extends BaseActif {
     comptage: boolean;
   };
   materiaux: {
-    bois: { quantite: number; etat: 'Bon' | 'Mauvais'; observation: string; geolocalisation: string; photo: string; };
-    beton: { quantite: number; etat: 'Bon' | 'Mauvais'; observation: string; geolocalisation: string; photo: string; };
-    metallique: { quantite: number; etat: 'Bon' | 'Mauvais'; observation: string; geolocalisation: string; photo: string; };
-    treillis: { quantite: number; etat: 'Bon' | 'Mauvais'; observation: string; geolocalisation: string; photo: string; };
+    bois: {
+      quantite: number;
+      etat: "Bon" | "Mauvais";
+      observation: string;
+      geolocalisation: string;
+      photo: string;
+    };
+    beton: {
+      quantite: number;
+      etat: "Bon" | "Mauvais";
+      observation: string;
+      geolocalisation: string;
+      photo: string;
+    };
+    metallique: {
+      quantite: number;
+      etat: "Bon" | "Mauvais";
+      observation: string;
+      geolocalisation: string;
+      photo: string;
+    };
+    treillis: {
+      quantite: number;
+      etat: "Bon" | "Mauvais";
+      observation: string;
+      geolocalisation: string;
+      photo: string;
+    };
   };
 }
 
 // OCR (Organe de Coupure Réenclencheur)
 export interface OCR extends BaseActif {
-  type: 'OCR';
+  type: "OCR";
   numeroLigne: string;
   anneeFabrication: number;
   fabricant: string;
@@ -291,10 +339,10 @@ export interface OCR extends BaseActif {
   niveauTension: number;
   intensiteNominale: number;
   pouvoirCoupure: number;
-  etatFonctionnement: 'En service' | 'Hors service';
+  etatFonctionnement: "En service" | "Hors service";
   raisonsHorsService?: string;
   principauxIncidents: string;
-  typeMontage: 'Poteau' | 'Struct. Acier';
+  typeMontage: "Poteau" | "Struct. Acier";
   tension: number;
   calibre: number;
   observations: string;
@@ -302,13 +350,13 @@ export interface OCR extends BaseActif {
 
 // Point de Livraison
 export interface PointLivraison extends BaseActif {
-  type: 'POINT_LIVRAISON';
+  type: "POINT_LIVRAISON";
   numeroLigne: string;
   client: string;
   numeroContrat: string;
-  typeComptage: 'MT' | 'BT';
+  typeComptage: "MT" | "BT";
   anneeFabricationCompteur: number;
-  natureComptage: 'PREPAYEE' | 'POST PAYE';
+  natureComptage: "PREPAYEE" | "POST PAYE";
   numeroCompteur: string;
   typeActivite: string;
   tension: number;
@@ -320,7 +368,7 @@ export interface PointLivraison extends BaseActif {
 
 // Équipement en Réserve/Stock
 export interface EquipementStock extends BaseActif {
-  type: 'EQUIPEMENT_STOCK';
+  type: "EQUIPEMENT_STOCK";
   numeroLigne: string;
   anneeMiseEnStock: number;
   nomEquipement: string;
@@ -330,10 +378,18 @@ export interface EquipementStock extends BaseActif {
 }
 
 // Union type pour tous les actifs
-export type Actif = LigneAerienne | LigneSouterraine | PosteDistribution | TableauBT | 
-            Transformateur | CelluleDistributionSecondaire | CelluleDistributionPrimaire | 
-            Support | OCR | PointLivraison | EquipementStock;
-
+export type Actif =
+  | LigneAerienne
+  | LigneSouterraine
+  | PosteDistribution
+  | TableauBT
+  | Transformateur
+  | CelluleDistributionSecondaire
+  | CelluleDistributionPrimaire
+  | Support
+  | OCR
+  | PointLivraison
+  | EquipementStock;
 
 // Interface pour représenter un départ
 export interface Depart {
@@ -352,8 +408,13 @@ export interface Depart {
   valeurAcquisition: number; // Valeur d'origine lors de l'acquisition
   longueurTotale: number; // Longueur réelle en kilomètres
   dateCreation: string;
-  etatGeneral: 'En service' | 'Hors service' | 'Maintenance';
-  typeDepart: 'Principal' | 'Secondaire' | 'Industriel' | 'Résidentiel' | 'Commercial';
+  etatGeneral: "En service" | "Hors service" | "Maintenance";
+  typeDepart:
+    | "Principal"
+    | "Secondaire"
+    | "Industriel"
+    | "Résidentiel"
+    | "Commercial";
   actifs: string[]; // IDs des actifs connectés à ce départ
 }
 
@@ -367,18 +428,18 @@ export interface StatistiquesDepart {
     communes: string[];
     quartiers: string[];
   };
-
   etatsService: Record<string, number>;
   tensionsUtilisees: number[];
   repartitionParType: Record<string, number>;
   longueurTotale: number;
-  densiteActifs: number; // actifs par km
+  densiteActifs: number;
   couverture: {
     nombreRegions: number;
     nombreDepartements: number;
     nombreCommunes: number;
     nombreQuartiers: number;
   };
+  valorisationTotale: number;
 }
 
 // Filters interface
@@ -387,14 +448,44 @@ export interface Filters {
   regions: string[];
   etatVisuel: string[];
   etatFonctionnement: string[];
+  typeDeBien: string[];
+  natureDuBien: string[];
   anneeMiseEnService: {
     min: number;
     max: number;
   };
 }
 
-export const regions = ["Centre", "Littoral", "Ouest", "Nord", "Sud", "Extreme Nord", "Nord Ouest", "Sud Ouest", "Adamaoua", "Est"];
+export const regions = [
+  "Centre",
+  "Littoral",
+  "Ouest",
+  "Nord",
+  "Sud",
+  "Extreme Nord",
+  "Nord Ouest",
+  "Sud Ouest",
+  "Adamaoua",
+  "Est",
+];
+export const TypeDeBien = [
+  "bien privee",
+  "bien de retour",
+  "bien de reprise",
+  "bien de cdi",
+];
 
+export const natureDeBien = [
+  "Concédé Etat",
+  "privée (ENEO)",
+  "Tier privée",
+  "Tier AER",
+  "Tier MINEE",
+  "Tier MUNICIPALITE",
+  "Tier industriel",
+  "Tier Riverains",
+  "Tier MINEPAT",
+];
 export const types = [
   {
     value: "LIGNE_AERIENNE",
