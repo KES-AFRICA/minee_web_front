@@ -1,7 +1,7 @@
-import type { GeoJSONData, GeoJSONFeature, SupportProperties } from "@/data/sup";
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import type { GeoJSONData, GeoJSONFeature } from "@/data/sup";
 import { convertCoordinates, createPopup, getLineStyle, getPostIcon, getSupportIcon } from "./utils";
 import L from "leaflet";
-import { useSelectionActions } from "@/store/map_store";
 
 
 

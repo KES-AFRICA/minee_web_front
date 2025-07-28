@@ -21,6 +21,7 @@ export interface BaseActif {
   personnelMINEE: string;
   personnelARSEL: string;
   region: string;
+  ville: string;
   departement: string;
   arrondissement: string;
   commune: string;
@@ -42,6 +43,7 @@ export interface BaseActif {
   /******************************************** */
   positionMateriel: "Magasin" | "Terrain";
   etatVisuel: "Bon" | "Moyen" | "Passable" | "Mauvais";
+  etatFonctionnement?: "En service" | "Hors service" | "Maintenance";
   numeroImmo: string;
   nouveauNumeroImmo?: string;
   numeroCompte: string;
@@ -454,6 +456,8 @@ export interface Filters {
     min: number;
     max: number;
   };
+  searchTerm?: string;
+  selectedArea?: SelectionArea; // Zone géographique sélectionnée pour filtrer les actifs
 }
 
 export const regions = [

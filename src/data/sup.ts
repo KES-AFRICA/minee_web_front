@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
   // Types pour les données GeoJSON
   export interface LineProperties {
     FID: number;
@@ -57,7 +58,7 @@ export interface GeoJSONData<T = any> {
       };
     };
     features: GeoJSONFeature<T>[];
-  }
+  } 
   // Données GeoJSON (vous devrez les importer depuis vos fichiers)
 export const mtData: GeoJSONData<LineProperties> = {
     "type": "FeatureCollection",

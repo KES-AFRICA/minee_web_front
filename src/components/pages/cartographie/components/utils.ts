@@ -14,7 +14,6 @@ import L from 'leaflet';
       // Conversion améliorée pour UTM Zone 32N
       // Paramètres pour la zone UTM 32N (Cameroun)
       const zone = 32;
-      const hemisphere = 'N';
       
       // Constantes pour la conversion UTM vers géographique
       const a = 6378137.0; // Semi-major axis (WGS84)
@@ -56,45 +55,79 @@ import L from 'leaflet';
 
 // Fonction alternative simple pour les coordonnées problématiques
 export const convertUTMToLatLngSimple = (x: number, y: number): [number, number] | null => {
-    try {
-      // Conversion simple basée sur les coordonnées observées dans vos données
-      // Zone UTM 32N pour le Cameroun (région de Douala/Yaoundé)
-      
-      // Point de référence approximatif pour Douala/Yaoundé
-      const refX = 584000; // Coordonnée X de référence
-      const refY = 451000; // Coordonnée Y de référence
-      const refLat = 4.0511; // Latitude de référence (Douala)
-      const refLng = 9.7679; // Longitude de référence (Douala)
-      
-      // Facteurs d'échelle approximatifs
-      const scaleX = 0.00001; // Facteur pour X vers longitude
-      const scaleY = 0.000009; // Facteur pour Y vers latitude
-      
-      const lat = refLat + (y - refY) * scaleY;
-      const lng = refLng + (x - refX) * scaleX;
-      
-      // Vérifier si les coordonnées sont plausibles pour le Cameroun
-      if (lat < 1.5 || lat > 13.5 || lng < 8.0 || lng > 17.0) {
-        return null;
-      }
-      
-      return [lat, lng];
-    } catch (error) {
-      console.error(`Erreur lors de la conversion simple: x=${x}, y=${y}`, error);
+  try {
+    // Validation des entrées
+    if (!isFinite(x) || !isFinite(y)) {
+      console.warn(`Coordonnées invalides: x=${x}, y=${y}`);
       return null;
     }
-  };
+
+    // Conversion simple basée sur les coordonnées observées dans vos données
+    // Zone UTM 32N pour le Cameroun (région de Douala/Yaoundé)
+
+    // Point de référence pour Douala
+    const refX = 584000; // Coordonnée X de référence (easting)
+    const refY = 451000; // Coordonnée Y de référence (northing)
+    const refLat = 4.0511; // Latitude de référence (Douala)
+    const refLng = 9.7679; // Longitude de référence (Douala)
+
+    // Facteurs d'échelle approximatifs pour la zone UTM 32N
+    // Ces valeurs peuvent nécessiter un ajustement selon vos données réelles
+    const scaleX = 0.00000899; // Facteur pour X vers longitude (~111 km par degré)
+    const scaleY = 0.00000899; // Facteur pour Y vers latitude (~111 km par degré)
+
+    // Calcul des coordonnées géographiques
+    const lat = refLat + (y - refY) * scaleY;
+    const lng = refLng + (x - refX) * scaleX;
+
+    // Vérification des limites géographiques du Cameroun
+    // Cameroun: Lat 1.65° à 13.08°N, Lng 8.49° à 16.19°E
+    if (lat < 1.0 || lat > 13.5 || lng < 8.0 || lng > 17.0) {
+      console.warn(`Coordonnées hors limites Cameroun: lat=${lat.toFixed(6)}, lng=${lng.toFixed(6)}`);
+      return null;
+    }
+
+    // Arrondir à 6 décimales pour la précision GPS
+    return [
+      Math.round(lat * 1000000) / 1000000,
+      Math.round(lng * 1000000) / 1000000
+    ];
+
+  } catch (error) {
+    console.error(`Erreur lors de la conversion UTM: x=${x}, y=${y}`, error);
+    return null;
+  }
+};
+
+// Fonction utilitaire pour tester la conversion
+export const testUTMConversion = () => {
+  const testPoints = [
+    { x: 584000, y: 451000, expected: "Douala" },
+    { x: 590000, y: 430000, expected: "Sud de Douala" },
+    { x: 578000, y: 460000, expected: "Nord-Ouest de Douala" }
+  ];
+
+  console.log("Test de conversion UTM vers Lat/Lng:");
+  testPoints.forEach(point => {
+    const result = convertUTMToLatLngSimple(point.x, point.y);
+    if (result) {
+      console.log(`${point.expected}: UTM(${point.x}, ${point.y}) → Lat/Lng(${result[0]}, ${result[1]})`);
+    } else {
+      console.log(`${point.expected}: Conversion échouée pour UTM(${point.x}, ${point.y})`);
+    }
+  });
+};
 
 
   // Fonction principale de conversion avec fallback
  export const convertCoordinates = (x: number, y: number): [number, number] | null => {
     // Essayer d'abord la conversion améliorée
-    let result = convertUTMToLatLng(x, y);
+   const result = convertUTMToLatLngSimple(x, y);
     
     // Si ça échoue, essayer la conversion simple
-    if (!result) {
-      result = convertUTMToLatLngSimple(x, y);
-    }
+    //if (!result) {
+    //  result = convertUTMToLatLngSimple(x, y);
+    //}
     
     return result;
   };

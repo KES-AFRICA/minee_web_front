@@ -12,7 +12,7 @@ import { addMTLines, addPostesToLayer, addSupportsToLayer } from './utilLayer';
 import { FilterPanel } from './FilterPanel';
 import { SelectionPanel } from './SelectionPanel';
 import { ExportPanel } from './ExportPanel';
-
+ 
 const MapView: React.FC = () => {
   const mapContainerRef = useRef<HTMLDivElement>(null);
   const layerGroupsRef = useRef<{
@@ -22,13 +22,13 @@ const MapView: React.FC = () => {
   } | null>(null);
   const baseLayersRef = useRef<{ [key: string]: L.TileLayer } | null>(null);
   const layerControlRef = useRef<L.Control.Layers | null>(null);
-  const drawLayerRef = useRef<L.LayerGroup | null>(null);
+  const drawLayerRef = useRef<L.FeatureGroup | null>(null);
   const drawControlRef = useRef<L.Control.Draw | null>(null);
 
   // État local pour éviter les boucles
   const [isInitialized, setIsInitialized] = useState(false);
   const [dataLayersCreated, setDataLayersCreated] = useState(false);
-  const [drawingMode, setDrawingMode] = useState<'none' | 'circle' | 'rectangle' | 'polygon'>('none');
+  //const [drawingMode, setDrawingMode] = useState<'none' | 'circle' | 'rectangle' | 'polygon'>('none');
   const [selectedInArea, setSelectedInArea] = useState<any[]>([]);
 
   // Sélection directe des propriétés du store pour éviter les re-rendus
@@ -132,8 +132,9 @@ const MapView: React.FC = () => {
 
           if (feature.geometry.type === 'Point') {
             const coords = feature.geometry.coordinates;
-            const latLng = convertCoordinates(coords[0], coords[1]);
-            if (latLng) {
+            const latLngCoords = convertCoordinates(coords[0], coords[1]);
+            if (latLngCoords) {
+              const latLng = L.latLng(latLngCoords[0], latLngCoords[1]);
               if (shape.type === 'circle') {
                 isInArea = isPointInCircle(latLng, shape.center, shape.radius);
               } else if (shape.type === 'polygon') {
@@ -143,8 +144,11 @@ const MapView: React.FC = () => {
           } else if (feature.geometry.type === 'LineString') {
             const lineCoords: L.LatLng[] = [];
             feature.geometry.coordinates.forEach((coord: number[]) => {
-              const latLng = convertCoordinates(coord[0], coord[1]);
-              if (latLng) lineCoords.push(latLng);
+              const latLngTuple = convertCoordinates(coord[0], coord[1]);
+              if (latLngTuple) {
+                const latLng = L.latLng(latLngTuple[0], latLngTuple[1]);
+                lineCoords.push(latLng);
+              }
             });
             isInArea = isLineIntersectingArea(lineCoords, shape);
           }
@@ -173,6 +177,7 @@ const MapView: React.FC = () => {
 
     // Ajouter les éléments sélectionnés au store
     selectedFeatures.forEach(feature => {
+      console.log(`Sélectionné: ${feature.properties.NOM || feature.properties.ID} (${feature.layerType})`);
       addToSelection(feature);
     });
 
@@ -185,7 +190,7 @@ const MapView: React.FC = () => {
     if (!mapInstance) return;
 
     // Créer une couche pour les dessins
-    const drawLayer = new L.LayerGroup();
+    const drawLayer = new L.FeatureGroup();
     mapInstance.addLayer(drawLayer);
     drawLayerRef.current = drawLayer;
 
@@ -250,7 +255,7 @@ const MapView: React.FC = () => {
     });
 
     mapInstance.on(L.Draw.Event.DELETED, (e: any) => {
-      console.log('Formes supprimées');
+      console.log('Formes supprimées:', e.layers.getLayers().length);
       // Optionnel: désélectionner les éléments
     });
 
@@ -482,7 +487,7 @@ const MapView: React.FC = () => {
 
       return () => clearTimeout(timer);
     }
-  }, [mapInstance, isMapInitialized, dataLayersCreated]); // Dépendances minimales
+  }, [mapInstance, isMapInitialized, dataLayersCreated, createDataLayers]); // Dépendances minimales
 
   // Gérer la visibilité des couches
   useEffect(() => {
@@ -525,10 +530,10 @@ const MapView: React.FC = () => {
         setMapInitialized(false);
       }
     };
-  }, []);
+  }, [mapInstance, setMapInitialized, setMapInstance]);
 
   return (
-    <div style={{ width: '100%', height: '100vh', position: 'relative', zIndex: 10 }}>
+    <div style={{ width: '100%', height: '70vh', position: 'relative', zIndex: 10 }}>
       {/* Panneau de filtres */}
       {showFilterPanel && <FilterPanel />}
 
