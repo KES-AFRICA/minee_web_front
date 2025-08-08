@@ -10,9 +10,9 @@ import { ThemeProvider } from "./context/ThemeProvider";
 import CollectorPerformancePage from "./components/pages/collecteurs/CollectorPerformancePage";
 import { useThemeStore } from "@/store/themeStore.ts";
 import { useEffect } from "react";
-import Maps from "@/components/pages/cartographie/Maps.tsx";
 import { ToastContainer } from "react-toastify";
 import Utilisateur from "./components/pages/utilisateur/Utilisateur";
+import SigMap from "./pages/sig/sig";
 
 const PrivateRoute: React.FC<{ element: React.ReactNode }> = ({ element }) => {
   return <>{element}</>;
@@ -40,7 +40,7 @@ export default function App() {
               <Route path="/" element={<DashboardPage />} />
               <Route path="/utilisateur" element={<Utilisateur />} />
               <Route path="/immobilisations" element={<Actifs />} />
-              <Route path="/systeme_information_graphique" element={<Maps />} />
+              <Route path="/systeme_information_graphique" element={<SigMap />} />
               <Route path="/rapport" element={<Rapport />} />
               <Route path="/parametres" element={<Parametres />} />
               <Route path="/parametres/:tab" element={<Parametres />} />
