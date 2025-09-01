@@ -206,7 +206,7 @@ export const useMapStore = create<MapState>()(
             const hasEtatFonctionnement = "etatFonctionnement" in actif;
             if (
               hasEtatFonctionnement &&
-              !filters.etatFonctionnement.includes(actif.etatFonctionnement)
+              !filters.etatFonctionnement.includes(actif.etatFonctionnement!)
             ) {
               return false;
             }
@@ -346,7 +346,7 @@ export const useMapStore = create<MapState>()(
           etatsService: actifs.reduce((acc, actif) => {
             const etat =
               "etatFonctionnement" in actif ? actif.etatFonctionnement : "N/A";
-            acc[etat] = (acc[etat] || 0) + 1;
+            acc[etat!] = (acc[etat!] || 0) + 1;
             return acc;
           }, {} as Record<string, number>),
           tensionsUtilisees: [
